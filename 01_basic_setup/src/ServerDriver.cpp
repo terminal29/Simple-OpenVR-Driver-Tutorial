@@ -23,7 +23,7 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext * driver_context)
 		vr::VRServerDriverHost()->TrackedDeviceAdded(_controllers.back()->get_serial().c_str(), vr::TrackedDeviceClass_Controller, _controllers.back().get());
 	}
 
-	_hmd = std::make_shared<FakeHMD>();
+	_hmd = FakeHMD::make_new();
 	vr::VRServerDriverHost()->TrackedDeviceAdded(_hmd->get_serial().c_str(), vr::TrackedDeviceClass_HMD, _hmd.get());
 
 	return vr::EVRInitError::VRInitError_None;
