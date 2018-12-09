@@ -11,7 +11,7 @@ std::shared_ptr<FakeController> FakeController::make_new()
 	return std::shared_ptr<FakeController>(new FakeController());
 }
 
-std::string FakeController::get_serial()
+std::string FakeController::get_serial() const
 {
 	return _serial;
 }
@@ -20,7 +20,7 @@ void FakeController::update()
 {
 }
 
-vr::TrackedDeviceIndex_t FakeController::get_index()
+vr::TrackedDeviceIndex_t FakeController::get_index() const
 {
 	return _index;
 }

@@ -11,7 +11,7 @@ std::shared_ptr<FakeHMD> FakeHMD::make_new()
 	return std::shared_ptr<FakeHMD>(new FakeHMD());
 }
 
-std::string FakeHMD::get_serial()
+std::string FakeHMD::get_serial() const
 {
 	return _serial;
 }
@@ -20,7 +20,7 @@ void FakeHMD::update()
 {
 }
 
-vr::TrackedDeviceIndex_t FakeHMD::get_index()
+vr::TrackedDeviceIndex_t FakeHMD::get_index() const
 {
 	return _index;
 }

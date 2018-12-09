@@ -29,7 +29,7 @@ public:
 	/// Gets this device's serial string
 	/// </summary>
 	/// <returns>Serial string</returns>
-	std::string get_serial();
+	std::string get_serial() const;
 
 	/// <summary>
 	/// Updates the internal state of this device, to be called every time ServerDriver::RunFrame is called
@@ -40,7 +40,7 @@ public:
 	/// Gets this devices global(?) index/object id
 	/// </summary>
 	/// <returns>Index</returns>
-	vr::TrackedDeviceIndex_t get_index();
+	vr::TrackedDeviceIndex_t get_index() const;
 	
 	/// <summary>
 	/// Processes an event
