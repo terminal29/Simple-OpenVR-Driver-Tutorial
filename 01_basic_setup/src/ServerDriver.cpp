@@ -19,7 +19,7 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext * driver_context)
 		return init_error;
 	}
 	for (int i = 0; i < 2; i++) {
-		_controllers.push_back(std::make_shared<FakeController>());
+		_controllers.push_back(FakeController::make_new());
 		vr::VRServerDriverHost()->TrackedDeviceAdded(_controllers.back()->get_serial().c_str(), vr::TrackedDeviceClass_Controller, _controllers.back().get());
 	}
 

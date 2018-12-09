@@ -2,7 +2,13 @@
 
 FakeHMD::FakeHMD()
 {
+	// some random but unique serial string
 	_serial = "fh_" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
+}
+
+std::shared_ptr<FakeHMD> FakeHMD::make_new()
+{
+	return std::shared_ptr<FakeHMD>(new FakeHMD());
 }
 
 std::string FakeHMD::get_serial()
@@ -19,7 +25,7 @@ vr::TrackedDeviceIndex_t FakeHMD::get_index()
 	return _index;
 }
 
-void FakeHMD::process_event(vr::VREvent_t event)
+void FakeHMD::process_event(const vr::VREvent_t& event)
 {
 }
 
@@ -31,6 +37,8 @@ vr::EVRInitError FakeHMD::Activate(vr::TrackedDeviceIndex_t index)
 
 void FakeHMD::Deactivate()
 {
+	// Reset device index
+	_index = vr::k_unTrackedDeviceIndexInvalid;
 }
 
 void FakeHMD::EnterStandby()
@@ -39,6 +47,7 @@ void FakeHMD::EnterStandby()
 
 void * FakeHMD::GetComponent(const char * component)
 {
+	// This device has a display component, so check if the requested component is the IVRDisplayComponent, and cast and return it
 	if (std::string(component) == std::string(vr::IVRDisplayComponent_Version)) {
 		return static_cast<vr::IVRDisplayComponent*>(this);
 	}
@@ -76,6 +85,7 @@ bool FakeHMD::IsDisplayRealDisplay()
 
 void FakeHMD::GetRecommendedRenderTargetSize(uint32_t * width, uint32_t * height)
 {
+	// Change these to whatever your desired viewport size is
 	*width = 1920;
 	*height = 1080;
 }

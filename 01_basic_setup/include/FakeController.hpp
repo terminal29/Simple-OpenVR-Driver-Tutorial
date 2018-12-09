@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <chrono>
 
@@ -8,28 +9,87 @@
 class FakeController : public vr::ITrackedDeviceServerDriver
 {
 public:
-	FakeController();
+	/// <summary>
+	/// Makes a new instance
+	/// </summary>
+	/// <returns>A new FakeController</returns>
+	static std::shared_ptr<FakeController> make_new();
 	virtual ~FakeController() = default;
 
-	FakeController(FakeController&&) = default;
-	FakeController& operator=(FakeController &&) = default;
+	/// <summary>
+	/// Disable move and copy
+	/// Because we give the pointer to this to VRServerDriverHost, we dont want it to ever change
+	/// </summary>
+	FakeController(FakeController&&) = delete;
+	FakeController& operator=(FakeController &&) = delete;
 	FakeController(const FakeController &) = delete;
 	FakeController& operator= (const FakeController &) = delete;
 		
+	/// <summary>
+	/// Gets this device's serial string
+	/// </summary>
+	/// <returns>Serial string</returns>
 	std::string get_serial();
+
+	/// <summary>
+	/// Updates the internal state of this device, to be called every time ServerDriver::RunFrame is called
+	/// </summary>
 	void update();
+
+	/// <summary>
+	/// Gets this devices global(?) index/object id
+	/// </summary>
+	/// <returns>Index</returns>
 	vr::TrackedDeviceIndex_t get_index();
+	
+	/// <summary>
+	/// Processes an event
+	/// </summary>
+	/// <param name="event">The event to be processed</param>
 	void process_event(const vr::VREvent_t& event);
 
-	// Inherited via ITrackedDeviceServerDriver
+	/// <summary>
+	/// Activates this device
+	/// Is called when vr::VRServerDriverHost()->TrackedDeviceAdded is called
+	/// </summary>
+	/// <param name="index">The device index</param>
+	/// <returns>Error code</returns>
 	virtual vr::EVRInitError Activate(vr::TrackedDeviceIndex_t index) override;
+
+	/// <summary>
+	/// Deactivates the device
+	/// </summary>
 	virtual void Deactivate() override;
+
+	/// <summary>
+	/// Tells the device to enter stand-by mode
+	/// </summary>
 	virtual void EnterStandby() override;
+
+	/// <summary>
+	/// Gets a specific component from this device
+	/// </summary>
+	/// <param name="component">Requested component</param>
+	/// <returns>Non-owning pointer to the component</returns>
 	virtual void* GetComponent(const char* component) override;
+
+	/// <summary>
+	/// Handles a debug request
+	/// </summary>
+	/// <param name="request">Request type</param>
+	/// <param name="response_buffer">Response buffer</param>
+	/// <param name="response_buffer_size">Response buffer size</param>
 	virtual void DebugRequest(const char* request, char* response_buffer, uint32_t response_buffer_size) override;
+
+	/// <summary>
+	/// Gets the current device pose
+	/// </summary>
+	/// <returns>Device Pose</returns>
 	virtual vr::DriverPose_t GetPose() override;
 
 private:
+	FakeController();
+
 	vr::TrackedDeviceIndex_t _index;
 	vr::DriverPose_t _pose;
 	vr::PropertyContainerHandle_t _props;

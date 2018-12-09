@@ -33,6 +33,5 @@ private:
 	// vector is reallocated...
 	std::vector<std::shared_ptr<FakeController>> _controllers;
 
-	// and for consistency
 	std::shared_ptr<FakeHMD> _hmd;
 };

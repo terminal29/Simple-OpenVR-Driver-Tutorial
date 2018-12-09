@@ -2,7 +2,13 @@
 
 FakeController::FakeController() 
 {
+	// Create some random but unique serial
 	_serial = "fc_" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
+}
+
+std::shared_ptr<FakeController> FakeController::make_new()
+{
+	return std::shared_ptr<FakeController>(new FakeController());
 }
 
 std::string FakeController::get_serial()
@@ -26,6 +32,8 @@ void FakeController::process_event(const vr::VREvent_t& event)
 vr::EVRInitError FakeController::Activate(vr::TrackedDeviceIndex_t index)
 {
 	_index = index;
+	
+	// Get the properties handle for our controller, and define the inputs & outputs
 	_props = vr::VRProperties()->TrackedDeviceToPropertyContainer(_index);
 	vr::VRDriverInput()->CreateBooleanComponent(_props, "/input/system/click", &_components._system_click);
 	vr::VRDriverInput()->CreateBooleanComponent(_props, "/input/grip/click", &_components._grip_click);
@@ -42,6 +50,8 @@ vr::EVRInitError FakeController::Activate(vr::TrackedDeviceIndex_t index)
 
 void FakeController::Deactivate()
 {
+	// Reset device index
+	_index = vr::k_unTrackedDeviceIndexInvalid;
 }
 
 void FakeController::EnterStandby()
@@ -50,11 +60,13 @@ void FakeController::EnterStandby()
 
 void * FakeController::GetComponent(const char * component)
 {
+	// No extra components on this device so always return nullptr
 	return nullptr;
 }
 
 void FakeController::DebugRequest(const char * request, char* response_buffer, uint32_t response_buffer_size)
 {
+	// No custom debug requests defined
 	if (response_buffer_size >= 1)
 		response_buffer[0] = 0;
 }
