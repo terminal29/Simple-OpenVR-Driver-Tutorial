@@ -1,9 +1,29 @@
 #include "FakeHMD.hpp"
 
-FakeHMD::FakeHMD()
+FakeHMD::FakeHMD() : 
+	_pose({ 0 })
 {
 	// some random but unique serial string
 	_serial = "fh_" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
+
+	_pose.qRotation.w = 1.0;
+	_pose.qRotation.x = 0.0;
+	_pose.qRotation.y = 0.0;
+	_pose.qRotation.z = 0.0;
+
+	_pose.qWorldFromDriverRotation.w = 1.0;
+	_pose.qWorldFromDriverRotation.x = 0.0;
+	_pose.qWorldFromDriverRotation.y = 0.0;
+	_pose.qWorldFromDriverRotation.z = 0.0;
+
+	_pose.qDriverFromHeadRotation.w = 1.0;
+	_pose.qDriverFromHeadRotation.x = 0.0;
+	_pose.qDriverFromHeadRotation.y = 0.0;
+	_pose.qDriverFromHeadRotation.z = 0.0;
+
+	_pose.poseIsValid = true;
+	_pose.result = vr::ETrackingResult::TrackingResult_Running_OK;
+	_pose.deviceIsConnected = true;
 }
 
 std::shared_ptr<FakeHMD> FakeHMD::make_new()
@@ -18,6 +38,28 @@ std::string FakeHMD::get_serial() const
 
 void FakeHMD::update()
 {
+	// Update time delta (for working out velocity)
+	auto time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+	double time_since_epoch_seconds = time_since_epoch.count() / 1000.0;
+	double pose_time_delta_seconds = (time_since_epoch - _pose_timestamp).count() / 1000.0;
+	_pose_timestamp = time_since_epoch;
+
+	double prev_x = _pose.vecPosition[0];
+	double prev_z = _pose.vecPosition[2];
+
+	_pose.vecPosition[0] = 2 * std::sin(time_since_epoch_seconds);
+	_pose.vecPosition[1] = 1.0;
+	_pose.vecPosition[2] = 2 * std::cos(time_since_epoch_seconds);
+
+	_pose.vecVelocity[0] = (_pose.vecPosition[0] - prev_x) / pose_time_delta_seconds;
+	_pose.vecVelocity[1] = 0.0;
+	_pose.vecVelocity[2] = (_pose.vecPosition[2] - prev_z) / pose_time_delta_seconds;
+
+	
+	if (_index != vr::k_unTrackedDeviceIndexInvalid)
+	{
+		vr::VRServerDriverHost()->TrackedDevicePoseUpdated(_index, _pose, sizeof(vr::DriverPose_t));
+	}
 }
 
 vr::TrackedDeviceIndex_t FakeHMD::get_index() const
@@ -32,6 +74,16 @@ void FakeHMD::process_event(const vr::VREvent_t& event)
 vr::EVRInitError FakeHMD::Activate(vr::TrackedDeviceIndex_t index)
 {
 	_index = index;
+	_props = vr::VRProperties()->TrackedDeviceToPropertyContainer(_index);
+
+	vr::VRProperties()->SetUint64Property(_props, vr::Prop_CurrentUniverseId_Uint64, 2);
+
+	vr::VRProperties()->SetFloatProperty(_props, vr::Prop_UserIpdMeters_Float, vr::VRSettings()->GetFloat(vr::k_pch_SteamVR_Section, vr::k_pch_SteamVR_IPD_Float));
+
+	vr::VRProperties()->SetFloatProperty(_props, vr::Prop_DisplayFrequency_Float, 90.f);
+
+	vr::VRProperties()->SetBoolProperty(_props, vr::Prop_IsOnDesktop_Bool, true);
+
 	return vr::VRInitError_None;
 }
 
@@ -67,10 +119,10 @@ vr::DriverPose_t FakeHMD::GetPose()
 
 void FakeHMD::GetWindowBounds(int32_t * x, int32_t * y, uint32_t * width, uint32_t * height)
 {
-	*x = 0;
-	*y = 0;
-	*width = 1920;
-	*height = 1080;
+	*x = _display_properties.display_offset_x;
+	*y = _display_properties.display_offset_y;
+	*width = _display_properties.display_width;
+	*height = _display_properties.display_height;
 }
 
 bool FakeHMD::IsDisplayOnDesktop()
@@ -86,23 +138,21 @@ bool FakeHMD::IsDisplayRealDisplay()
 void FakeHMD::GetRecommendedRenderTargetSize(uint32_t * width, uint32_t * height)
 {
 	// Change these to whatever your desired viewport size is
-	*width = 1920;
-	*height = 1080;
+	*width = _display_properties.render_width;
+	*height = _display_properties.render_height;
 }
 
 void FakeHMD::GetEyeOutputViewport(vr::EVREye eye, uint32_t * x, uint32_t * y, uint32_t * width, uint32_t * height)
 {
+	*y = _display_properties.display_offset_y;
+	*width = _display_properties.render_width / 2;
+	*height = _display_properties.render_height;
+
 	if (eye == vr::EVREye::Eye_Left) {
-		*x = 0;
-		*y = 0;
-		*width = 1920/2;
-		*height = 1080;
+		*x = _display_properties.display_offset_x;
 	}
 	else {
-		*x = 1920/2;
-		*y = 0;
-		*width = 1920/2;
-		*height = 1080;
+		*x = _display_properties.display_offset_x + _display_properties.render_width/2;
 	}
 }
 
@@ -124,5 +174,15 @@ vr::DistortionCoordinates_t FakeHMD::ComputeDistortion(vr::EVREye eye, float u, 
 	coordinates.rfRed[0] = u;
 	coordinates.rfRed[1] = v;
 	return coordinates;
+}
+
+vr::DriverPose_t FakeHMD::get_pose() const
+{
+	return _pose;
+}
+
+void FakeHMD::set_pose(vr::DriverPose_t new_pose)
+{
+	_pose = new_pose;
 }
 

@@ -145,11 +145,37 @@ public:
 	/// <returns>Distortion for the requested pixel</returns>
 	virtual vr::DistortionCoordinates_t ComputeDistortion(vr::EVREye eye, float u, float v) override;
 
+	/// <summary>
+	/// Gets the current device pose
+	/// </summary>
+	/// <returns>Device Pose</returns>
+	virtual vr::DriverPose_t get_pose() const;
+
+	/// <summary>
+	/// Sets the current device pose
+	/// Note: Be sure to zero initialize the pose struct if you have created a new one
+	/// </summary>
+	/// <param name="new_pose">New device pose</param>
+	virtual void set_pose(vr::DriverPose_t new_pose);
+
 private:
 	FakeHMD();
 
 	vr::TrackedDeviceIndex_t _index;
 	vr::DriverPose_t _pose;
+	vr::PropertyContainerHandle_t _props;
+	std::chrono::milliseconds _pose_timestamp;
+
+	struct DisplayProperties {
+		int display_offset_x = 0;
+		int display_offset_y = 0;
+		int display_width = 1920;
+		int display_height = 1080;
+		int render_width = 1920;
+		int render_height = 1080;
+	};
+
+	DisplayProperties _display_properties;
 
 	std::string _serial;
 };

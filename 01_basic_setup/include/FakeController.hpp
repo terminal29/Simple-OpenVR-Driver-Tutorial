@@ -4,6 +4,7 @@
 #include <string>
 #include <chrono>
 
+#include <Windows.h>
 #include <openvr_driver.h>
 
 class FakeController : public vr::ITrackedDeviceServerDriver
@@ -21,9 +22,9 @@ public:
 	/// Because we give the pointer to this to VRServerDriverHost, we dont want it to ever change
 	/// </summary>
 	FakeController(FakeController&&) = delete;
-	FakeController& operator=(FakeController &&) = delete;
-	FakeController(const FakeController &) = delete;
-	FakeController& operator= (const FakeController &) = delete;
+	FakeController& operator=(FakeController&&) = delete;
+	FakeController(const FakeController&) = delete;
+	FakeController& operator= (const FakeController&) = delete;
 		
 	/// <summary>
 	/// Gets this device's serial string
@@ -87,11 +88,19 @@ public:
 	/// <returns>Device Pose</returns>
 	virtual vr::DriverPose_t GetPose() override;
 
+	/// <summary>
+	/// Sets the current device pose
+	/// Note: Be sure to zero initialize the pose struct if you have created a new one
+	/// </summary>
+	/// <param name="new_pose">New device pose</param>
+	virtual void set_pose(vr::DriverPose_t new_pose);
+
 private:
 	FakeController();
 
 	vr::TrackedDeviceIndex_t _index;
 	vr::DriverPose_t _pose;
+	std::chrono::milliseconds _pose_timestamp;
 	vr::PropertyContainerHandle_t _props;
 
 	struct Components {
