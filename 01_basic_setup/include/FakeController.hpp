@@ -34,8 +34,9 @@ public:
 
 	/// <summary>
 	/// Updates the internal state of this device, to be called every time ServerDriver::RunFrame is called
+	/// Override this with your custom controller functionality
 	/// </summary>
-	void update();
+	virtual void update();
 
 	/// <summary>
 	/// Gets this devices global(?) index/object id
