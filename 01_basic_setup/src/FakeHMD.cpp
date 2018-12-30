@@ -53,9 +53,9 @@ void FakeHMD::update()
 	std::copy(std::begin(_pose.vecPosition), std::end(_pose.vecPosition), std::begin(previous_position));
 
 	// Update the position with our new data
-	_pose.vecPosition[0] = 2 * std::sin(time_since_epoch_seconds);
+	_pose.vecPosition[0] = 0.0;// 0.5 * std::sin(time_since_epoch_seconds);
 	_pose.vecPosition[1] = 1.0;
-	_pose.vecPosition[2] = 2 * std::cos(time_since_epoch_seconds);
+	_pose.vecPosition[2] = 0.0;// 0.5 * std::cos(time_since_epoch_seconds);
 
 	// Update the velocity
 	_pose.vecVelocity[0] = (_pose.vecPosition[0] - previous_position[0]) / pose_time_delta_seconds;
