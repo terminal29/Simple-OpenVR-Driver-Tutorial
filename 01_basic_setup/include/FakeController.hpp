@@ -96,13 +96,22 @@ public:
 	virtual void set_pose(vr::DriverPose_t new_pose);
 
 private:
+	// Private constructor so the only way to instantiate the class is via the make_new function.
 	FakeController();
 
+	// Stores the openvr supplied device index.
 	vr::TrackedDeviceIndex_t _index;
+
+	// Stores the devices current pose.
 	vr::DriverPose_t _pose;
+
+	// Stores the timestamp of the pose.
 	std::chrono::milliseconds _pose_timestamp;
+
+	// An identifier for openvr for when we want to make property changes to this device.
 	vr::PropertyContainerHandle_t _props;
 
+	// A struct for concise storage of all of the component handles for this device.
 	struct Components {
 		vr::VRInputComponentHandle_t
 			_system_click,
@@ -119,5 +128,6 @@ private:
 
 	Components _components;
 
+	// Stores the serial for this device. Must be unique.
 	std::string _serial;
 };

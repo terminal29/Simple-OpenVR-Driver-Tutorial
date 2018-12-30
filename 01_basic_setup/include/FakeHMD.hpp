@@ -159,13 +159,22 @@ public:
 	virtual void set_pose(vr::DriverPose_t new_pose);
 
 private:
+	// Private constructor so the only way to instantiate the class is via the make_new function.
 	FakeHMD();
 
+	// Stores the openvr supplied device index.
 	vr::TrackedDeviceIndex_t _index;
+
+	// Stores the devices current pose.
 	vr::DriverPose_t _pose;
-	vr::PropertyContainerHandle_t _props;
+
+	// Stores the timestamp of the pose.
 	std::chrono::milliseconds _pose_timestamp;
 
+	// An identifier for openvr for when we want to make property changes to this device.
+	vr::PropertyContainerHandle_t _props;
+
+	// A struct for concise storage of all the display properties for this device.
 	struct DisplayProperties {
 		int display_offset_x = 0;
 		int display_offset_y = 0;
@@ -177,5 +186,6 @@ private:
 
 	DisplayProperties _display_properties;
 
+	// Stores the serial for this device. Must be unique.
 	std::string _serial;
 };
