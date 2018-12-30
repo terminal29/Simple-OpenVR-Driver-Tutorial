@@ -50,7 +50,7 @@ void FakeHMD::update()
 
 	// Copy the previous position data
 	double previous_position[3] = { 0 };
-	std::copy(&_pose.vecPosition[0], &_pose.vecPosition[2], previous_position);
+	std::copy(std::begin(_pose.vecPosition), std::end(_pose.vecPosition), std::begin(previous_position));
 
 	// Update the position with our new data
 	_pose.vecPosition[0] = 2 * std::sin(time_since_epoch_seconds);
@@ -89,13 +89,13 @@ vr::EVRInitError FakeHMD::Activate(vr::TrackedDeviceIndex_t index)
 	// Set some universe ID (Must be 2 or higher)
 	vr::VRProperties()->SetUint64Property(_props, vr::Prop_CurrentUniverseId_Uint64, 2);
 	
-	// set the IPD to be whatever steam has configured
+	// Set the IPD to be whatever steam has configured
 	vr::VRProperties()->SetFloatProperty(_props, vr::Prop_UserIpdMeters_Float, vr::VRSettings()->GetFloat(vr::k_pch_SteamVR_Section, vr::k_pch_SteamVR_IPD_Float));
 
 	// Set the display FPS
 	vr::VRProperties()->SetFloatProperty(_props, vr::Prop_DisplayFrequency_Float, 90.f);
 
-	// Disasble warnings about compositor not being fullscreen
+	// Disable warnings about compositor not being fullscreen
 	vr::VRProperties()->SetBoolProperty(_props, vr::Prop_IsOnDesktop_Bool, true);
 
 	return vr::VRInitError_None;
@@ -133,7 +133,7 @@ vr::DriverPose_t FakeHMD::GetPose()
 
 void FakeHMD::GetWindowBounds(int32_t * x, int32_t * y, uint32_t * width, uint32_t * height)
 {
-	// Use our stored properties to return the window bounds
+	// Use the stored display properties to return the window bounds
 	*x = _display_properties.display_offset_x;
 	*y = _display_properties.display_offset_y;
 	*width = _display_properties.display_width;
@@ -152,13 +152,14 @@ bool FakeHMD::IsDisplayRealDisplay()
 
 void FakeHMD::GetRecommendedRenderTargetSize(uint32_t * width, uint32_t * height)
 {
-	// Change these to whatever your desired viewport size is
+	// Use the stored display properties to return the render target size
 	*width = _display_properties.render_width;
 	*height = _display_properties.render_height;
 }
 
 void FakeHMD::GetEyeOutputViewport(vr::EVREye eye, uint32_t * x, uint32_t * y, uint32_t * width, uint32_t * height)
 {
+	// Use the stored display properties to work out each eye's viewport size
 	*y = _display_properties.display_offset_y;
 	*width = _display_properties.render_width / 2;
 	*height = _display_properties.render_height;
