@@ -8,6 +8,8 @@ add_subdirectory(01_basic_setup)
 
 add_subdirectory(02_trackers)
 
+add_subdirectory(03_compositor)
+
 # TODO: Add other projects here
 
 
