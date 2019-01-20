@@ -1,9 +1,8 @@
 #pragma once
 
+#include <Windows.h>
 #include <string>
-
 #include <openvr_driver.h>
-
 #include "ServerDriver.hpp"
 
 /// <summary>

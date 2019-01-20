@@ -3,11 +3,11 @@
 #include <memory>
 #include <array>
 
+#include "VirtualCompositor.hpp"
+
 #include <openvr_driver.h>
 
-#include "FakeTracker.hpp"
-
-class ServerDriver : public vr::IServerTrackedDeviceProvider {
+class ServerDriver : public vr::IServerTrackedDeviceProvider{
 public:
 	static ServerDriver* get();
 	
@@ -27,8 +27,6 @@ private:
 
 	static ServerDriver* _instance;
 
-	// Reason for using shared_ptr is that the pointer will always be the same once initialized, 
-	// whereas if we use just a plain vector, the pointer to the element could change if the 
-	// vector is reallocated...
-	std::vector<std::shared_ptr<FakeTracker>> _trackers;
+	std::shared_ptr<VirtualCompositor> compositor;
+
 };

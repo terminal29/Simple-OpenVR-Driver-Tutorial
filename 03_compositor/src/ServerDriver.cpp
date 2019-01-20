@@ -18,10 +18,10 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext * driver_context)
 	if (vr::EVRInitError init_error = vr::InitServerDriverContext(driver_context); init_error != vr::EVRInitError::VRInitError_None) {
 		return init_error;
 	}
-	for (int i = 0; i < 2; i++) {
-		_trackers.push_back(FakeTracker::make_new());
-		vr::VRServerDriverHost()->TrackedDeviceAdded(_trackers.back()->get_serial().c_str(), vr::TrackedDeviceClass_GenericTracker, _trackers.back().get());
-	}
+
+	compositor = VirtualCompositor::make_new();
+	
+	vr::VRServerDriverHost()->TrackedDeviceAdded(compositor->get_serial().c_str(), vr::TrackedDeviceClass_DisplayRedirect, compositor.get());
 
 	return vr::EVRInitError::VRInitError_None;
 }
@@ -32,22 +32,11 @@ void ServerDriver::Cleanup()
 
 const char * const * ServerDriver::GetInterfaceVersions()
 {
-	return vr::k_InterfaceVersions;;
+	return vr::k_InterfaceVersions;
 }
 
 void ServerDriver::RunFrame()
 {
-	for (auto& tracker : _trackers) {
-		tracker->update();
-	}
-	
-	vr::VREvent_t event;
-	while (vr::VRServerDriverHost()->PollNextEvent(&event, sizeof(event))) {
-		for (auto& tracker : _trackers) {
-			if (tracker->get_index() == event.trackedDeviceIndex)
-				tracker->process_event(event);
-		}
-	}
 
 }
 
