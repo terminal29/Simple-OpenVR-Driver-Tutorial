@@ -6,6 +6,7 @@
 #include <array>
 
 #include "VirtualCompositor.hpp"
+#include "DriverLog.hpp"
 
 #include <openvr_driver.h>
 
@@ -30,6 +31,6 @@ private:
 
 	static ServerDriver* _instance;
 
-	std::shared_ptr<VirtualCompositor> compositor;
+	std::shared_ptr<VirtualCompositor> _compositor;
 
 };

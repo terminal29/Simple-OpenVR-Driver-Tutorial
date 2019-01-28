@@ -7,17 +7,12 @@ ServerDriver::ServerDriver()
 }
 
 ServerDriver::~ServerDriver() {
-	glfwTerminate();
 }
 
 ServerDriver* ServerDriver::get()
 {
-	if (_instance == nullptr) {
+	if (_instance == nullptr)
 		_instance = new ServerDriver();
-		if (!glfwInit()) {
-			return nullptr;
-		}
-	}
 	return _instance;
 }
 
@@ -27,9 +22,14 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext * driver_context)
 		return init_error;
 	}
 
-	compositor = VirtualCompositor::make_new();
+	InitDriverLog(vr::VRDriverLog());
+	DriverLog("===============================================================================\n");
+	DriverLog("================================ 03_compositor ================================\n");
+	DriverLog("===============================================================================\n");
+
+	_compositor = VirtualCompositor::make_new();
 	
-	vr::VRServerDriverHost()->TrackedDeviceAdded(compositor->get_serial().c_str(), vr::TrackedDeviceClass_DisplayRedirect, compositor.get());
+	vr::VRServerDriverHost()->TrackedDeviceAdded(_compositor->get_serial().c_str(), vr::TrackedDeviceClass_DisplayRedirect, _compositor.get());
 
 	return vr::EVRInitError::VRInitError_None;
 }
@@ -45,12 +45,12 @@ const char * const * ServerDriver::GetInterfaceVersions()
 
 void ServerDriver::RunFrame()
 {
-
+	_compositor->update();
 }
 
 bool ServerDriver::ShouldBlockStandbyMode()
 {
-	return false;
+	return true;
 }
 
 void ServerDriver::EnterStandby()

@@ -3,8 +3,13 @@
 #include <openvr_driver.h>
 #include <memory>
 #include <chrono>
+#include <thread>
+
+#include "DriverLog.hpp"
 
 #include <GLFW/glfw3.h>
+
+#include <iostream>
 
 class VirtualCompositor : public vr::ITrackedDeviceServerDriver, public vr::IVRVirtualDisplay {
 public:
@@ -87,7 +92,6 @@ public:
 	/// <returns>Device Pose</returns>
 	virtual vr::DriverPose_t GetPose() override;
 
-
 	// Inherited via IVRVirtualDisplay
 	virtual void Present(const vr::PresentInfo_t* present_info, uint32_t present_info_size) override;
 
@@ -106,5 +110,7 @@ private:
 	// Stores the serial for this device. Must be unique.
 	std::string _serial;
 
-	GLFWwindow* _window = nullptr;
+	std::thread _render_thread;
+
+	bool _compositor_running = false;
 };

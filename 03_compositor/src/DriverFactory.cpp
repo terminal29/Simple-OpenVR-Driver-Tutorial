@@ -8,9 +8,7 @@ void* HmdDriverFactory(const char *interface_name, int *return_code) {
 			*return_code = vr::VRInitError_Init_NotInitialized;
 			return nullptr;
 		}
-		else {
-			return ServerDriver::get();
-		}
+		return driver;
 	}
 
 	if (return_code)
