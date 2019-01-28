@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GLFW/glfw3.h>
+
 #include <memory>
 #include <array>
 
@@ -10,6 +12,7 @@
 class ServerDriver : public vr::IServerTrackedDeviceProvider{
 public:
 	static ServerDriver* get();
+	~ServerDriver();
 	
 	ServerDriver(const ServerDriver&) = delete;
 	ServerDriver& operator=(const ServerDriver&) = delete;

@@ -6,6 +6,14 @@ file(GLOB_RECURSE HEADERS include/*.hpp include/*.h)
 add_library(03_compositor SHARED ${SOURCES};${HEADERS})
 target_include_directories(03_compositor PRIVATE include/)
 
+# GLFW for window management
+set(GLFW_BUILD_TESTS FALSE)
+set(GLFW_BUILD_EXAMPLES FALSE)
+add_subdirectory(glfw)
+add_dependencies(03_compositor glfw)
+target_link_libraries(03_compositor $<TARGET_FILE:glfw>)
+target_include_directories(03_compositor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include)
+
 set_target_properties(03_compositor PROPERTIES PREFIX "driver_")
 
 set(CMAKE_CXX_STANDARD 17)

@@ -6,10 +6,18 @@ ServerDriver::ServerDriver()
 {
 }
 
+ServerDriver::~ServerDriver() {
+	glfwTerminate();
+}
+
 ServerDriver* ServerDriver::get()
 {
-	if (_instance == nullptr)
+	if (_instance == nullptr) {
 		_instance = new ServerDriver();
+		if (!glfwInit()) {
+			return nullptr;
+		}
+	}
 	return _instance;
 }
 

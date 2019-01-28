@@ -4,7 +4,7 @@
 #include <memory>
 #include <chrono>
 
-#include <Windows.h>
+#include <GLFW/glfw3.h>
 
 class VirtualCompositor : public vr::ITrackedDeviceServerDriver, public vr::IVRVirtualDisplay {
 public:

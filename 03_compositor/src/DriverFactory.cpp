@@ -3,7 +3,14 @@
 void* HmdDriverFactory(const char *interface_name, int *return_code) {
 
 	if (std::string(interface_name) == std::string(vr::IServerTrackedDeviceProvider_Version)) {
-		return ServerDriver::get();
+		ServerDriver* driver = ServerDriver::get();
+		if (!driver) {
+			*return_code = vr::VRInitError_Init_NotInitialized;
+			return nullptr;
+		}
+		else {
+			return ServerDriver::get();
+		}
 	}
 
 	if (return_code)
