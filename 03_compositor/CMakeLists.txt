@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
+find_package(OpenGL REQUIRED)
+
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS include/*.hpp include/*.h)
 
@@ -11,7 +13,7 @@ set(GLFW_BUILD_TESTS FALSE)
 set(GLFW_BUILD_EXAMPLES FALSE)
 add_subdirectory(glfw)
 add_dependencies(03_compositor glfw)
-target_link_libraries(03_compositor $<TARGET_FILE:glfw>)
+target_link_libraries(03_compositor $<TARGET_FILE:glfw> ${OPENGL_gl_LIBRARY})
 target_include_directories(03_compositor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include)
 
 set_target_properties(03_compositor PROPERTIES PREFIX "driver_")

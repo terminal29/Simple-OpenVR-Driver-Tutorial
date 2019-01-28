@@ -13,7 +13,7 @@ public:
 		/// </summary>
 		/// <returns>A new FakeTracker</returns>
 	static std::shared_ptr<VirtualCompositor> make_new();
-	virtual ~VirtualCompositor() = default;
+	virtual ~VirtualCompositor();
 
 	/// <summary>
 	/// Disable move and copy
@@ -105,4 +105,6 @@ private:
 
 	// Stores the serial for this device. Must be unique.
 	std::string _serial;
+
+	GLFWwindow* _window = nullptr;
 };
