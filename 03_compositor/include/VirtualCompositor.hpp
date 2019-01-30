@@ -4,6 +4,9 @@
 #include <memory>
 #include <chrono>
 #include <thread>
+#include <condition_variable>
+#include <mutex>
+#include <future>
 
 #include "DriverLog.hpp"
 
@@ -11,7 +14,7 @@
 
 #include <iostream>
 
-class VirtualCompositor : public vr::ITrackedDeviceServerDriver, public vr::IVRVirtualDisplay {
+class VirtualCompositor : public vr::ITrackedDeviceServerDriver, public vr::IVRVirtualDisplay, public vr::IVRDisplayComponent {
 public:
 	/// <summary>
 		/// Makes a new instance
@@ -99,6 +102,22 @@ public:
 
 	virtual bool GetTimeSinceLastVsync(float * seconds_since_last_vsync, uint64_t * frame_counter) override;
 
+
+	// Inherited via IVRDisplayComponent
+	virtual void GetWindowBounds(int32_t * pnX, int32_t * pnY, uint32_t * pnWidth, uint32_t * pnHeight) override;
+
+	virtual bool IsDisplayOnDesktop() override;
+
+	virtual bool IsDisplayRealDisplay() override;
+
+	virtual void GetRecommendedRenderTargetSize(uint32_t * pnWidth, uint32_t * pnHeight) override;
+
+	virtual void GetEyeOutputViewport(vr::EVREye eEye, uint32_t * pnX, uint32_t * pnY, uint32_t * pnWidth, uint32_t * pnHeight) override;
+
+	virtual void GetProjectionRaw(vr::EVREye eEye, float * pfLeft, float * pfRight, float * pfTop, float * pfBottom) override;
+
+	virtual vr::DistortionCoordinates_t ComputeDistortion(vr::EVREye eEye, float fU, float fV) override;
+
 private:
 	// Private constructor so the only way to instantiate the class is via the make_new function.
 	VirtualCompositor();
@@ -113,4 +132,23 @@ private:
 	std::thread _render_thread;
 
 	bool _compositor_running = false;
+
+	// An identifier for openvr for when we want to make property changes to this device.
+	vr::PropertyContainerHandle_t _props;
+
+	// A struct for concise storage of all the display properties for this device.
+	struct DisplayProperties {
+		int display_offset_x = 0;
+		int display_offset_y = 0;
+		int display_width = 1920;
+		int display_height = 1080;
+		int render_width = 1920;
+		int render_height = 1080;
+	};
+
+	DisplayProperties _display_properties;
+
+	std::unique_lock<std::mutex> _render_job_lock;
+	std::vector<std::packaged_task<bool(void)>> _render_jobs;
+
 };

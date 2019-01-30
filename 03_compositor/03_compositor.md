@@ -1,0 +1,1 @@
+https://github.com/ValveSoftware/openvr/issues/497
