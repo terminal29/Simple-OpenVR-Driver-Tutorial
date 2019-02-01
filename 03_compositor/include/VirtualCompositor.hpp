@@ -148,7 +148,8 @@ private:
 
 	DisplayProperties _display_properties;
 
-	std::unique_lock<std::mutex> _render_job_lock;
-	std::vector<std::packaged_task<bool(void)>> _render_jobs;
+	std::unique_lock<std::mutex> _render_task_lock;
+
+	std::vector<std::function<void(void)>> _render_tasks;
 
 };

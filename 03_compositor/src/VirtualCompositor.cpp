@@ -114,33 +114,26 @@ vr::EVRInitError VirtualCompositor::Activate(vr::TrackedDeviceIndex_t index)
 
 				while (_compositor_running) {
 					glfwMakeContextCurrent(_window);
-					while (_render_jobs.size() == 0){
-						if (!_compositor_running)
-							break;
-						glfwPollEvents();
-						std::this_thread::sleep_for(std::chrono::milliseconds(16));
+					int width, height;
+					glfwGetFramebufferSize(_window, &width, &height);
+					glViewport(0, 0, width, height);
+					glClear(GL_COLOR_BUFFER_BIT);
+
+					if (_render_tasks.size() > 0) {
+						_render_task_lock.lock();
+						for (auto it = _render_tasks.begin(); it != _render_tasks.end(); ++it) {
+							(*it)();
+						}
+						_render_tasks.clear();
+						_render_task_lock.unlock();
 					}
-					if(_compositor_running){
-						_render_job_lock.lock();
-						auto job = std::move(_render_jobs.back());
-						_render_jobs.pop_back();
-						_render_job_lock.unlock();
-						job();
-
-
-						//int width, height;
-						//glfwGetFramebufferSize(_window, &width, &height);
-						//glViewport(0, 0, width, height);
-						//double time = glfwGetTime();
-
-
-						glfwSwapBuffers(_window);
-						glClear(0);
-						glfwPollEvents();
 
 
 
-					}
+
+					glfwSwapBuffers(_window);
+					glfwPollEvents();
+
 				}
 				if (_window != nullptr) {
 					glfwDestroyWindow(_window);
@@ -190,11 +183,10 @@ void VirtualCompositor::EnterStandby()
 
 void * VirtualCompositor::GetComponent(const char * component)
 {
-	if (std::string(component) == std::string(vr::IVRVirtualDisplay_Version))
-	{
+	if (std::string(component) == std::string(vr::IVRVirtualDisplay_Version)){
 		return static_cast<vr::IVRVirtualDisplay*>(this);
 	}
-	if (std::string(component) == std::string(vr::IVRDisplayComponent_Version)) {
+	if (std::string(component) == std::string(vr::IVRDisplayComponent_Version)){
 		return static_cast<vr::IVRDisplayComponent*>(this);
 	}
 	return nullptr;
@@ -226,15 +218,29 @@ vr::DriverPose_t VirtualCompositor::GetPose()
 
 void VirtualCompositor::Present(const vr::PresentInfo_t * present_info, uint32_t present_info_size)
 {
-	std::packaged_task<bool()> render_job([&] {
-		DriverLog("Task Complete!\n");
-		return false;
-	});
-	std::future result = render_job.get_future();
-	_render_job_lock.lock();
-	_render_jobs.push_back(std::move(render_job));
-	_render_job_lock.unlock();
-	result.wait();
+	std::promise<bool> result;
+	auto render_job = [&] {
+
+		glPushMatrix();
+
+
+
+
+
+
+
+
+
+		glPopMatrix();
+
+		result.set_value(true);
+	};
+	std::future<bool> future = result.get_future();
+	
+	_render_task_lock.lock();
+	_render_tasks.push_back(render_job);
+	_render_task_lock.unlock();
+	future.wait();
 
 }
 
