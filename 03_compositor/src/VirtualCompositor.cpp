@@ -216,23 +216,16 @@ vr::DriverPose_t VirtualCompositor::GetPose()
 	return pose;
 }
 
+void VirtualCompositor::DrawTexture(const vr::PresentInfo_t * present_info) {
+
+
+}
+
 void VirtualCompositor::Present(const vr::PresentInfo_t * present_info, uint32_t present_info_size)
 {
 	std::promise<bool> result;
 	auto render_job = [&] {
-
-		glPushMatrix();
-
-
-
-
-
-
-
-
-
-		glPopMatrix();
-
+		DrawTexture(present_info);
 		result.set_value(true);
 	};
 	std::future<bool> future = result.get_future();
