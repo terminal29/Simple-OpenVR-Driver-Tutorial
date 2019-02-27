@@ -1,5 +1,9 @@
 #pragma once 
 
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 #include <openvr_driver.h>
 #include <memory>
 #include <chrono>
@@ -10,7 +14,6 @@
 
 #include "DriverLog.hpp"
 
-#include <GLFW/glfw3.h>
 
 #include <iostream>
 
@@ -121,6 +124,8 @@ public:
 private:
 	// Private constructor so the only way to instantiate the class is via the make_new function.
 	VirtualCompositor();
+
+	void DrawTexture(const vr::PresentInfo_t* present_info);
 	
 
 	// Stores the openvr supplied device index.

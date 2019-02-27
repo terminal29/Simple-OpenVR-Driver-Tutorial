@@ -121,8 +121,8 @@ vr::EVRInitError VirtualCompositor::Activate(vr::TrackedDeviceIndex_t index)
 
 					if (_render_tasks.size() > 0) {
 						_render_task_lock.lock();
-						for (auto it = _render_tasks.begin(); it != _render_tasks.end(); ++it) {
-							(*it)();
+						for (auto render_task : _render_tasks) {
+							render_task();
 						}
 						_render_tasks.clear();
 						_render_task_lock.unlock();
@@ -216,23 +216,16 @@ vr::DriverPose_t VirtualCompositor::GetPose()
 	return pose;
 }
 
+void VirtualCompositor::DrawTexture(const vr::PresentInfo_t * present_info) {
+
+
+}
+
 void VirtualCompositor::Present(const vr::PresentInfo_t * present_info, uint32_t present_info_size)
 {
 	std::promise<bool> result;
 	auto render_job = [&] {
-
-		glPushMatrix();
-
-
-
-
-
-
-
-
-
-		glPopMatrix();
-
+		DrawTexture(present_info);
 		result.set_value(true);
 	};
 	std::future<bool> future = result.get_future();
