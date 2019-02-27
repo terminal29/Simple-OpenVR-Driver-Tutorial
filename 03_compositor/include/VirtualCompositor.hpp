@@ -1,6 +1,5 @@
 #pragma once 
 
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -124,7 +123,7 @@ private:
 	// Private constructor so the only way to instantiate the class is via the make_new function.
 	VirtualCompositor();
 
-	void DrawTexture(const vr::PresentInfo_t* present_info);
+	void DrawTexture(const vr::PresentInfo_t * present_info, GLuint shader_program, GLuint VAO);
 	
 
 	// Stores the openvr supplied device index.
@@ -152,8 +151,8 @@ private:
 
 	DisplayProperties _display_properties;
 
-	std::unique_lock<std::mutex> _render_task_lock;
+	std::mutex _render_task_lock;
 
-	std::vector<std::function<void(void)>> _render_tasks;
+	std::vector<std::function<void(GLuint shader_program, GLuint VAO)>> _render_tasks;
 
 };
