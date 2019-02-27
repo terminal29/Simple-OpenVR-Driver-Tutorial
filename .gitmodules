@@ -4,6 +4,3 @@
 [submodule "03_compositor/glfw"]
 	path = 03_compositor/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule "03_compositor/glew"]
-	path = 03_compositor/glew
-	url = https://github.com/nigels-com/glew.git
