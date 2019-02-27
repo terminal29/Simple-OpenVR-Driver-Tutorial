@@ -101,54 +101,69 @@ vr::EVRInitError VirtualCompositor::Activate(vr::TrackedDeviceIndex_t index)
 
 	_render_thread = std::thread([&]() {
 		// see http://discourse.glfw.org/t/multithreading-glfw/573/5 for more info
+		// Init GLFW
 		GLFWwindow* _window = nullptr;
-		if (glfwInit()) {
-			DebugDriverLog("GLFW Init success\n");
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-			_window = glfwCreateWindow(640, 480, _serial.c_str(), nullptr, nullptr);
-			if (_window != nullptr) {
+		if (!glfwInit()) {
+			DebugDriverLog("GLFW init fail\n");
+			return;
+		}
+		DebugDriverLog("GLFW init success\n");
+
+		// Open Window
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		//glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+
+		_window = glfwCreateWindow(640, 480, _serial.c_str(), nullptr, nullptr);
+		if (_window == nullptr) {
+			DebugDriverLog("Error opening window\n");
+			return;
+		}
+		glfwSetWindowSize(_window, _display_properties.display_width, _display_properties.display_height);
+		glfwSetWindowPos(_window, 0, 0);
+		glfwMakeContextCurrent(_window);
+		glfwSwapInterval(1);
+		DebugDriverLog("Window Opened\n");
+
+		glewExperimental = GL_TRUE;
+		if (glewInit() == GLEW_OK) {
+
+			DebugDriverLog("GLEW init success\n");
+			// Do render loop
+			while (_compositor_running) {
 				glfwMakeContextCurrent(_window);
-				glfwSwapInterval(1);
-				DebugDriverLog("Window Opened\n");
+				int width, height;
+				glfwGetFramebufferSize(_window, &width, &height);
+				glViewport(0, 0, width, height);
+				glClear(GL_COLOR_BUFFER_BIT);
 
-				while (_compositor_running) {
-					glfwMakeContextCurrent(_window);
-					int width, height;
-					glfwGetFramebufferSize(_window, &width, &height);
-					glViewport(0, 0, width, height);
-					glClear(GL_COLOR_BUFFER_BIT);
-
-					if (_render_tasks.size() > 0) {
-						_render_task_lock.lock();
-						for (auto render_task : _render_tasks) {
-							render_task();
-						}
-						_render_tasks.clear();
-						_render_task_lock.unlock();
+				if (_render_tasks.size() > 0) {
+					_render_task_lock.lock();
+					for (auto render_task : _render_tasks) {
+						render_task();
 					}
-
-
-
-
-					glfwSwapBuffers(_window);
-					glfwPollEvents();
-
+					_render_tasks.clear();
+					_render_task_lock.unlock();
 				}
-				if (_window != nullptr) {
-					glfwDestroyWindow(_window);
-					_window = nullptr;
-					glfwTerminate();
-					DebugDriverLog("Window Closed\n");
-				}
-			}
-			else {
-				DebugDriverLog("Error opening window\n");
+
+				glfwSwapBuffers(_window);
+				glfwPollEvents();
+
 			}
 		}
 		else {
-			DebugDriverLog("GLFW Init fail\n");
+			DebugDriverLog("GLEW init fail\n");
 		}
+
+		
+		glfwDestroyWindow(_window);
+		_window = nullptr;
+		glfwTerminate();
+		DebugDriverLog("Window Closed\n");
+		
+
 	});
 
 	// Get the properties handle

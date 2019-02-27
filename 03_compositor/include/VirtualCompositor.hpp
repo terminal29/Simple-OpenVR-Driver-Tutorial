@@ -14,7 +14,6 @@
 
 #include "DriverLog.hpp"
 
-
 #include <iostream>
 
 class VirtualCompositor : public vr::ITrackedDeviceServerDriver, public vr::IVRVirtualDisplay, public vr::IVRDisplayComponent {

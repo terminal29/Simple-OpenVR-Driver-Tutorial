@@ -36,6 +36,8 @@ execute_process(
 
 target_link_libraries(03_compositor "${GLEW_EXTRACT_PATH}/lib/Release/x64/glew32s.lib")
 target_include_directories(03_compositor PRIVATE "${GLEW_EXTRACT_PATH}/include")
+target_compile_definitions(03_compositor PRIVATE "GLEW_STATIC")
+
 
 set_target_properties(03_compositor PROPERTIES PREFIX "driver_")
 
