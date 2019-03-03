@@ -1,17 +1,11 @@
 #pragma once 
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #include <openvr_driver.h>
 #include <memory>
 #include <chrono>
-#include <thread>
-#include <condition_variable>
-#include <mutex>
-#include <future>
 
-#include "DriverLog.hpp"
+#include <DriverLog.hpp>
+#include <RenderThread.hpp>
 
 #include <iostream>
 
@@ -123,18 +117,13 @@ private:
 	// Private constructor so the only way to instantiate the class is via the make_new function.
 	VirtualCompositor();
 
-	void DrawTexture(const vr::PresentInfo_t * present_info, GLuint shader_program, GLuint VAO);
-	
+	RenderThread _render_thread;
 
 	// Stores the openvr supplied device index.
 	vr::TrackedDeviceIndex_t _index;
 
 	// Stores the serial for this device. Must be unique.
 	std::string _serial;
-
-	std::thread _render_thread;
-
-	bool _compositor_running = false;
 
 	// An identifier for openvr for when we want to make property changes to this device.
 	vr::PropertyContainerHandle_t _props;
@@ -150,9 +139,5 @@ private:
 	};
 
 	DisplayProperties _display_properties;
-
-	std::mutex _render_task_lock;
-
-	std::vector<std::function<void(GLuint shader_program, GLuint VAO)>> _render_tasks;
 
 };

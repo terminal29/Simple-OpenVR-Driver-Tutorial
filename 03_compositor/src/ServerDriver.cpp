@@ -4,6 +4,7 @@ ServerDriver* ServerDriver::_instance = nullptr;
 
 ServerDriver::ServerDriver()
 {
+	launch_debugger();
 }
 
 ServerDriver::~ServerDriver() {

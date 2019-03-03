@@ -5,6 +5,7 @@
 
 #include "VirtualCompositor.hpp"
 #include "DriverLog.hpp"
+#include <Debug.hpp>
 
 #include <openvr_driver.h>
 
