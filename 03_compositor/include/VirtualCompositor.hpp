@@ -132,10 +132,10 @@ private:
 	struct DisplayProperties {
 		int display_offset_x = 0;
 		int display_offset_y = 0;
-		int display_width = 1920;
-		int display_height = 1080;
-		int render_width = 1920;
-		int render_height = 1080;
+		int display_width = 640;
+		int display_height = 480;
+		int render_width = 320;
+		int render_height = 240;
 	};
 
 	DisplayProperties _display_properties;

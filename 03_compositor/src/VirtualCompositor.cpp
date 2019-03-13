@@ -99,7 +99,7 @@ void VirtualCompositor::process_event(const vr::VREvent_t & event)
 vr::EVRInitError VirtualCompositor::Activate(vr::TrackedDeviceIndex_t index)
 {
 	_index = index;
-	_render_thread.start(_serial, 640, 480, true);
+	_render_thread.start(_serial, _display_properties.display_width, _display_properties.display_height, true);
 
 	// Get the properties handle
 	_props = vr::VRProperties()->TrackedDeviceToPropertyContainer(_index);
@@ -167,7 +167,7 @@ vr::DriverPose_t VirtualCompositor::GetPose()
 
 void VirtualCompositor::Present(const vr::PresentInfo_t * present_info, uint32_t present_info_size)
 {
-	
+	_render_thread.draw_texture(present_info, _display_properties.render_width, _display_properties.render_height, true);
 	
 }
 
