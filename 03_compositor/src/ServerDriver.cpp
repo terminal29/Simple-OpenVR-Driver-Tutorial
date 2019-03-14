@@ -4,7 +4,6 @@ ServerDriver* ServerDriver::_instance = nullptr;
 
 ServerDriver::ServerDriver()
 {
-	launch_debugger();
 }
 
 ServerDriver::~ServerDriver() {
@@ -37,6 +36,7 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext * driver_context)
 
 void ServerDriver::Cleanup()
 {
+	_compositor->Deactivate();
 }
 
 const char * const * ServerDriver::GetInterfaceVersions()

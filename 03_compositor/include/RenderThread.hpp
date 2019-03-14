@@ -8,14 +8,9 @@
 
 #include <openvr_driver.h>
 #include <DriverLog.hpp>
+#include <Rendering.hpp>
 
-// Foward defines to keep dx stuff out of public namespace
-struct IDXGIFactory1;
-struct ID3D11Device;
-struct ID3D11DeviceContext;
-typedef void* HANDLE;
-
-typedef std::function<void()> RenderJob;
+typedef std::function<void(ID3D11Device* a, ID3D11DeviceContext* b)> RenderJob;
 
 class RenderThread {
 public:
@@ -24,6 +19,8 @@ public:
 
 	// starts render thread
 	std::future<bool> start(std::string window_name, int width, int height, bool wait_for_completion  = false);
+
+	void process();
 
 	// stops render thead
 	void stop(bool wait_for_completion = false);
@@ -34,14 +31,13 @@ public:
 	// Submits a texture to be drawn on the next frame
 	void draw_texture(const vr::PresentInfo_t* present_info, int width, int height, bool wait_for_completion = false);
 
+	std::vector<RenderJob>& get_render_jobs();
+
+	bool get_render_thread_state();
+
 private:
 	std::thread	_internal_thread;
 	bool _render_thread_running;
-
-	IDXGIFactory1* dxgi_factory = nullptr;
-	ID3D11Device* d3d11_device = nullptr;
-	ID3D11DeviceContext* d3d11_device_context = nullptr;
-	HANDLE gl_handleD3D = nullptr;
 
 	std::mutex _render_task_lock;
 	std::vector<RenderJob> _render_tasks;

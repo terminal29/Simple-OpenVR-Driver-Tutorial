@@ -1,8 +1,10 @@
 #include "VirtualCompositor.hpp"
+#include <Debug.hpp>
 
 VirtualCompositor::VirtualCompositor() {
 	_serial = "vc_" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
-	
+
+	launch_debugger();
 	
 
 }
@@ -81,8 +83,7 @@ std::string VirtualCompositor::get_serial() const
 
 void VirtualCompositor::update()
 {
-
-
+	_render_thread.process();
 }
 
 vr::TrackedDeviceIndex_t VirtualCompositor::get_index() const
@@ -98,6 +99,7 @@ void VirtualCompositor::process_event(const vr::VREvent_t & event)
 
 vr::EVRInitError VirtualCompositor::Activate(vr::TrackedDeviceIndex_t index)
 {
+
 	_index = index;
 	_render_thread.start(_serial, _display_properties.display_width, _display_properties.display_height, true);
 

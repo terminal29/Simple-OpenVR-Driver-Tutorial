@@ -1,21 +1,16 @@
 #include <RenderThread.hpp>
-#include <d3d11.h>
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3d11.lib")
 
 RenderThread::RenderThread() {
 	
 }
 
-// https://github.com/ValveSoftware/openvr/issues/539
-// https://github.com/nlguillemot/OpenGL-on-DXGI/blob/master/main.cpp
 void RenderThread::draw_texture(const vr::PresentInfo_t * present_info, int width, int height, bool wait_for_completion)
 {
-	run_job([&](){
+	/*run_job([&](){
 
 
-
-	}, wait_for_completion);
+	
+	}, wait_for_completion);*/
 }
 
 
@@ -27,18 +22,46 @@ RenderThread::~RenderThread()
 std::future<bool> RenderThread::start(std::string window_name, int width, int height, bool wait_for_completion) {
 	std::promise<bool> completion;
 	std::future<bool> completion_result = completion.get_future();
-	_internal_thread = std::thread([&]() {
-		
+	_internal_thread = std::thread([&]{
+		// doesnt work with supplied name, width, and height values (unsure why)
+		if (Rendering::initialise_window("window", 0, 0, 100, 100)) {
+			completion.set_value(true);
+
+			Rendering::set_on_render_fn([](ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime, float fElapsedTime, void* pUserContext) {
+				if (pUserContext == nullptr)
+					return;
+				RenderThread* _this = (RenderThread*)pUserContext;
+				if (_this->get_render_thread_state()) {
+					std::vector<RenderJob>& render_jobs = _this->get_render_jobs();
+					for (const RenderJob& job : render_jobs) {
+						job(pd3dDevice, pd3dImmediateContext);
+					}
+				}
+				else {
+					DXUTShutdown(0);
+				}
+			}, this);
+
+			Rendering::main_loop();
+		}
+		else {
+			DebugDriverLog("Error Rendering::initialise_window\n");
+			completion.set_value(false);
+		}
 	});
-	
+
 	if (wait_for_completion) {
 		completion_result.wait();
 	}
 	return completion_result;
 }
 
+void RenderThread::process() {
+}
+
 void RenderThread::stop(bool wait_for_completion) {
 	_render_thread_running = false;
+	Rendering::close_window();
 	if (wait_for_completion) {
 		_internal_thread.join();
 	}
@@ -46,8 +69,8 @@ void RenderThread::stop(bool wait_for_completion) {
 
 std::future<void> RenderThread::run_job(RenderJob render_job, bool wait_for_completion) {
 	std::promise<void> result;
-	auto render_task = [&]() {
-		render_job();
+	RenderJob render_task = [&](ID3D11Device* device, ID3D11DeviceContext* context) {
+		render_job(device, context);
 		result.set_value();
 	};
 	std::future<void> future = result.get_future();
@@ -59,4 +82,12 @@ std::future<void> RenderThread::run_job(RenderJob render_job, bool wait_for_comp
 		future.wait();
 	}
 	return future;
+}
+
+std::vector<RenderJob>& RenderThread::get_render_jobs() {
+	return _render_tasks;
+}
+
+bool RenderThread::get_render_thread_state() {
+	return _render_thread_running;
 }

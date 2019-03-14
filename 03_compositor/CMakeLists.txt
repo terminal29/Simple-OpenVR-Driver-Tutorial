@@ -10,6 +10,12 @@ file(GLOB_RECURSE HEADERS include/*.hpp include/*.h)
 add_library(03_compositor SHARED ${SOURCES};${HEADERS})
 target_include_directories(03_compositor PRIVATE include/)
 
+INCLUDE_EXTERNAL_MSPROJECT( DXUT_2017_Win10 ${CMAKE_CURRENT_SOURCE_DIR}/DXUT/Core/DXUT_2017_Win10.vcxproj PLATFORM WIN32 DXUT_2017_Win10)
+add_dependencies(03_compositor DXUT_2017_Win10)
+
+target_include_directories(03_compositor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/DXUT/Core)
+target_link_libraries(03_compositor ${CMAKE_CURRENT_SOURCE_DIR}/DXUT/Core/Bin/Desktop_2017_Win10/x64/$<CONFIG>/DXUT.lib)
+
 set_target_properties(03_compositor PROPERTIES PREFIX "driver_")
 
 set(CMAKE_CXX_STANDARD 17)
