@@ -23,8 +23,18 @@ std::future<bool> RenderThread::start(std::string window_name, int width, int he
 	std::promise<bool> completion;
 	std::future<bool> completion_result = completion.get_future();
 	_internal_thread = std::thread([&]{
+		Rendering::set_on_render_fn([](ID3D11Device1*, ID3D11DeviceContext1*, IDXGISwapChain1*, ID3D11RenderTargetView*, ID3D11DepthStencilView*) {});
+		Rendering::create_window();
+		completion.set_value(true);
+		while (_render_thread_running) {
+			Rendering::tick();
+		}
+		Rendering::quit();
+
+
+		/*
 		// doesnt work with supplied name, width, and height values (unsure why)
-		if (Rendering::initialise_window("window", 0, 0, 100, 100)) {
+		if (Rendering::initialise_window(window_name, 0, 0, width, height)) {
 			completion.set_value(true);
 
 			Rendering::set_on_render_fn([](ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime, float fElapsedTime, void* pUserContext) {
@@ -38,7 +48,7 @@ std::future<bool> RenderThread::start(std::string window_name, int width, int he
 					}
 				}
 				else {
-					DXUTShutdown(0);
+					Rendering::close_window();
 				}
 			}, this);
 
@@ -48,6 +58,7 @@ std::future<bool> RenderThread::start(std::string window_name, int width, int he
 			DebugDriverLog("Error Rendering::initialise_window\n");
 			completion.set_value(false);
 		}
+		*/
 	});
 
 	if (wait_for_completion) {
@@ -61,7 +72,7 @@ void RenderThread::process() {
 
 void RenderThread::stop(bool wait_for_completion) {
 	_render_thread_running = false;
-	Rendering::close_window();
+	//Rendering::quit();
 	if (wait_for_completion) {
 		_internal_thread.join();
 	}

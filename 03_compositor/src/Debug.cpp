@@ -33,7 +33,7 @@ bool launch_debugger()
 	CloseHandle(pi.hProcess);
 
 	// Wait for the debugger to attach
-	if (!IsDebuggerPresent()) Sleep(2000);
+	while (!IsDebuggerPresent()) Sleep(10);
 
 	// Stop execution so the debugger can take over
 	//DebugBreak();

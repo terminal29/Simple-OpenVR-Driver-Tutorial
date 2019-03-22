@@ -169,7 +169,7 @@ vr::DriverPose_t VirtualCompositor::GetPose()
 
 void VirtualCompositor::Present(const vr::PresentInfo_t * present_info, uint32_t present_info_size)
 {
-	_render_thread.draw_texture(present_info, _display_properties.render_width, _display_properties.render_height, true);
+	_render_thread.draw_texture(present_info, _display_properties.render_width, _display_properties.render_height, false);
 	
 }
 

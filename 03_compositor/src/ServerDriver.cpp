@@ -36,7 +36,6 @@ vr::EVRInitError ServerDriver::Init(vr::IVRDriverContext * driver_context)
 
 void ServerDriver::Cleanup()
 {
-	_compositor->Deactivate();
 }
 
 const char * const * ServerDriver::GetInterfaceVersions()

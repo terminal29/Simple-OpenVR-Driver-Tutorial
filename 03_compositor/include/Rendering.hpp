@@ -1,28 +1,33 @@
 #pragma once
-
-#include <d3d11.h>
-#include <DXUT.h>
-#include <DXUTDevice11.h>
-#include <windows.h>
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "comctl32.lib")
+#include <StepTimer.hpp>
 
 #include <locale>
 #include <codecvt>
 #include <string>
 #include <stdexcept>
 #include <functional>
+#include <algorithm>
+
+typedef std::function<void(ID3D11Device1*, ID3D11DeviceContext1*, IDXGISwapChain1*, ID3D11RenderTargetView*, ID3D11DepthStencilView*)> RenderFunction;
 
 namespace Rendering {
-	void set_hinstance(HINSTANCE hinstance);
 
-	bool initialise_window(std::string window_name, int x, int y, int width, int height);
+	HWND create_window();
 
-	void set_on_render_fn(LPDXUTCALLBACKD3D11FRAMERENDER callback_fn, void* context);
+	void initialize(HWND window, int width, int height);
 
-	void main_loop();
+	void set_on_render_fn(RenderFunction render_fn);
 
-	void close_window();
+	void tick();
+
+	void on_activated();
+	void on_deactivated();
+	void on_suspending();
+	void on_resuming();
+	void on_window_size_changed(int width, int height);
+
+	void get_default_size(int& width, int& height);
+
+	void quit();
 
 };
