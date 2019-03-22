@@ -23,13 +23,18 @@ std::future<bool> RenderThread::start(std::string window_name, int width, int he
 	std::promise<bool> completion;
 	std::future<bool> completion_result = completion.get_future();
 	_internal_thread = std::thread([&]{
-		Rendering::set_on_render_fn([](ID3D11Device1*, ID3D11DeviceContext1*, IDXGISwapChain1*, ID3D11RenderTargetView*, ID3D11DepthStencilView*) {});
-		Rendering::create_window();
+		CompositorWindow w;
+		w.Initialize(100, 100);
+
+
+		//Rendering::set_on_render_fn([](ID3D11Device1*, ID3D11DeviceContext1*, IDXGISwapChain1*, ID3D11RenderTargetView*, ID3D11DepthStencilView*) {});
+		//Rendering::create_window();
 		completion.set_value(true);
 		while (_render_thread_running) {
-			Rendering::tick();
+			//Rendering::tick();
+			w.Tick();
 		}
-		Rendering::quit();
+		//Rendering::quit();
 
 
 		/*

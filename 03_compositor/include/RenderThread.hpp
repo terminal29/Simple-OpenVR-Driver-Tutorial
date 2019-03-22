@@ -8,7 +8,7 @@
 
 #include <openvr_driver.h>
 #include <DriverLog.hpp>
-#include <Rendering.hpp>
+#include <CompositorWindow.hpp>
 
 typedef std::function<void(ID3D11Device* a, ID3D11DeviceContext* b)> RenderJob;
 
@@ -41,5 +41,6 @@ private:
 
 	std::mutex _render_task_lock;
 	std::vector<RenderJob> _render_tasks;
+
 
 };
