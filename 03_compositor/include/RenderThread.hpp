@@ -17,22 +17,49 @@ public:
 	RenderThread();
 	~RenderThread();
 
-	// starts render thread
+	/// <summary>
+	/// Starts the render thread
+	/// </summary>
+	/// <param name="window_name">Window name</param>
+	/// <param name="width">Window width</param>
+	/// <param name="height">Window height</param>
+	/// <param name="wait_for_completion">Blocks returning until the window has been created</param>
+	/// <returns>A future which is resolved when the window is created</returns>
 	std::future<bool> start(std::string window_name, int width, int height, bool wait_for_completion  = false);
 
-	void process();
-
-	// stops render thead
+	/// <summary>
+	/// Stops the render thread
+	/// </summary>
+	/// <param name="wait_for_completion">Blocks returning until the window has been closed</param>
 	void stop(bool wait_for_completion = false);
 
-	// Submits a render job to be run on next frame
+	/// <summary>
+	/// Submits a render job to be run on next frame
+	/// </summary>
+	/// <param name="render_job">the render job</param>
+	/// <param name="wait_for_completion">Block until completion</param>
+	/// <returns>A future which is resolved when the job is completed</returns>
 	std::future<void> run_job(RenderJob render_job, bool wait_for_completion = false);
 
-	// Submits a texture to be drawn on the next frame
+	/// <summary>
+	/// Submits a shared texture to be drawn on the next frame
+	/// </summary>
+	/// <param name="present_info">Shared texture info</param>
+	/// <param name="width">Texture width</param>
+	/// <param name="height">Texture height</param>
+	/// <param name="wait_for_completion">Block until completion</param>
 	void draw_texture(const vr::PresentInfo_t* present_info, int width, int height, bool wait_for_completion = false);
 
+	/// <summary>
+	/// Gets the current render jobs
+	/// </summary>
+	/// <returns></returns>
 	std::vector<RenderJob>& get_render_jobs();
 
+	/// <summary>
+	/// Gets the current render thread running state
+	/// </summary>
+	/// <returns>current render thread running state</returns>
 	bool get_render_thread_state();
 
 private:

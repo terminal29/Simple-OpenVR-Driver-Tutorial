@@ -79,7 +79,7 @@ std::string VirtualCompositor::get_serial() const
 
 void VirtualCompositor::update()
 {
-	_render_thread.process();
+
 }
 
 vr::TrackedDeviceIndex_t VirtualCompositor::get_index() const
