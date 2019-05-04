@@ -2,7 +2,7 @@
 
 This repo contains a set of OpenVR driver examples I have written for you to copy, use, and learn from using c++17. I have tried my best to add useful comments to make it easier to understand what everything means, but if you have any other questions, or want to contribute, please raise an issue.
 
-I originally planned some more examples for this but my interests have moved elsewhere, so I'm posting this update as-is.
+I originally planned some more examples for this but my priorities have moved elsewhere, so I'm posting this update as-is.
 
 If you are looking for the original tutorial, it is still available on the wiki, and the files are available on [this commit](https://github.com/terminal29/Simple-OpenVR-Driver-Tutorial/tree/df1a41a02edca88dba7426c9e5b6d5354f91d299).
 
