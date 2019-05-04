@@ -3,10 +3,6 @@
 
 VirtualCompositor::VirtualCompositor() {
 	_serial = "vc_" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
-
-	launch_debugger();
-	
-
 }
 
 void VirtualCompositor::GetWindowBounds(int32_t * x, int32_t * y, uint32_t * width, uint32_t * height)
