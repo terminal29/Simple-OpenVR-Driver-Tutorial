@@ -1,4 +1,5 @@
 #include "FakeTracker.hpp"
+#include <cmath>
 
 FakeTracker::FakeTracker() : 
 	_pose( {0} )

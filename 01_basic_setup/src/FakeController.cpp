@@ -1,4 +1,5 @@
 #include "FakeController.hpp"
+#include <cmath>
 
 FakeController::FakeController() : 
 	_pose( {0} )
