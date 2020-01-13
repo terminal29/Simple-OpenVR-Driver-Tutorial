@@ -1,24 +1,21 @@
-cmake_minimum_required(VERSION 3.5)
-project(OpenVR_Examples CXX)
+cmake_minimum_required(VERSION "3.7.1")
 
+# Solution
+project("driver_tutorial")
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set(OPENVR_LIB_DIR ${CMAKE_SOURCE_DIR}/openvr/lib/win64 CACHE STRING "OpenVR .lib directory")
-set(OPENVR_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/openvr/headers CACHE STRING "OpenVR include directory")
+# Deps
 
-add_compile_options("$<$<C_COMPILER_ID:MSVC>:/D_UNICODE>")
-add_compile_options("$<$<C_COMPILER_ID:MSVC>:/DUNICODE>")
-add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/D_UNICODE>")
-add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/DUNICODE>")
+# HMD Tutorial
+file(GLOB_RECURSE HEADERS "driver_tutorial_hmd/*.hpp")
+file(GLOB_RECURSE SOURCES "driver_tutorial_hmd/*.cpp")
+add_library("driver_tutorial_hmd" SHARED ${HEADERS} ${SOURCES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_tutorial_hmd" PREFIX "Header Files" FILES ${HEADERS})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_tutorial_hmd" PREFIX "Source Files" FILES ${SOURCES})
 
-add_subdirectory(01_basic_setup)
-
-add_subdirectory(02_trackers)
-
-add_subdirectory(03_compositor)
-
-# TODO: Add other projects here
-
-
-
-
-
+# Devices Tutorial
+file(GLOB_RECURSE HEADERS "driver_tutorial_devices/*.hpp")
+file(GLOB_RECURSE SOURCES "driver_tutorial_devices/*.cpp")
+add_library("driver_tutorial_devices" SHARED ${HEADERS} ${SOURCES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_tutorial_devices" PREFIX "Header Files" FILES ${HEADERS})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_tutorial_devices" PREFIX "Source Files" FILES ${SOURCES})

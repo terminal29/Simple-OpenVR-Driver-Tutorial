@@ -1,6 +1,0 @@
-[submodule "openvr"]
-	path = openvr
-	url = https://github.com/ValveSoftware/openvr.git
-[submodule "03_compositor/DirectXTK"]
-	path = 03_compositor/DirectXTK
-	url = https://github.com/Microsoft/DirectXTK.git
