@@ -1,0 +1,8 @@
+{
+	"alwaysActivate": true,
+	"name" : "massless",
+	"directory" : "",
+	"resourceOnly" : false,
+	"prefersUpperDeviceIndices" :  true,
+	"hmd_presence" : []
+}

@@ -5,7 +5,7 @@ project("driver_tutorial")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Deps
-SET(OPENVR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/headers")
+set(OPENVR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/headers")
 
 set(SIZEOF_VOIDP ${CMAKE_SIZEOF_VOID_P})
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -25,19 +25,58 @@ endif()
 find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH )
 
 # HMD Tutorial
-file(GLOB_RECURSE HEADERS "driver_tutorial_hmd/*.hpp")
-file(GLOB_RECURSE SOURCES "driver_tutorial_hmd/*.cpp")
-add_library("driver_tutorial_hmd" SHARED ${HEADERS} ${SOURCES})
-target_include_directories("driver_tutorial_hmd" PUBLIC ${OPENVR_INCLUDE_DIR})
-target_link_libraries("driver_tutorial_hmd" PUBLIC ${OPENVR_LIB})
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_tutorial_hmd" PREFIX "Header Files" FILES ${HEADERS})
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_tutorial_hmd" PREFIX "Source Files" FILES ${SOURCES})
+set(HMD_TUTORIAL_PROJECT "driver_tutorial_hmd")
+file(GLOB_RECURSE HEADERS "${HMD_TUTORIAL_PROJECT}/src/*.hpp")
+file(GLOB_RECURSE SOURCES "${HMD_TUTORIAL_PROJECT}/src/*.cpp")
+add_library("${HMD_TUTORIAL_PROJECT}" SHARED ${HEADERS} ${SOURCES})
+target_include_directories("${HMD_TUTORIAL_PROJECT}" PUBLIC ${OPENVR_INCLUDE_DIR})
+target_link_libraries("${HMD_TUTORIAL_PROJECT}" PUBLIC ${OPENVR_LIB})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${HMD_TUTORIAL_PROJECT}/src" PREFIX "Header Files" FILES ${HEADERS})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${HMD_TUTORIAL_PROJECT}/src" PREFIX "Source Files" FILES ${SOURCES})
+
+# Copy driver assets to output folder
+add_custom_command(
+    TARGET ${HMD_TUTORIAL_PROJECT}
+    PRE_BUILD 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory 
+    ${CMAKE_SOURCE_DIR}/${HMD_TUTORIAL_PROJECT}/driver/ 
+    $<TARGET_FILE_DIR:${HMD_TUTORIAL_PROJECT}>
+)
+
+# Copy dll to right folder
+add_custom_command(
+    TARGET ${HMD_TUTORIAL_PROJECT} 
+    POST_BUILD 
+    COMMAND ${CMAKE_COMMAND} -E copy 
+    $<TARGET_FILE:${HMD_TUTORIAL_PROJECT}>
+    $<TARGET_FILE_DIR:${HMD_TUTORIAL_PROJECT}>/${HMD_TUTORIAL_PROJECT}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${HMD_TUTORIAL_PROJECT}>
+)
+
 
 # Devices Tutorial
-file(GLOB_RECURSE HEADERS "driver_tutorial_devices/*.hpp")
-file(GLOB_RECURSE SOURCES "driver_tutorial_devices/*.cpp")
-add_library("driver_tutorial_devices" SHARED ${HEADERS} ${SOURCES})
-target_include_directories("driver_tutorial_devices" PUBLIC ${OPENVR_INCLUDE_DIR})
-target_link_libraries("driver_tutorial_devices" PUBLIC ${OPENVR_LIB})
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_tutorial_devices" PREFIX "Header Files" FILES ${HEADERS})
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_tutorial_devices" PREFIX "Source Files" FILES ${SOURCES})
+set(DEVICES_TUTORIAL_PROJECT "driver_tutorial_devices")
+file(GLOB_RECURSE HEADERS "${DEVICES_TUTORIAL_PROJECT}/src/*.hpp")
+file(GLOB_RECURSE SOURCES "${DEVICES_TUTORIAL_PROJECT}/src/*.cpp")
+add_library("${DEVICES_TUTORIAL_PROJECT}" SHARED ${HEADERS} ${SOURCES})
+target_include_directories("${DEVICES_TUTORIAL_PROJECT}" PUBLIC ${OPENVR_INCLUDE_DIR})
+target_link_libraries("${DEVICES_TUTORIAL_PROJECT}" PUBLIC ${OPENVR_LIB})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${DEVICES_TUTORIAL_PROJECT}/src" PREFIX "Header Files" FILES ${HEADERS})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${DEVICES_TUTORIAL_PROJECT}/src" PREFIX "Source Files" FILES ${SOURCES})
+
+# Copy driver assets to output folder
+add_custom_command(
+    TARGET ${DEVICES_TUTORIAL_PROJECT}
+    PRE_BUILD 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory 
+    ${CMAKE_SOURCE_DIR}/${DEVICES_TUTORIAL_PROJECT}/driver/ 
+    $<TARGET_FILE_DIR:${DEVICES_TUTORIAL_PROJECT}>
+)
+
+# Copy dll to right folder
+add_custom_command(
+    TARGET ${DEVICES_TUTORIAL_PROJECT} 
+    POST_BUILD 
+    COMMAND ${CMAKE_COMMAND} -E copy 
+    $<TARGET_FILE:${DEVICES_TUTORIAL_PROJECT}>
+    $<TARGET_FILE_DIR:${DEVICES_TUTORIAL_PROJECT}>/${DEVICES_TUTORIAL_PROJECT}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${DEVICES_TUTORIAL_PROJECT}>
+)
