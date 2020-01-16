@@ -30,9 +30,11 @@ file(GLOB_RECURSE HEADERS "${HMD_TUTORIAL_PROJECT}/src/*.hpp")
 file(GLOB_RECURSE SOURCES "${HMD_TUTORIAL_PROJECT}/src/*.cpp")
 add_library("${HMD_TUTORIAL_PROJECT}" SHARED ${HEADERS} ${SOURCES})
 target_include_directories("${HMD_TUTORIAL_PROJECT}" PUBLIC ${OPENVR_INCLUDE_DIR})
+target_include_directories("${HMD_TUTORIAL_PROJECT}" PUBLIC "${HMD_TUTORIAL_PROJECT}/src/")
 target_link_libraries("${HMD_TUTORIAL_PROJECT}" PUBLIC ${OPENVR_LIB})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${HMD_TUTORIAL_PROJECT}/src" PREFIX "Header Files" FILES ${HEADERS})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${HMD_TUTORIAL_PROJECT}/src" PREFIX "Source Files" FILES ${SOURCES})
+set_property(TARGET "${HMD_TUTORIAL_PROJECT}" PROPERTY CXX_STANDARD 17)
 
 # Copy driver assets to output folder
 add_custom_command(
@@ -59,9 +61,11 @@ file(GLOB_RECURSE HEADERS "${DEVICES_TUTORIAL_PROJECT}/src/*.hpp")
 file(GLOB_RECURSE SOURCES "${DEVICES_TUTORIAL_PROJECT}/src/*.cpp")
 add_library("${DEVICES_TUTORIAL_PROJECT}" SHARED ${HEADERS} ${SOURCES})
 target_include_directories("${DEVICES_TUTORIAL_PROJECT}" PUBLIC ${OPENVR_INCLUDE_DIR})
+target_include_directories("${DEVICES_TUTORIAL_PROJECT}" PUBLIC "${DEVICES_TUTORIAL_PROJECT}/src/")
 target_link_libraries("${DEVICES_TUTORIAL_PROJECT}" PUBLIC ${OPENVR_LIB})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${DEVICES_TUTORIAL_PROJECT}/src" PREFIX "Header Files" FILES ${HEADERS})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${DEVICES_TUTORIAL_PROJECT}/src" PREFIX "Source Files" FILES ${SOURCES})
+set_property(TARGET "${DEVICES_TUTORIAL_PROJECT}" PROPERTY CXX_STANDARD 17)
 
 # Copy driver assets to output folder
 add_custom_command(
