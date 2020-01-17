@@ -12,7 +12,7 @@ std::string TutorialDriver::HMDDevice::serial()
 void TutorialDriver::HMDDevice::update(std::vector<vr::VREvent_t> events)
 {
     if (this->m_deviceIndex != vr::k_unTrackedDeviceIndexInvalid)
-        vr::VRServerDriverHost()->TrackedDevicePoseUpdated(this->device_index(), this->GetPose(), sizeof(vr::TrackedDevicePose_t));
+        vr::VRServerDriverHost()->TrackedDevicePoseUpdated(this->device_index(), this->GetPose(), sizeof(vr::DriverPose_t));
 }
 
 vr::TrackedDeviceIndex_t TutorialDriver::HMDDevice::device_index()
@@ -36,9 +36,16 @@ vr::EVRInitError TutorialDriver::HMDDevice::Activate(uint32_t unObjectId)
     // Set the display FPS
     vr::VRProperties()->SetFloatProperty(props, vr::Prop_DisplayFrequency_Float, 90.f);
 
-    // Disable warnings about compositor not being fullscreen
-    vr::VRProperties()->SetBoolProperty(props, vr::Prop_IsOnDesktop_Bool, true);
 
+    vr::VRProperties()->SetFloatProperty(props, vr::Prop_SecondsFromVsyncToPhotons_Float, 0.f);
+
+    vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "Tutorial HMD Device");
+
+    vr::VRProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "tutorial_hmd_model");
+
+    vr::VRProperties()->SetFloatProperty(props, vr::Prop_UserHeadToEyeDepthMeters_Float, 0.f);
+
+    //vr::VRProperties()->SetFloatProperty(props, vr::Prop_IsOnDesktop_Bool, true);
 
     return vr::EVRInitError::VRInitError_None;
 }
@@ -54,7 +61,7 @@ void TutorialDriver::HMDDevice::EnterStandby()
 
 void* TutorialDriver::HMDDevice::GetComponent(const char* pchComponentNameAndVersion)
 {
-    if (std::strcmp(vr::IVRDisplayComponent_Version, pchComponentNameAndVersion) == 0) {
+    if (!stricmp(pchComponentNameAndVersion, vr::IVRDisplayComponent_Version)) {
         return static_cast<vr::IVRDisplayComponent*>(this);
     }
     return nullptr;
@@ -82,10 +89,10 @@ vr::DriverPose_t TutorialDriver::HMDDevice::GetPose()
 
 void TutorialDriver::HMDDevice::GetWindowBounds(int32_t* pnX, int32_t* pnY, uint32_t* pnWidth, uint32_t* pnHeight)
 {
-    *pnX = 0;
-    *pnY = 0;
-    *pnWidth = 640;
-    *pnHeight = 480;
+    *pnX = this->windowX;
+    *pnY = this->windowY;
+    *pnWidth = this->windowWidth;
+    *pnHeight = this->windowHeight;
 }
 
 bool TutorialDriver::HMDDevice::IsDisplayOnDesktop()
@@ -100,21 +107,21 @@ bool TutorialDriver::HMDDevice::IsDisplayRealDisplay()
 
 void TutorialDriver::HMDDevice::GetRecommendedRenderTargetSize(uint32_t* pnWidth, uint32_t* pnHeight)
 {
-    *pnWidth = 640;
-    *pnHeight = 480;
+    *pnWidth = this->windowWidth;
+    *pnHeight = this->windowHeight;
 }
 
 void TutorialDriver::HMDDevice::GetEyeOutputViewport(vr::EVREye eEye, uint32_t* pnX, uint32_t* pnY, uint32_t* pnWidth, uint32_t* pnHeight)
 {
     *pnY = 0;
-    *pnWidth = 640 / 2;
-    *pnHeight =480;
+    *pnWidth = this->windowWidth / 2;
+    *pnHeight = this->windowHeight;
 
     if (eEye == vr::EVREye::Eye_Left) {
-        *pnX = 640;
+        *pnX = 0;
     }
     else {
-        *pnX = 640 / 2;
+        *pnX = this->windowWidth / 2;
     }
 }
 

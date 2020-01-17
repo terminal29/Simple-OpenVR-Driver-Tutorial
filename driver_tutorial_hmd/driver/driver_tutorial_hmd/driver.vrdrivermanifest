@@ -4,5 +4,5 @@
 	"directory" : "",
 	"resourceOnly" : false,
 	"prefersUpperDeviceIndices" :  true,
-	"hmd_presence" : []
+	"hmd_presence" : ["*.*"]
 }

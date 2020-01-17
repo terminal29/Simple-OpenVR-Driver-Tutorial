@@ -30,6 +30,11 @@ namespace TutorialDriver {
     private:
         vr::TrackedDeviceIndex_t m_deviceIndex = vr::k_unTrackedDeviceIndexInvalid;
         std::string m_serial;
+
+        uint32_t windowX = 0;
+        uint32_t windowY = 0;
+        uint32_t windowWidth = 1920;
+        uint32_t windowHeight = 1080;
     
 
     };
