@@ -1,5 +1,8 @@
 #pragma once
 
+#include <chrono>
+#include <cmath>
+
 #include <Driver/IVRDevice.hpp>
 
 namespace TutorialDriver {
@@ -28,13 +31,21 @@ namespace TutorialDriver {
             virtual void GetProjectionRaw(vr::EVREye eEye, float* pfLeft, float* pfRight, float* pfTop, float* pfBottom) override;
             virtual vr::DistortionCoordinates_t ComputeDistortion(vr::EVREye eEye, float fU, float fV) override;
     private:
+        vr::HmdQuaternion_t quat_multiply(vr::HmdQuaternion_t qa, vr::HmdQuaternion_t qb);
+        vr::HmdVector3_t quat_vec_multiply(vr::HmdQuaternion_t q, vr::HmdVector3_t v);
+
         vr::TrackedDeviceIndex_t m_deviceIndex = vr::k_unTrackedDeviceIndexInvalid;
         std::string m_serial;
 
-        uint32_t windowX = 0;
-        uint32_t windowY = 0;
-        uint32_t windowWidth = 1920;
-        uint32_t windowHeight = 1080;
+        uint32_t m_windowX = 0;
+        uint32_t m_windowY = 0;
+        uint32_t m_windowWidth = 1920;
+        uint32_t m_windowHeight = 1080;
+
+        double m_x = 0, m_y = 0, m_z = 0;
+        double m_xRot = 0, m_yRot = 0;
+
+        std::chrono::system_clock::time_point m_lastFrameTime;
     
 
     };

@@ -1,4 +1,5 @@
 #include "HMDDevice.hpp"
+#include <Windows.h>
 
 TutorialDriver::HMDDevice::HMDDevice(std::string serial):m_serial(serial)
 {
@@ -11,8 +12,63 @@ std::string TutorialDriver::HMDDevice::serial()
 
 void TutorialDriver::HMDDevice::update(std::vector<vr::VREvent_t> events)
 {
-    if (this->m_deviceIndex != vr::k_unTrackedDeviceIndexInvalid)
-        vr::VRServerDriverHost()->TrackedDevicePoseUpdated(this->device_index(), this->GetPose(), sizeof(vr::DriverPose_t));
+    if (this->m_deviceIndex == vr::k_unTrackedDeviceIndexInvalid)
+        return;
+
+    // Get deltatime
+    auto now = std::chrono::system_clock::now();
+    double deltaTimeSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastFrameTime).count()/1000.0;
+    this->m_lastFrameTime = now;
+
+    // Setup pose for this frame
+    auto pose = this->GetPose();
+
+    // Get orientation
+    this->m_yRot += (1.0 * (GetAsyncKeyState(VK_RIGHT) == 0) - 1.0 * (GetAsyncKeyState(VK_LEFT) == 0)) * deltaTimeSeconds;
+    this->m_xRot += (1.0 * (GetAsyncKeyState(VK_UP) == 0) - 1.0 * (GetAsyncKeyState(VK_DOWN) == 0)) * deltaTimeSeconds;
+    this->m_xRot = std::fmax(this->m_xRot, -3.14/2);
+    this->m_xRot = std::fmin(this->m_xRot, 3.14/2);
+
+    vr::HmdQuaternion_t yQuat;
+    yQuat.w = std::cos(this->m_yRot / 2);
+    yQuat.x = 0;
+    yQuat.y = std::sin(this->m_yRot / 2);
+    yQuat.z = 0;
+
+    vr::HmdQuaternion_t xQuat;
+    xQuat.w = std::cos(this->m_xRot / 2);
+    xQuat.x = std::sin(this->m_xRot / 2);
+    xQuat.y = 0;
+    xQuat.z = 0;
+
+    auto pose_rot = this->quat_multiply(yQuat, xQuat);
+    pose.qRotation = pose_rot;
+
+    // Get position based on rotation and forward vector
+    vr::HmdVector3_t forward_vec = { 0 };
+    forward_vec.v[0] = (-1.0 * (GetAsyncKeyState(0x44) == 0) + 1.0 * (GetAsyncKeyState(0x41) == 0));
+    forward_vec.v[2] = (1.0 * (GetAsyncKeyState(0x57) == 0) - 1.0 * (GetAsyncKeyState(0x53) == 0));
+    auto vec_mag = std::sqrt(forward_vec.v[0] * forward_vec.v[0] + forward_vec.v[1] * forward_vec.v[1] + forward_vec.v[2] * forward_vec.v[2]);
+    if (vec_mag >= 0.01) {
+        forward_vec.v[0] /= vec_mag;
+        forward_vec.v[1] /= vec_mag;
+        forward_vec.v[2] /= vec_mag;
+        forward_vec.v[0] *= deltaTimeSeconds;
+        forward_vec.v[1] *= deltaTimeSeconds;
+        forward_vec.v[2] *= deltaTimeSeconds;
+    }
+    auto positionDelta = this->quat_vec_multiply(this->quat_multiply(pose_rot,pose_rot), forward_vec);
+    
+    this->m_x += positionDelta.v[0];
+    this->m_y += positionDelta.v[1];
+    this->m_z += positionDelta.v[2];
+
+    pose.vecPosition[0] = this->m_x;
+    pose.vecPosition[1] = this->m_y;
+    pose.vecPosition[2] = this->m_z;
+
+    // Post pose
+    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(this->device_index(), pose, sizeof(vr::DriverPose_t));
 }
 
 vr::TrackedDeviceIndex_t TutorialDriver::HMDDevice::device_index()
@@ -45,7 +101,7 @@ vr::EVRInitError TutorialDriver::HMDDevice::Activate(uint32_t unObjectId)
 
     vr::VRProperties()->SetFloatProperty(props, vr::Prop_UserHeadToEyeDepthMeters_Float, 0.f);
 
-    //vr::VRProperties()->SetFloatProperty(props, vr::Prop_IsOnDesktop_Bool, true);
+    this->m_lastFrameTime = std::chrono::system_clock::now();
 
     return vr::EVRInitError::VRInitError_None;
 }
@@ -89,10 +145,10 @@ vr::DriverPose_t TutorialDriver::HMDDevice::GetPose()
 
 void TutorialDriver::HMDDevice::GetWindowBounds(int32_t* pnX, int32_t* pnY, uint32_t* pnWidth, uint32_t* pnHeight)
 {
-    *pnX = this->windowX;
-    *pnY = this->windowY;
-    *pnWidth = this->windowWidth;
-    *pnHeight = this->windowHeight;
+    *pnX = this->m_windowX;
+    *pnY = this->m_windowY;
+    *pnWidth = this->m_windowWidth;
+    *pnHeight = this->m_windowHeight;
 }
 
 bool TutorialDriver::HMDDevice::IsDisplayOnDesktop()
@@ -107,21 +163,21 @@ bool TutorialDriver::HMDDevice::IsDisplayRealDisplay()
 
 void TutorialDriver::HMDDevice::GetRecommendedRenderTargetSize(uint32_t* pnWidth, uint32_t* pnHeight)
 {
-    *pnWidth = this->windowWidth;
-    *pnHeight = this->windowHeight;
+    *pnWidth = this->m_windowWidth;
+    *pnHeight = this->m_windowHeight;
 }
 
 void TutorialDriver::HMDDevice::GetEyeOutputViewport(vr::EVREye eEye, uint32_t* pnX, uint32_t* pnY, uint32_t* pnWidth, uint32_t* pnHeight)
 {
     *pnY = 0;
-    *pnWidth = this->windowWidth / 2;
-    *pnHeight = this->windowHeight;
+    *pnWidth = this->m_windowWidth / 2;
+    *pnHeight = this->m_windowHeight;
 
     if (eEye == vr::EVREye::Eye_Left) {
         *pnX = 0;
     }
     else {
-        *pnX = this->windowWidth / 2;
+        *pnX = this->m_windowWidth / 2;
     }
 }
 
@@ -143,4 +199,28 @@ vr::DistortionCoordinates_t TutorialDriver::HMDDevice::ComputeDistortion(vr::EVR
     coordinates.rfRed[0] = fU;
     coordinates.rfRed[1] = fV;
     return coordinates;
+}
+
+vr::HmdQuaternion_t TutorialDriver::HMDDevice::quat_multiply(vr::HmdQuaternion_t q1, vr::HmdQuaternion_t q2)
+{
+    vr::HmdQuaternion_t q_out;
+    q_out.x = q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x;
+    q_out.y = -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y;
+    q_out.z = q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z;
+    q_out.w = -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w;
+    return q_out;
+}
+
+vr::HmdVector3_t TutorialDriver::HMDDevice::quat_vec_multiply(vr::HmdQuaternion_t q, vr::HmdVector3_t v)
+{
+    vr::HmdQuaternion_t qVec = { 0 };
+    qVec.x = v.v[0];
+    qVec.y = v.v[1];
+    qVec.z = v.v[2];
+    qVec = this->quat_multiply(q, qVec);
+    vr::HmdVector3_t vec;
+    vec.v[0] = qVec.x;
+    vec.v[1] = qVec.y;
+    vec.v[2] = qVec.z;
+    return vec;
 }
