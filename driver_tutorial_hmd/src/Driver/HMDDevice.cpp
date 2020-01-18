@@ -190,27 +190,3 @@ vr::DistortionCoordinates_t TutorialDriver::HMDDevice::ComputeDistortion(vr::EVR
     coordinates.rfRed[1] = fV;
     return coordinates;
 }
-
-vr::HmdQuaternion_t TutorialDriver::HMDDevice::quat_multiply(vr::HmdQuaternion_t q1, vr::HmdQuaternion_t q2)
-{
-    vr::HmdQuaternion_t q_out;
-    q_out.x = q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x;
-    q_out.y = -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y;
-    q_out.z = q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z;
-    q_out.w = -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w;
-    return q_out;
-}
-
-vr::HmdVector3_t TutorialDriver::HMDDevice::quat_vec_multiply(vr::HmdQuaternion_t q, vr::HmdVector3_t v)
-{
-    vr::HmdQuaternion_t qVec = { 0 };
-    qVec.x = v.v[0];
-    qVec.y = v.v[1];
-    qVec.z = v.v[2];
-    qVec = this->quat_multiply(q, qVec);
-    vr::HmdVector3_t vec;
-    vec.v[0] = qVec.x;
-    vec.v[1] = qVec.y;
-    vec.v[2] = qVec.z;
-    return vec;
-}

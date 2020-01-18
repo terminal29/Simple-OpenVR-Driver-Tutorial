@@ -33,9 +33,6 @@ namespace TutorialDriver {
             virtual void GetProjectionRaw(vr::EVREye eEye, float* pfLeft, float* pfRight, float* pfTop, float* pfBottom) override;
             virtual vr::DistortionCoordinates_t ComputeDistortion(vr::EVREye eEye, float fU, float fV) override;
     private:
-        vr::HmdQuaternion_t quat_multiply(vr::HmdQuaternion_t qa, vr::HmdQuaternion_t qb);
-        vr::HmdVector3_t quat_vec_multiply(vr::HmdQuaternion_t q, vr::HmdVector3_t v);
-
         vr::TrackedDeviceIndex_t m_deviceIndex = vr::k_unTrackedDeviceIndexInvalid;
         std::string m_serial;
 
