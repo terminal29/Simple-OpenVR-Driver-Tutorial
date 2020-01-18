@@ -25,43 +25,33 @@ void TutorialDriver::HMDDevice::update(std::vector<vr::VREvent_t> events)
 
     // Get orientation
     this->m_yRot += (1.0 * (GetAsyncKeyState(VK_RIGHT) == 0) - 1.0 * (GetAsyncKeyState(VK_LEFT) == 0)) * deltaTimeSeconds;
-    this->m_xRot += (1.0 * (GetAsyncKeyState(VK_UP) == 0) - 1.0 * (GetAsyncKeyState(VK_DOWN) == 0)) * deltaTimeSeconds;
-    this->m_xRot = std::fmax(this->m_xRot, -3.14/2);
-    this->m_xRot = std::fmin(this->m_xRot, 3.14/2);
+    this->m_xRot += (-1.0 * (GetAsyncKeyState(VK_UP) == 0) + 1.0 * (GetAsyncKeyState(VK_DOWN) == 0)) * deltaTimeSeconds;
+    this->m_xRot = std::fmax(this->m_xRot, -3.14159/2);
+    this->m_xRot = std::fmin(this->m_xRot, 3.14159/2);
 
-    vr::HmdQuaternion_t yQuat;
-    yQuat.w = std::cos(this->m_yRot / 2);
-    yQuat.x = 0;
-    yQuat.y = std::sin(this->m_yRot / 2);
-    yQuat.z = 0;
+    linalg::vec<float, 4> yQuat{ 0, std::sinf(this->m_yRot / 2), 0, std::cosf(this->m_yRot / 2) };
 
-    vr::HmdQuaternion_t xQuat;
-    xQuat.w = std::cos(this->m_xRot / 2);
-    xQuat.x = std::sin(this->m_xRot / 2);
-    xQuat.y = 0;
-    xQuat.z = 0;
+    linalg::vec<float, 4> xQuat{ std::sinf(this->m_xRot / 2), 0, 0, std::cosf(this->m_xRot / 2) };
 
-    auto pose_rot = this->quat_multiply(yQuat, xQuat);
-    pose.qRotation = pose_rot;
+    linalg::vec<float, 4> pose_rot = linalg::qmul(yQuat, xQuat);
 
-    // Get position based on rotation and forward vector
-    vr::HmdVector3_t forward_vec = { 0 };
-    forward_vec.v[0] = (-1.0 * (GetAsyncKeyState(0x44) == 0) + 1.0 * (GetAsyncKeyState(0x41) == 0));
-    forward_vec.v[2] = (1.0 * (GetAsyncKeyState(0x57) == 0) - 1.0 * (GetAsyncKeyState(0x53) == 0));
-    auto vec_mag = std::sqrt(forward_vec.v[0] * forward_vec.v[0] + forward_vec.v[1] * forward_vec.v[1] + forward_vec.v[2] * forward_vec.v[2]);
-    if (vec_mag >= 0.01) {
-        forward_vec.v[0] /= vec_mag;
-        forward_vec.v[1] /= vec_mag;
-        forward_vec.v[2] /= vec_mag;
-        forward_vec.v[0] *= deltaTimeSeconds;
-        forward_vec.v[1] *= deltaTimeSeconds;
-        forward_vec.v[2] *= deltaTimeSeconds;
-    }
-    auto positionDelta = this->quat_vec_multiply(this->quat_multiply(pose_rot,pose_rot), forward_vec);
+    pose.qRotation.w = pose_rot.w;
+    pose.qRotation.x = pose_rot.x;
+    pose.qRotation.y = pose_rot.y;
+    pose.qRotation.z = pose_rot.z;
+
+    linalg::vec<float, 3> forward_vec{-1.0f * (GetAsyncKeyState(0x44) == 0) + 1.0f * (GetAsyncKeyState(0x41) == 0), 0, 0};
     
-    this->m_x += positionDelta.v[0];
-    this->m_y += positionDelta.v[1];
-    this->m_z += positionDelta.v[2];
+    linalg::vec<float, 3> right_vec{0, 0, 1.0f * (GetAsyncKeyState(0x57) == 0) - 1.0f * (GetAsyncKeyState(0x53) == 0) };
+
+    linalg::vec<float, 3> final_dir = forward_vec + right_vec;
+    if (linalg::length(final_dir) > 0.01) {
+        final_dir = linalg::normalize(final_dir) * (float)deltaTimeSeconds;
+        final_dir = linalg::qrot(pose_rot, final_dir);
+        this->m_x += final_dir.x;
+        this->m_y += final_dir.y;
+        this->m_z += final_dir.z;
+    }
 
     pose.vecPosition[0] = this->m_x;
     pose.vecPosition[1] = this->m_y;

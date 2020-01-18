@@ -3,6 +3,8 @@
 #include <chrono>
 #include <cmath>
 
+#include <linalg.h>
+
 #include <Driver/IVRDevice.hpp>
 
 namespace TutorialDriver {
