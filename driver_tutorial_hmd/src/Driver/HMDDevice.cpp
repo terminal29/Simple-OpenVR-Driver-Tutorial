@@ -81,10 +81,7 @@ vr::EVRInitError TutorialDriver::HMDDevice::Activate(uint32_t unObjectId)
 
     // Set the display FPS
     vr::VRProperties()->SetFloatProperty(props, vr::Prop_DisplayFrequency_Float, 90.f);
-
-
-    vr::VRProperties()->SetFloatProperty(props, vr::Prop_SecondsFromVsyncToPhotons_Float, 0.f);
-
+    
     vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "Tutorial HMD Device");
 
     vr::VRProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "tutorial_hmd_model");
