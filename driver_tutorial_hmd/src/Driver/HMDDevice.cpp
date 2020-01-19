@@ -40,10 +40,9 @@ void TutorialDriver::HMDDevice::update(std::vector<vr::VREvent_t> events)
     pose.qRotation.y = pose_rot.y;
     pose.qRotation.z = pose_rot.z;
 
+    // Update position based on rotation
     linalg::vec<float, 3> forward_vec{-1.0f * (GetAsyncKeyState(0x44) == 0) + 1.0f * (GetAsyncKeyState(0x41) == 0), 0, 0};
-    
     linalg::vec<float, 3> right_vec{0, 0, 1.0f * (GetAsyncKeyState(0x57) == 0) - 1.0f * (GetAsyncKeyState(0x53) == 0) };
-
     linalg::vec<float, 3> final_dir = forward_vec + right_vec;
     if (linalg::length(final_dir) > 0.01) {
         final_dir = linalg::normalize(final_dir) * (float)deltaTimeSeconds;
@@ -86,7 +85,18 @@ vr::EVRInitError TutorialDriver::HMDDevice::Activate(uint32_t unObjectId)
     vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "Tutorial HMD Device");
 
     // Set up a rendermodel name
-    vr::VRProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "tutorial_hmd_model");
+    vr::VRProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "{tutorial_hmd}tutorial_hmd_model");
+
+    // Set up icon paths
+    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReady_String, "{tutorial_hmd}/icons/hmd_ready.png");
+
+    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceOff_String, "{tutorial_hmd}/icons/hmd_not_ready.png");
+    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceSearching_String, "{tutorial_hmd}/icons/hmd_not_ready.png");
+    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceSearchingAlert_String, "{tutorial_hmd}/icons/hmd_not_ready.png");
+    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReadyAlert_String, "{tutorial_hmd}/icons/hmd_not_ready.png");
+    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceNotReady_String, "{tutorial_hmd}/icons/hmd_not_ready.png");
+    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceStandby_String, "{tutorial_hmd}/icons/hmd_not_ready.png");
+    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceAlertLow_String, "{tutorial_hmd}/icons/hmd_not_ready.png");
     
     this->m_lastFrameTime = std::chrono::system_clock::now();
 
