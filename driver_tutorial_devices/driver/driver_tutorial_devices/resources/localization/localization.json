@@ -1,0 +1,16 @@
+[
+  {
+    "language_tag": "en_US",
+    "tutorial_controller": "Tutorial Controller",
+    "tutorial_tracker": "Tutorial Tracker",
+    "tutorial_basestation": "Tutorial BaseStation",
+    "/input/a": "A Button",
+    "/input/b": "B Button",
+    "/input/system": "System Button",
+    "/input/trackpad": "Trackpad",
+    "/input/joystick": "Joystick",
+    "/input/skeleton": "Skeleton",
+    "/input/trigger": "Trigger",
+    "/output/haptic": "Haptic"
+  }
+]

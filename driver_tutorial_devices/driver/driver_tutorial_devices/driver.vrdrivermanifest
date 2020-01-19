@@ -1,6 +1,6 @@
 {
 	"alwaysActivate": true,
-	"name" : "massless",
+	"name" : "tutorial_devices",
 	"directory" : "",
 	"resourceOnly" : false,
 	"prefersUpperDeviceIndices" :  true,
