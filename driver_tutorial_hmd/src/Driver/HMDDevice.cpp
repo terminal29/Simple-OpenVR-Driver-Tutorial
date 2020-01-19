@@ -84,9 +84,6 @@ vr::EVRInitError TutorialDriver::HMDDevice::Activate(uint32_t unObjectId)
     // Set up a model "number" (not needed but good to have)
     vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "Tutorial HMD Device");
 
-    // Set up a rendermodel name
-    vr::VRProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "{tutorial_hmd}tutorial_hmd_model");
-
     // Set up icon paths
     vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReady_String, "{tutorial_hmd}/icons/hmd_ready.png");
 
