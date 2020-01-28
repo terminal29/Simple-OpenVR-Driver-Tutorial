@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cmath>
+#include <string>
 
 #include <linalg.h>
 
@@ -10,7 +11,7 @@
 namespace TutorialDriver {
     class ControllerDevice : public IVRDevice {
         public:
-            ControllerDevice(std::string serial);
+            ControllerDevice(std::string serial, bool leftController);
             ~ControllerDevice() = default;
 
             // Inherited via IVRDevice
@@ -28,11 +29,41 @@ namespace TutorialDriver {
         vr::TrackedDeviceIndex_t m_deviceIndex = vr::k_unTrackedDeviceIndexInvalid;
         std::string m_serial;
 
-        double m_x = 0, m_y = 0, m_z = 0;
-        double m_xRot = 0, m_yRot = 0;
+        vr::VRInputComponentHandle_t m_compHaptic = vr::k_ulInvalidInputComponentHandle;
+
+        vr::VRInputComponentHandle_t m_compATouch = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compAClick = vr::k_ulInvalidInputComponentHandle;
+
+        vr::VRInputComponentHandle_t m_compBTouch = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compBClick = vr::k_ulInvalidInputComponentHandle;
+
+        vr::VRInputComponentHandle_t m_compSysTouch = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compSysClick = vr::k_ulInvalidInputComponentHandle;
+
+        vr::VRInputComponentHandle_t m_compTriggerValue = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compTriggerTouch = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compTriggerClick = vr::k_ulInvalidInputComponentHandle;
+
+        vr::VRInputComponentHandle_t m_compGripForce = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compGripValue = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compGripTouch = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compGripClick = vr::k_ulInvalidInputComponentHandle;
+        
+        vr::VRInputComponentHandle_t m_compTrackpadX = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compTrackpadY = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compTrackpadTouch = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compTrackpadClick = vr::k_ulInvalidInputComponentHandle;
+        
+        vr::VRInputComponentHandle_t m_compJoystickX = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compJoystickY = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compJoystickTouch = vr::k_ulInvalidInputComponentHandle;
+        vr::VRInputComponentHandle_t m_compJoystickClick = vr::k_ulInvalidInputComponentHandle;
+        
+        double m_trackX, m_trackY;
+        double m_joyX, m_joyY;
+
+        bool m_isLeft = false;
 
         std::chrono::system_clock::time_point m_lastFrameTime;
-    
-
     };
 };

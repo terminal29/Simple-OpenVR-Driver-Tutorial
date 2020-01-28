@@ -8,11 +8,11 @@ vr::EVRInitError TutorialDriver::DeviceProvider::Init(vr::IVRDriverContext* pDri
         return init_error;
     }
 
-    auto leftControllerDevice = std::make_shared<ControllerDevice>("Tutorial_LeftControllerDevice");
+    auto leftControllerDevice = std::make_shared<ControllerDevice>("Tutorial_LeftControllerDevice", true);
     if (vr::VRServerDriverHost()->TrackedDeviceAdded(leftControllerDevice->serial().c_str(), vr::ETrackedDeviceClass::TrackedDeviceClass_Controller, leftControllerDevice.get()))
         this->m_devices.push_back(leftControllerDevice);
 
-    auto rightControllerDevice = std::make_shared<ControllerDevice>("Tutorial_RightControllerDevice");
+    auto rightControllerDevice = std::make_shared<ControllerDevice>("Tutorial_RightControllerDevice", false);
     if (vr::VRServerDriverHost()->TrackedDeviceAdded(rightControllerDevice->serial().c_str(), vr::ETrackedDeviceClass::TrackedDeviceClass_Controller, rightControllerDevice.get()))
         this->m_devices.push_back(rightControllerDevice);
 
