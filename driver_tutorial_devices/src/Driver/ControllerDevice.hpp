@@ -59,8 +59,6 @@ namespace TutorialDriver {
         vr::VRInputComponentHandle_t m_compJoystickTouch = vr::k_ulInvalidInputComponentHandle;
         vr::VRInputComponentHandle_t m_compJoystickClick = vr::k_ulInvalidInputComponentHandle;
         
-        double m_trackX, m_trackY;
-        double m_joyX, m_joyY;
 
         bool m_isLeft = false;
 

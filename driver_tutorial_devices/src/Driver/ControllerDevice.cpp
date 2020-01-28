@@ -21,10 +21,89 @@ void TutorialDriver::ControllerDevice::update(std::vector<vr::VREvent_t> events)
     double deltaTimeSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastFrameTime).count()/1000.0;
     this->m_lastFrameTime = now;
 
+    // A button click
+    if (GetAsyncKeyState(0x60) != 0) {
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compATouch, true, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compAClick, true, 0);
+    }
+    else {
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compAClick, false, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compATouch, false, 0);
+    }
 
+    // B button click
+    if (GetAsyncKeyState(0x61) != 0) {
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compBTouch, true, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compBClick, true, 0);
+    }
+    else {
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compBClick, false, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compBTouch, false, 0);
+    }
 
+    // Trigger click
+    if (GetAsyncKeyState(0x62) != 0) {
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compTriggerTouch, true, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compTriggerClick, true, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compTriggerValue, 1, 0);
+    }
+    else {
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compTriggerValue, 0, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compTriggerClick, false, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compTriggerTouch, false, 0);
+    }
 
+    // Grip click/force
+    if (GetAsyncKeyState(0x63) != 0) {
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compGripTouch, true, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compGripClick, true, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compGripValue, 1, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compGripForce, 1, 0);
+    }
+    else {
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compGripForce, 0, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compGripValue, 0, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compGripClick, false, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compGripTouch, false, 0);
+    }
 
+    // System button
+    if (GetAsyncKeyState(0x64) != 0) {
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compSysTouch, true, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compSysClick, true, 0);
+    }
+    else {
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compSysClick, false, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compSysTouch, false, 0);
+    }
+
+    // Trackpad position and touch
+    if (GetAsyncKeyState(0x65) != 0) {
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compTrackpadTouch, true, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compTrackpadClick, true, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compTrackpadX, 1, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compTrackpadY, 1, 0);
+    }
+    else {
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compTrackpadClick, false, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compTrackpadTouch, false, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compTrackpadX, 0, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compTrackpadY, 0, 0);
+    }
+
+    // Joystick position and touch
+    if (GetAsyncKeyState(0x66) != 0) {
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compJoystickTouch, true, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compJoystickClick, true, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compJoystickX, 1, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compJoystickY, 1, 0);
+    }
+    else {
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compJoystickClick, false, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(this->m_compJoystickTouch, false, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compJoystickX, 0, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(this->m_compJoystickY, 0, 0);
+    }
 
     // Post pose
     auto pose = this->GetPose();
