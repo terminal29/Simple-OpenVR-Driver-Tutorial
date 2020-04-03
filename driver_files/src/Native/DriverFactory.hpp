@@ -10,5 +10,7 @@
 extern "C" __declspec(dllexport) void* HmdDriverFactory(const char* interface_name, int* return_code);
 
 namespace ExampleDriver {
-    extern std::shared_ptr<ExampleDriver::IVRDriver> getDriver();
+    std::shared_ptr<ExampleDriver::IVRDriver> getDriver();
+
+    void launchDebugger(bool blocking = true);
 }
