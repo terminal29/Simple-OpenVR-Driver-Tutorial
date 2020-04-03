@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION "3.7.1")
 
 # Solution
-project("driver_tutorial")
+project("driver_example")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Deps
@@ -24,65 +24,34 @@ endif()
 
 find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH )
 
-# HMD Tutorial
-set(HMD_TUTORIAL_PROJECT "driver_tutorial_hmd")
-file(GLOB_RECURSE HEADERS "${HMD_TUTORIAL_PROJECT}/src/*.hpp")
-file(GLOB_RECURSE SOURCES "${HMD_TUTORIAL_PROJECT}/src/*.cpp")
-add_library("${HMD_TUTORIAL_PROJECT}" SHARED ${HEADERS} ${SOURCES})
-target_include_directories("${HMD_TUTORIAL_PROJECT}" PUBLIC ${OPENVR_INCLUDE_DIR})
-target_include_directories("${HMD_TUTORIAL_PROJECT}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/libraries/linalg")
-target_include_directories("${HMD_TUTORIAL_PROJECT}" PUBLIC "${HMD_TUTORIAL_PROJECT}/src/")
-target_link_libraries("${HMD_TUTORIAL_PROJECT}" PUBLIC ${OPENVR_LIB})
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${HMD_TUTORIAL_PROJECT}/src" PREFIX "Header Files" FILES ${HEADERS})
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${HMD_TUTORIAL_PROJECT}/src" PREFIX "Source Files" FILES ${SOURCES})
-set_property(TARGET "${HMD_TUTORIAL_PROJECT}" PROPERTY CXX_STANDARD 17)
+# Example Driver
+set(EXAMPLE_PROJECT "driver_example")
+file(GLOB_RECURSE HEADERS "${EXAMPLE_PROJECT}/src/*.hpp")
+file(GLOB_RECURSE SOURCES "${EXAMPLE_PROJECT}/src/*.cpp")
+add_library("${EXAMPLE_PROJECT}" SHARED "${HEADERS}" "${SOURCES}")
+
+target_include_directories("${EXAMPLE_PROJECT}" PUBLIC "${OPENVR_INCLUDE_DIR}")
+target_include_directories("${EXAMPLE_PROJECT}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/libraries/linalg")
+target_include_directories("${EXAMPLE_PROJECT}" PUBLIC "${EXAMPLE_PROJECT}/src/")
+target_link_libraries("${EXAMPLE_PROJECT}" PUBLIC "${OPENVR_LIB}")
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_PROJECT}/src" PREFIX "Header Files" FILES ${HEADERS})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_PROJECT}/src" PREFIX "Source Files" FILES ${SOURCES})
+set_property(TARGET "${EXAMPLE_PROJECT}" PROPERTY CXX_STANDARD 17)
 
 # Copy driver assets to output folder
 add_custom_command(
-    TARGET ${HMD_TUTORIAL_PROJECT}
+    TARGET ${EXAMPLE_PROJECT}
     PRE_BUILD 
     COMMAND ${CMAKE_COMMAND} -E copy_directory 
-    ${CMAKE_SOURCE_DIR}/${HMD_TUTORIAL_PROJECT}/driver/ 
-    $<TARGET_FILE_DIR:${HMD_TUTORIAL_PROJECT}>
+    ${CMAKE_SOURCE_DIR}/${EXAMPLE_PROJECT}/driver/ 
+    $<TARGET_FILE_DIR:${EXAMPLE_PROJECT}>
 )
 
-# Copy dll to right folder
+# Copy dll to output folder
 add_custom_command(
-    TARGET ${HMD_TUTORIAL_PROJECT} 
+    TARGET ${EXAMPLE_PROJECT} 
     POST_BUILD 
     COMMAND ${CMAKE_COMMAND} -E copy 
-    $<TARGET_FILE:${HMD_TUTORIAL_PROJECT}>
-    $<TARGET_FILE_DIR:${HMD_TUTORIAL_PROJECT}>/${HMD_TUTORIAL_PROJECT}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${HMD_TUTORIAL_PROJECT}>
-)
-
-
-# Devices Tutorial
-set(DEVICES_TUTORIAL_PROJECT "driver_tutorial_devices")
-file(GLOB_RECURSE HEADERS "${DEVICES_TUTORIAL_PROJECT}/src/*.hpp")
-file(GLOB_RECURSE SOURCES "${DEVICES_TUTORIAL_PROJECT}/src/*.cpp")
-add_library("${DEVICES_TUTORIAL_PROJECT}" SHARED ${HEADERS} ${SOURCES})
-target_include_directories("${DEVICES_TUTORIAL_PROJECT}" PUBLIC ${OPENVR_INCLUDE_DIR})
-target_include_directories("${DEVICES_TUTORIAL_PROJECT}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/libraries/linalg")
-target_include_directories("${DEVICES_TUTORIAL_PROJECT}" PUBLIC "${DEVICES_TUTORIAL_PROJECT}/src/")
-target_link_libraries("${DEVICES_TUTORIAL_PROJECT}" PUBLIC ${OPENVR_LIB})
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${DEVICES_TUTORIAL_PROJECT}/src" PREFIX "Header Files" FILES ${HEADERS})
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/${DEVICES_TUTORIAL_PROJECT}/src" PREFIX "Source Files" FILES ${SOURCES})
-set_property(TARGET "${DEVICES_TUTORIAL_PROJECT}" PROPERTY CXX_STANDARD 17)
-
-# Copy driver assets to output folder
-add_custom_command(
-    TARGET ${DEVICES_TUTORIAL_PROJECT}
-    PRE_BUILD 
-    COMMAND ${CMAKE_COMMAND} -E copy_directory 
-    ${CMAKE_SOURCE_DIR}/${DEVICES_TUTORIAL_PROJECT}/driver/ 
-    $<TARGET_FILE_DIR:${DEVICES_TUTORIAL_PROJECT}>
-)
-
-# Copy dll to right folder
-add_custom_command(
-    TARGET ${DEVICES_TUTORIAL_PROJECT} 
-    POST_BUILD 
-    COMMAND ${CMAKE_COMMAND} -E copy 
-    $<TARGET_FILE:${DEVICES_TUTORIAL_PROJECT}>
-    $<TARGET_FILE_DIR:${DEVICES_TUTORIAL_PROJECT}>/${DEVICES_TUTORIAL_PROJECT}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${DEVICES_TUTORIAL_PROJECT}>
+    $<TARGET_FILE:${EXAMPLE_PROJECT}>
+    $<TARGET_FILE_DIR:${EXAMPLE_PROJECT}>/${EXAMPLE_PROJECT}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${EXAMPLE_PROJECT}>
 )

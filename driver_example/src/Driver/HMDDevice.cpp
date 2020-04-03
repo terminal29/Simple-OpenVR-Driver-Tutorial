@@ -1,31 +1,28 @@
 #include "HMDDevice.hpp"
 #include <Windows.h>
 
-TutorialDriver::HMDDevice::HMDDevice(std::string serial):m_serial(serial)
+ExampleDriver::HMDDevice::HMDDevice(std::string serial):m_serial(serial)
 {
 }
 
-std::string TutorialDriver::HMDDevice::serial()
+std::string ExampleDriver::HMDDevice::getSerial()
 {
     return this->m_serial;
 }
 
-void TutorialDriver::HMDDevice::update(std::vector<vr::VREvent_t> events)
+void ExampleDriver::HMDDevice::update()
 {
     if (this->m_deviceIndex == vr::k_unTrackedDeviceIndexInvalid)
         return;
 
-    // Get deltatime
-    auto now = std::chrono::system_clock::now();
-    double deltaTimeSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastFrameTime).count()/1000.0;
-    this->m_lastFrameTime = now;
-
     // Setup pose for this frame
     auto pose = this->GetPose();
 
+    float deltaSeconds = ExampleDriver::getDriver()->getLastFrameTime().count() / 1000.0;
+
     // Get orientation
-    this->m_yRot += (1.0 * (GetAsyncKeyState(VK_RIGHT) == 0) - 1.0 * (GetAsyncKeyState(VK_LEFT) == 0)) * deltaTimeSeconds;
-    this->m_xRot += (-1.0 * (GetAsyncKeyState(VK_UP) == 0) + 1.0 * (GetAsyncKeyState(VK_DOWN) == 0)) * deltaTimeSeconds;
+    this->m_yRot += (1.0 * (GetAsyncKeyState(VK_RIGHT) == 0) - 1.0 * (GetAsyncKeyState(VK_LEFT) == 0)) * deltaSeconds;
+    this->m_xRot += (-1.0 * (GetAsyncKeyState(VK_UP) == 0) + 1.0 * (GetAsyncKeyState(VK_DOWN) == 0)) * deltaSeconds;
     this->m_xRot = std::fmax(this->m_xRot, -3.14159/2);
     this->m_xRot = std::fmin(this->m_xRot, 3.14159/2);
 
@@ -45,7 +42,7 @@ void TutorialDriver::HMDDevice::update(std::vector<vr::VREvent_t> events)
     linalg::vec<float, 3> right_vec{0, 0, 1.0f * (GetAsyncKeyState(0x57) == 0) - 1.0f * (GetAsyncKeyState(0x53) == 0) };
     linalg::vec<float, 3> final_dir = forward_vec + right_vec;
     if (linalg::length(final_dir) > 0.01) {
-        final_dir = linalg::normalize(final_dir) * (float)deltaTimeSeconds;
+        final_dir = linalg::normalize(final_dir) * (float)deltaSeconds;
         final_dir = linalg::qrot(pose_rot, final_dir);
         this->m_x += final_dir.x;
         this->m_y += final_dir.y;
@@ -57,15 +54,20 @@ void TutorialDriver::HMDDevice::update(std::vector<vr::VREvent_t> events)
     pose.vecPosition[2] = this->m_z;
 
     // Post pose
-    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(this->device_index(), pose, sizeof(vr::DriverPose_t));
+    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(this->getDeviceIndex(), pose, sizeof(vr::DriverPose_t));
 }
 
-vr::TrackedDeviceIndex_t TutorialDriver::HMDDevice::device_index()
+DeviceType ExampleDriver::HMDDevice::getDeviceType()
+{
+    return DeviceType::HMD;
+}
+
+vr::TrackedDeviceIndex_t ExampleDriver::HMDDevice::getDeviceIndex()
 {
     return this->m_deviceIndex;
 }
 
-vr::EVRInitError TutorialDriver::HMDDevice::Activate(uint32_t unObjectId)
+vr::EVRInitError ExampleDriver::HMDDevice::Activate(uint32_t unObjectId)
 {
     this->m_deviceIndex = unObjectId;
 
@@ -94,22 +96,20 @@ vr::EVRInitError TutorialDriver::HMDDevice::Activate(uint32_t unObjectId)
     vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceNotReady_String, "{tutorial_hmd}/icons/hmd_not_ready.png");
     vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceStandby_String, "{tutorial_hmd}/icons/hmd_not_ready.png");
     vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceAlertLow_String, "{tutorial_hmd}/icons/hmd_not_ready.png");
-    
-    this->m_lastFrameTime = std::chrono::system_clock::now();
 
     return vr::EVRInitError::VRInitError_None;
 }
 
-void TutorialDriver::HMDDevice::Deactivate()
+void ExampleDriver::HMDDevice::Deactivate()
 {
     this->m_deviceIndex = vr::k_unTrackedDeviceIndexInvalid;
 }
 
-void TutorialDriver::HMDDevice::EnterStandby()
+void ExampleDriver::HMDDevice::EnterStandby()
 {
 }
 
-void* TutorialDriver::HMDDevice::GetComponent(const char* pchComponentNameAndVersion)
+void* ExampleDriver::HMDDevice::GetComponent(const char* pchComponentNameAndVersion)
 {
     if (!stricmp(pchComponentNameAndVersion, vr::IVRDisplayComponent_Version)) {
         return static_cast<vr::IVRDisplayComponent*>(this);
@@ -117,13 +117,13 @@ void* TutorialDriver::HMDDevice::GetComponent(const char* pchComponentNameAndVer
     return nullptr;
 }
 
-void TutorialDriver::HMDDevice::DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize)
+void ExampleDriver::HMDDevice::DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize)
 {
     if (unResponseBufferSize >= 1)
         pchResponseBuffer[0] = 0;
 }
 
-vr::DriverPose_t TutorialDriver::HMDDevice::GetPose()
+vr::DriverPose_t ExampleDriver::HMDDevice::GetPose()
 {
     vr::DriverPose_t out_pose = { 0 };
 
@@ -137,7 +137,7 @@ vr::DriverPose_t TutorialDriver::HMDDevice::GetPose()
     return out_pose;
 }
 
-void TutorialDriver::HMDDevice::GetWindowBounds(int32_t* pnX, int32_t* pnY, uint32_t* pnWidth, uint32_t* pnHeight)
+void ExampleDriver::HMDDevice::GetWindowBounds(int32_t* pnX, int32_t* pnY, uint32_t* pnWidth, uint32_t* pnHeight)
 {
     *pnX = this->m_windowX;
     *pnY = this->m_windowY;
@@ -145,23 +145,23 @@ void TutorialDriver::HMDDevice::GetWindowBounds(int32_t* pnX, int32_t* pnY, uint
     *pnHeight = this->m_windowHeight;
 }
 
-bool TutorialDriver::HMDDevice::IsDisplayOnDesktop()
+bool ExampleDriver::HMDDevice::IsDisplayOnDesktop()
 {
     return true;
 }
 
-bool TutorialDriver::HMDDevice::IsDisplayRealDisplay()
+bool ExampleDriver::HMDDevice::IsDisplayRealDisplay()
 {
     return false;
 }
 
-void TutorialDriver::HMDDevice::GetRecommendedRenderTargetSize(uint32_t* pnWidth, uint32_t* pnHeight)
+void ExampleDriver::HMDDevice::GetRecommendedRenderTargetSize(uint32_t* pnWidth, uint32_t* pnHeight)
 {
     *pnWidth = this->m_windowWidth;
     *pnHeight = this->m_windowHeight;
 }
 
-void TutorialDriver::HMDDevice::GetEyeOutputViewport(vr::EVREye eEye, uint32_t* pnX, uint32_t* pnY, uint32_t* pnWidth, uint32_t* pnHeight)
+void ExampleDriver::HMDDevice::GetEyeOutputViewport(vr::EVREye eEye, uint32_t* pnX, uint32_t* pnY, uint32_t* pnWidth, uint32_t* pnHeight)
 {
     *pnY = 0;
     *pnWidth = this->m_windowWidth / 2;
@@ -175,7 +175,7 @@ void TutorialDriver::HMDDevice::GetEyeOutputViewport(vr::EVREye eEye, uint32_t* 
     }
 }
 
-void TutorialDriver::HMDDevice::GetProjectionRaw(vr::EVREye eEye, float* pfLeft, float* pfRight, float* pfTop, float* pfBottom)
+void ExampleDriver::HMDDevice::GetProjectionRaw(vr::EVREye eEye, float* pfLeft, float* pfRight, float* pfTop, float* pfBottom)
 {
     *pfLeft = -1;
     *pfRight = 1;
@@ -183,7 +183,7 @@ void TutorialDriver::HMDDevice::GetProjectionRaw(vr::EVREye eEye, float* pfLeft,
     *pfBottom = 1;
 }
 
-vr::DistortionCoordinates_t TutorialDriver::HMDDevice::ComputeDistortion(vr::EVREye eEye, float fU, float fV)
+vr::DistortionCoordinates_t ExampleDriver::HMDDevice::ComputeDistortion(vr::EVREye eEye, float fU, float fV)
 {
     vr::DistortionCoordinates_t coordinates;
     coordinates.rfBlue[0] = fU;

@@ -1,8 +1,8 @@
 {
 	"alwaysActivate": true,
-	"name" : "tutorial_devices",
+	"name" : "example",
 	"directory" : "",
 	"resourceOnly" : false,
 	"prefersUpperDeviceIndices" :  true,
-	"hmd_presence" : []
+	"hmd_presence" : ["*.*"]
 }

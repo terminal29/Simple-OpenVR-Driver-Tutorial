@@ -6,17 +6,20 @@
 #include <linalg.h>
 
 #include <Driver/IVRDevice.hpp>
+#include <Native/DriverFactory.hpp>
 
-namespace TutorialDriver {
+namespace ExampleDriver {
     class HMDDevice : public IVRDevice, public vr::IVRDisplayComponent {
         public:
             HMDDevice(std::string serial);
             ~HMDDevice() = default;
 
             // Inherited via IVRDevice
-            virtual std::string serial() override;
-            virtual void update(std::vector<vr::VREvent_t> events) override;
-            virtual vr::TrackedDeviceIndex_t device_index() override;
+            virtual std::string getSerial() override;
+            virtual void update() override;
+            virtual vr::TrackedDeviceIndex_t getDeviceIndex() override;
+            virtual DeviceType getDeviceType() override;
+
             virtual vr::EVRInitError Activate(uint32_t unObjectId) override;
             virtual void Deactivate() override;
             virtual void EnterStandby() override;
@@ -42,10 +45,7 @@ namespace TutorialDriver {
         uint32_t m_windowHeight = 1080;
 
         double m_x = 0, m_y = 0, m_z = 0;
-        double m_xRot = 0, m_yRot = 0;
-
-        std::chrono::system_clock::time_point m_lastFrameTime;
-    
+        double m_xRot = 0, m_yRot = 0;    
 
     };
 };

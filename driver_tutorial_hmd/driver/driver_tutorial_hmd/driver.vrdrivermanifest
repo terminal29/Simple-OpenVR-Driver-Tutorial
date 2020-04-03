@@ -1,8 +1,0 @@
-{
-	"alwaysActivate": true,
-	"name" : "tutorial_hmd",
-	"directory" : "",
-	"resourceOnly" : false,
-	"prefersUpperDeviceIndices" :  true,
-	"hmd_presence" : ["*.*"]
-}
