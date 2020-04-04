@@ -9,11 +9,11 @@
 #include <Native/DriverFactory.hpp>
 
 namespace ExampleDriver {
-    class TrackerDevice : public IVRDevice {
+    class TrackingReferenceDevice : public IVRDevice {
         public:
 
-            TrackerDevice(std::string serial);
-            ~TrackerDevice() = default;
+            TrackingReferenceDevice(std::string serial);
+            ~TrackingReferenceDevice() = default;
 
             // Inherited via IVRDevice
             virtual std::string GetSerial() override;
@@ -34,13 +34,7 @@ namespace ExampleDriver {
 
         vr::DriverPose_t last_pose_ = IVRDevice::MakeDefaultPose();
 
-        bool did_vibrate_ = false;
-        float vibrate_anim_state_ = 0.f;
-
-        vr::VRInputComponentHandle_t haptic_component_ = 0;
-
-        vr::VRInputComponentHandle_t system_click_component_ = 0;
-        vr::VRInputComponentHandle_t system_touch_component_ = 0;
+        float random_angle_rad_;
 
     };
 };

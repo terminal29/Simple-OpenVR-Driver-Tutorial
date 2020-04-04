@@ -2,6 +2,7 @@
 #include <Driver/HMDDevice.hpp>
 #include <Driver/TrackerDevice.hpp>
 #include <Driver/ControllerDevice.hpp>
+#include <Driver/TrackingReferenceDevice.hpp>
 
 vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverContext)
 {
@@ -19,6 +20,11 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
 
     // Add a tracker
     this->AddDevice(std::make_shared<TrackerDevice>("Example_TrackerDevice"));
+
+    // Add a couple tracking references
+    this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_A"));
+    this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_B"));
+
     
 	return vr::VRInitError_None;
 }
