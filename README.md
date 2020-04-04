@@ -1,11 +1,32 @@
 # Simple OpenVR Driver Tutorial
 I created this driver as a demonstration for how to write some of the most common things a SteamVR/OpenVR driver would want to do. You will need to understand C++11 and some C++17 features at least to make the most use of this repo. It features:
 
-- [Reading and writing configuration files]()
-- [Tracked HMD]()
-- [Tracked Controllers]() (todo)
-- [Tracked Trackers]() (todo)
-- [Tracking References (base stations)]() (todo)
+- [Central driver setup](driver_files/src/Driver/IVRDriver.hpp)
+to manage addition and removal of devices, and updating devices each frame, collecting events, access to OpenVR internals, etc...
+
+- [Reading configuration files](driver_files/src/Driver/VRDriver.cpp#L114)
+to load user settings 
+
+- [Logging](driver_files/src/Driver/VRDriver.cpp#L142)
+for simple debug messages
+
+- [Tracked HMD](driver_files/src/Driver/HMDDevice.hpp)
+which is a tracked device that acts as a video output
+
+- [Tracked Controllers](driver_files/src/Driver/ControllerDevice.hpp)
+which is a tracked device that has mapped buttons, triggers, touchpads, joysticks, etc...
+
+- [Tracked Trackers](driver_files/src/Driver/TrackerDevice.hpp)
+which is a device purely meant for tracking the location of an object
+
+- [Tracking References (base stations)](driver_files/src/Driver/TrackingReferenceDevice.hpp)
+which is a base station or camera designed as a fixed point of reference to the real world
+
+- [Custom Device Render Models](driver_files/driver/example/resources/rendermodels/example_controller)
+so your new controllers look cool
+
+- [Visual Studio Debugging Setup for SteamVR](#debugging)
+because a debugger is a developers best friend <sup>(besides ctrl-z)</sup>.
 
 ## Building
 - Clone the project and submodules
@@ -17,7 +38,7 @@ I created this driver as a demonstration for how to write some of the most commo
 	
 ## Installation
 
-There are two ways to "install" this plugin:
+There are two ways to "install" your plugin:
 
 - Find your SteamVR driver directory, which should be at:
   `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\drivers`
@@ -62,11 +83,14 @@ Debugging SteamVR is not as simple as it seems because of the startup procedure 
  - **vrdashboard**: the VR menu/overlay
  - **vrstartup**: a program to start everything up
  
- To debug effectively in Visual Studio, you can use an extension called [Microsoft Child Process Debugging Power Tool](https://marketplace.visualstudio.com/items?itemName=vsdbgplat.MicrosoftChildProcessDebuggingPowerTool) and enable debugging child processes, disable debugging for all other child processes, and add `vrserver.exe` as a child process to debug as below: 
+ To debug effectively in Visual Studio, you can use an extension called [Microsoft Child Process Debugging Power Tool](https://marketplace.visualstudio.com/items?itemName=vsdbgplat.MicrosoftChildProcessDebuggingPowerTool) and enable debugging child processes, disable debugging for all other child processes, and add `vrserver.exe` as a child process to debug as below:
+  
 ![Child process debugging settings](https://i.imgur.com/yDNvLMm.png)
 
 Set the program the project should run in debug mode to **vrstartup** (Usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrstartup.exe`). Now we can start up SteamVR without needing to go through Steam, and can properly startup all the other programs vrserver needs. 
 
+## Issues
+I don't have an issue template, but if you find what you think is a bug, and can describe how to reproduce it, please leave an issue and/or pull request with the details.
 
 ## License
 MIT License
