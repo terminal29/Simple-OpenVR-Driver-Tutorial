@@ -1,9 +1,11 @@
 #pragma once
 
+#include <variant>
 #include <openvr_driver.h>
 #include <Driver/DeviceType.hpp>
 
 namespace ExampleDriver {
+
     class IVRDevice : public vr::ITrackedDeviceServerDriver {
     public:
         /// <summary>
@@ -30,7 +32,7 @@ namespace ExampleDriver {
         /// </summary>
         /// <returns>The type of device</returns>
         virtual DeviceType GetDeviceType() = 0;
-
+        
         /// <summary>
         /// Makes a default device pose 
         /// </summary>

@@ -6,6 +6,9 @@
 #include <Driver/IVRDevice.hpp>
 
 namespace ExampleDriver {
+
+    typedef std::variant<std::monostate, std::string, int, float, bool> SettingsValue;
+
     class IVRDriver : protected vr::IServerTrackedDeviceProvider {
     public:
 
@@ -33,6 +36,13 @@ namespace ExampleDriver {
         /// <param name="device">Device instance</param>
         /// <returns>True on success, false on failure</returns>
         virtual bool AddDevice(std::shared_ptr<IVRDevice> device) = 0;
+
+        /// <summary>
+        /// Returns the value of a settings key
+        /// </summary>
+        /// <param name="key">The settings key</param>
+        /// <returns>Value of the key, std::monostate if the value is malformed or missing</returns>
+        virtual SettingsValue GetSettingsValue(std::string key) = 0;
 
         /// <summary>
         /// Gets the OpenVR VRDriverInput pointer

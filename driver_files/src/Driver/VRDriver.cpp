@@ -108,6 +108,34 @@ bool ExampleDriver::VRDriver::AddDevice(std::shared_ptr<IVRDevice> device)
     return result;
 }
 
+ExampleDriver::SettingsValue ExampleDriver::VRDriver::GetSettingsValue(std::string key)
+{
+    vr::EVRSettingsError err = vr::EVRSettingsError::VRSettingsError_None;
+    int int_value = vr::VRSettings()->GetInt32(settings_key_.c_str(), key.c_str(), &err);
+    if (err == vr::EVRSettingsError::VRSettingsError_None) {
+        return int_value;
+    }
+    err = vr::EVRSettingsError::VRSettingsError_None;
+    float float_value = vr::VRSettings()->GetFloat(settings_key_.c_str(), key.c_str(), &err);
+    if (err == vr::EVRSettingsError::VRSettingsError_None) {
+        return float_value;
+    }
+    err = vr::EVRSettingsError::VRSettingsError_None;
+    bool bool_value = vr::VRSettings()->GetBool(settings_key_.c_str(), key.c_str(), &err);
+    if (err == vr::EVRSettingsError::VRSettingsError_None) {
+        return bool_value;
+    }
+    std::string str_value;
+    str_value.reserve(1024);
+    vr::VRSettings()->GetString(settings_key_.c_str(), key.c_str(), str_value.data(), 1024, &err);
+    if (err == vr::EVRSettingsError::VRSettingsError_None) {
+        return str_value;
+    }
+    err = vr::EVRSettingsError::VRSettingsError_None;
+
+    return SettingsValue();
+}
+
 vr::IVRDriverInput* ExampleDriver::VRDriver::GetInput()
 {
     return vr::VRDriverInput();

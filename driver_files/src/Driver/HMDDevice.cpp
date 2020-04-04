@@ -72,6 +72,36 @@ vr::EVRInitError ExampleDriver::HMDDevice::Activate(uint32_t unObjectId)
 {
     this->device_index_ = unObjectId;
 
+    // Load settings values
+    // Could probably make this cleaner with making a wrapper class
+    try {
+        int window_x = std::get<int>(GetDriver()->GetSettingsValue("window_x"));
+        if (window_x > 0)
+            this->window_x_ = window_x;
+    }
+    catch (const std::bad_variant_access&) {}; // Wrong type or doesnt exist
+
+    try {
+        int window_y = std::get<int>(GetDriver()->GetSettingsValue("window_y"));
+        if (window_y > 0)
+            this->window_x_ = window_y;
+    }
+    catch (const std::bad_variant_access&) {}; // Wrong type or doesnt exist
+
+    try {
+        int window_width = std::get<int>(GetDriver()->GetSettingsValue("window_width"));
+        if (window_width > 0)
+            this->window_width_ = window_width;
+    }
+    catch (const std::bad_variant_access&) {}; // Wrong type or doesnt exist
+
+    try {
+        int window_height = std::get<int>(GetDriver()->GetSettingsValue("window_height"));
+        if (window_height > 0)
+            this->window_height_ = window_height;
+    }
+    catch (const std::bad_variant_access&) {}; // Wrong type or doesnt exist
+
     // Get the properties handle
     auto props = GetDriver()->GetProperties()->TrackedDeviceToPropertyContainer(this->device_index_);
 
@@ -97,6 +127,9 @@ vr::EVRInitError ExampleDriver::HMDDevice::Activate(uint32_t unObjectId)
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceNotReady_String, "{example}/icons/hmd_not_ready.png");
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceStandby_String, "{example}/icons/hmd_not_ready.png");
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceAlertLow_String, "{example}/icons/hmd_not_ready.png");
+
+    
+
 
     return vr::EVRInitError::VRInitError_None;
 }

@@ -27,7 +27,7 @@ void ExampleDriver::TrackingReferenceDevice::Update()
 
     linalg::vec<float, 4> y_quat{ 0, std::sinf(this->random_angle_rad_ / 2), 0, std::cosf(this->random_angle_rad_ / 2) }; // Point inwards (z- is forward)
 
-    linalg::vec<float, 4> x_look_down{ std::sinf((-3.1415/4) / 2), 0, 0, std::cosf((-3.1415 / 4) / 2) }; // Tilt downwards to look at the centre
+    linalg::vec<float, 4> x_look_down{ std::sinf((-3.1415f/4) / 2), 0, 0, std::cosf((-3.1415f / 4) / 2) }; // Tilt downwards to look at the centre
 
     linalg::vec<float, 4> device_rotation = linalg::qmul(y_quat, x_look_down);
 

@@ -18,6 +18,7 @@ namespace ExampleDriver {
         virtual std::vector<vr::VREvent_t> GetOpenVREvents() override;
         virtual std::chrono::milliseconds GetLastFrameTime() override;
         virtual bool AddDevice(std::shared_ptr<IVRDevice> device) override;
+        virtual SettingsValue GetSettingsValue(std::string key) override;
 
         virtual vr::IVRDriverInput* GetInput() override;
         virtual vr::CVRPropertyHelpers* GetProperties() override;
@@ -37,6 +38,7 @@ namespace ExampleDriver {
         std::vector<vr::VREvent_t> openvr_events_;
         std::chrono::milliseconds frame_timing_ = std::chrono::milliseconds(16);
         std::chrono::system_clock::time_point last_frame_time_ = std::chrono::system_clock::now();
+        std::string settings_key_ = "driver_example";
 
     };
 };
