@@ -62,6 +62,12 @@ namespace ExampleDriver {
         /// <returns>OpenVR VRServerDriverHost pointer</returns>
         virtual vr::IVRServerDriverHost* GetDriverHost() = 0;
 
+        /// <summary>
+        /// Writes a log message
+        /// </summary>
+        /// <param name="message">Message to log</param>
+        virtual void Log(std::string message) = 0;
+
         virtual inline const char* const* GetInterfaceVersions() override {
             return vr::k_InterfaceVersions;
         };

@@ -19,6 +19,7 @@ namespace ExampleDriver {
         virtual std::chrono::milliseconds GetLastFrameTime() override;
         virtual bool AddDevice(std::shared_ptr<IVRDevice> device) override;
         virtual SettingsValue GetSettingsValue(std::string key) override;
+        virtual void Log(std::string message) override;
 
         virtual vr::IVRDriverInput* GetInput() override;
         virtual vr::CVRPropertyHelpers* GetProperties() override;

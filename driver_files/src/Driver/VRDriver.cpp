@@ -11,6 +11,8 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
         return init_error;
     }
 
+    Log("Activating ExampleDriver...");
+
     // Add a HMD
     this->AddDevice(std::make_shared<HMDDevice>("Example_HMDDevice"));
 
@@ -25,7 +27,8 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
     this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_A"));
     this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_B"));
 
-    
+    Log("ExampleDriver Loaded Successfully");
+
 	return vr::VRInitError_None;
 }
 
@@ -134,6 +137,12 @@ ExampleDriver::SettingsValue ExampleDriver::VRDriver::GetSettingsValue(std::stri
     err = vr::EVRSettingsError::VRSettingsError_None;
 
     return SettingsValue();
+}
+
+void ExampleDriver::VRDriver::Log(std::string message)
+{
+    std::string message_endl = message + "\n";
+    vr::VRDriverLog()->Log(message_endl.c_str());
 }
 
 vr::IVRDriverInput* ExampleDriver::VRDriver::GetInput()

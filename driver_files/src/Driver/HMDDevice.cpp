@@ -14,7 +14,7 @@ void ExampleDriver::HMDDevice::Update()
 {
     if (this->device_index_ == vr::k_unTrackedDeviceIndexInvalid)
         return;
-
+    
     // Setup pose for this frame
     auto pose = IVRDevice::MakeDefaultPose();
 
@@ -71,6 +71,8 @@ vr::TrackedDeviceIndex_t ExampleDriver::HMDDevice::GetDeviceIndex()
 vr::EVRInitError ExampleDriver::HMDDevice::Activate(uint32_t unObjectId)
 {
     this->device_index_ = unObjectId;
+
+    GetDriver()->Log("Activating HMD " + this->serial_);
 
     // Load settings values
     // Could probably make this cleaner with making a wrapper class

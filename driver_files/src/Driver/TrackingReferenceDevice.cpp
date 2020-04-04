@@ -61,6 +61,8 @@ vr::EVRInitError ExampleDriver::TrackingReferenceDevice::Activate(uint32_t unObj
 {
     this->device_index_ = unObjectId;
 
+    GetDriver()->Log("Activating tracking reference " + this->serial_);
+
     // Get the properties handle
     auto props = GetDriver()->GetProperties()->TrackedDeviceToPropertyContainer(this->device_index_);
 
