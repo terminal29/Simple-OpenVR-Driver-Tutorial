@@ -27,6 +27,14 @@ namespace ExampleDriver {
         /// <returns>MS between last frame and this frame</returns>
         virtual std::chrono::milliseconds GetLastFrameTime() = 0;
 
+        /// <summary>
+        /// Adds a device to the driver
+        /// </summary>
+        /// <param name="device">Device instance</param>
+        /// <returns>True on success, false on failure</returns>
+        virtual bool AddDevice(std::shared_ptr<IVRDevice> device) = 0;
+
+
         virtual inline const char* const* GetInterfaceVersions() override {
             return vr::k_InterfaceVersions;
         };

@@ -31,6 +31,23 @@ namespace ExampleDriver {
         /// <returns>The type of device</returns>
         virtual DeviceType GetDeviceType() = 0;
 
+        /// <summary>
+        /// Makes a default device pose 
+        /// </summary>
+        /// <returns>Default initialised pose</returns>
+        static inline vr::DriverPose_t MakeDefaultPose(bool connected = true, bool tracking = true) {
+            vr::DriverPose_t out_pose = { 0 };
+
+            out_pose.deviceIsConnected = connected;
+            out_pose.poseIsValid = tracking;
+            out_pose.result = tracking ? vr::ETrackingResult::TrackingResult_Running_OK : vr::ETrackingResult::TrackingResult_Running_OutOfRange;
+            out_pose.willDriftInYaw = false;
+            out_pose.shouldApplyHeadModel = false;
+            out_pose.qDriverFromHeadRotation.w = out_pose.qWorldFromDriverRotation.w = out_pose.qRotation.w = 1.0;
+
+            return out_pose;
+        }
+
         // Inherited via ITrackedDeviceServerDriver
         virtual vr::EVRInitError Activate(uint32_t unObjectId) = 0;
         virtual void Deactivate() = 0;

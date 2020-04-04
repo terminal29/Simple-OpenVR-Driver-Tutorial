@@ -16,7 +16,7 @@ void ExampleDriver::HMDDevice::Update()
         return;
 
     // Setup pose for this frame
-    auto pose = this->GetPose();
+    auto pose = IVRDevice::MakeDefaultPose();
 
     float delta_seconds = ExampleDriver::getDriver()->GetLastFrameTime().count() / 1000.0f;
 
@@ -55,6 +55,7 @@ void ExampleDriver::HMDDevice::Update()
 
     // Post pose
     vr::VRServerDriverHost()->TrackedDevicePoseUpdated(this->device_index_, pose, sizeof(vr::DriverPose_t));
+    this->last_pose_ = pose;
 }
 
 DeviceType ExampleDriver::HMDDevice::GetDeviceType()
@@ -125,16 +126,7 @@ void ExampleDriver::HMDDevice::DebugRequest(const char* pchRequest, char* pchRes
 
 vr::DriverPose_t ExampleDriver::HMDDevice::GetPose()
 {
-    vr::DriverPose_t out_pose = { 0 };
-
-    out_pose.deviceIsConnected = true;
-    out_pose.poseIsValid = true;
-    out_pose.result = vr::ETrackingResult::TrackingResult_Running_OK;
-    out_pose.willDriftInYaw = false;
-    out_pose.shouldApplyHeadModel = false;
-    out_pose.qDriverFromHeadRotation.w = out_pose.qWorldFromDriverRotation.w = out_pose.qRotation.w = 1.0;
-
-    return out_pose;
+    return this->last_pose_;
 }
 
 void ExampleDriver::HMDDevice::GetWindowBounds(int32_t* pnX, int32_t* pnY, uint32_t* pnWidth, uint32_t* pnHeight)

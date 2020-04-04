@@ -39,6 +39,8 @@ namespace ExampleDriver {
         vr::TrackedDeviceIndex_t device_index_ = vr::k_unTrackedDeviceIndexInvalid;
         std::string serial_;
 
+        vr::DriverPose_t last_pose_ = IVRDevice::MakeDefaultPose();
+
         uint32_t window_x_ = 0;
         uint32_t window_y_ = 0;
         uint32_t window_width_ = 1920;

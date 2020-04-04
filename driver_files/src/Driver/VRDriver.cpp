@@ -1,5 +1,6 @@
 #include "VRDriver.hpp"
 #include <Driver/HMDDevice.hpp>
+#include <Driver/ControllerDevice.hpp>
 
 vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverContext)
 {
@@ -8,11 +9,13 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
         return init_error;
     }
 
+    // Add a HMD
+    this->AddDevice(std::make_shared<HMDDevice>("Example_HMDDevice"));
 
-    auto hmdDevice = std::make_shared<HMDDevice>("Tutorial_HMDDevice");
-    if(vr::VRServerDriverHost()->TrackedDeviceAdded(hmdDevice->GetSerial().c_str(), vr::ETrackedDeviceClass::TrackedDeviceClass_HMD, hmdDevice.get()))
-        this->devices_.push_back(hmdDevice);
-
+    // Add a couple controllers
+    this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice_Left", ControllerDevice::Handedness::LEFT));
+    this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice_Right", ControllerDevice::Handedness::RIGHT));
+    
 	return vr::VRInitError_None;
 }
 
@@ -67,4 +70,30 @@ std::vector<vr::VREvent_t> ExampleDriver::VRDriver::GetOpenVREvents()
 std::chrono::milliseconds ExampleDriver::VRDriver::GetLastFrameTime()
 {
     return this->frame_timing_;
+}
+
+bool ExampleDriver::VRDriver::AddDevice(std::shared_ptr<IVRDevice> device)
+{
+    vr::ETrackedDeviceClass openvr_device_class;
+    // Remember to update this switch when new device types are added
+    switch (device->GetDeviceType()) {
+        case DeviceType::CONTROLLER:
+            openvr_device_class = vr::ETrackedDeviceClass::TrackedDeviceClass_Controller;
+            break;
+        case DeviceType::HMD:
+            openvr_device_class = vr::ETrackedDeviceClass::TrackedDeviceClass_HMD;
+            break;
+        case DeviceType::TRACKER:
+            openvr_device_class = vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker;
+            break;
+        case DeviceType::TRACKING_REFERENCE:
+            openvr_device_class = vr::ETrackedDeviceClass::TrackedDeviceClass_TrackingReference;
+            break;
+        default:
+            return false;
+    }
+    bool result = vr::VRServerDriverHost()->TrackedDeviceAdded(device->GetSerial().c_str(), openvr_device_class, device.get());
+    if(result)
+        this->devices_.push_back(device);
+    return result;
 }
