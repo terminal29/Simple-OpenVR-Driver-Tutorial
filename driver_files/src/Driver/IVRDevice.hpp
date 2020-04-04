@@ -10,26 +10,26 @@ namespace ExampleDriver {
         /// Returns the serial string for this device
         /// </summary>
         /// <returns>Device serial</returns>
-        virtual std::string getSerial() = 0;
+        virtual std::string GetSerial() = 0;
 
         /// <summary>
         /// Runs any update logic for this device.
         /// Called once per frame
         /// </summary>
-        virtual void update() = 0;
+        virtual void Update() = 0;
 
         /// <summary>
         /// Returns the OpenVR device index
         /// This should be 0 for HMDs
         /// </summary>
         /// <returns>OpenVR device index</returns>
-        virtual vr::TrackedDeviceIndex_t getDeviceIndex() = 0;
+        virtual vr::TrackedDeviceIndex_t GetDeviceIndex() = 0;
         
         /// <summary>
         /// Returns which type of device this device is
         /// </summary>
         /// <returns>The type of device</returns>
-        virtual DeviceType getDeviceType() = 0;
+        virtual DeviceType GetDeviceType() = 0;
 
         // Inherited via ITrackedDeviceServerDriver
         virtual vr::EVRInitError Activate(uint32_t unObjectId) = 0;

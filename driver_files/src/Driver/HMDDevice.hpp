@@ -15,10 +15,10 @@ namespace ExampleDriver {
             ~HMDDevice() = default;
 
             // Inherited via IVRDevice
-            virtual std::string getSerial() override;
-            virtual void update() override;
-            virtual vr::TrackedDeviceIndex_t getDeviceIndex() override;
-            virtual DeviceType getDeviceType() override;
+            virtual std::string GetSerial() override;
+            virtual void Update() override;
+            virtual vr::TrackedDeviceIndex_t GetDeviceIndex() override;
+            virtual DeviceType GetDeviceType() override;
 
             virtual vr::EVRInitError Activate(uint32_t unObjectId) override;
             virtual void Deactivate() override;
@@ -36,16 +36,16 @@ namespace ExampleDriver {
             virtual void GetProjectionRaw(vr::EVREye eEye, float* pfLeft, float* pfRight, float* pfTop, float* pfBottom) override;
             virtual vr::DistortionCoordinates_t ComputeDistortion(vr::EVREye eEye, float fU, float fV) override;
     private:
-        vr::TrackedDeviceIndex_t m_deviceIndex = vr::k_unTrackedDeviceIndexInvalid;
-        std::string m_serial;
+        vr::TrackedDeviceIndex_t device_index_ = vr::k_unTrackedDeviceIndexInvalid;
+        std::string serial_;
 
-        uint32_t m_windowX = 0;
-        uint32_t m_windowY = 0;
-        uint32_t m_windowWidth = 1920;
-        uint32_t m_windowHeight = 1080;
+        uint32_t window_x_ = 0;
+        uint32_t window_y_ = 0;
+        uint32_t window_width_ = 1920;
+        uint32_t window_height_ = 1080;
 
-        double m_x = 0, m_y = 0, m_z = 0;
-        double m_xRot = 0, m_yRot = 0;    
+        float pos_x_ = 0, pos_y_ = 0, pos_z_ = 0;
+        float rot_y_ = 0, rot_x_ = 0;
 
     };
 };

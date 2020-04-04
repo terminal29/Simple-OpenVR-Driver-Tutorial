@@ -10,8 +10,8 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
 
 
     auto hmdDevice = std::make_shared<HMDDevice>("Tutorial_HMDDevice");
-    if(vr::VRServerDriverHost()->TrackedDeviceAdded(hmdDevice->getSerial().c_str(), vr::ETrackedDeviceClass::TrackedDeviceClass_HMD, hmdDevice.get()))
-        this->devices.push_back(hmdDevice);
+    if(vr::VRServerDriverHost()->TrackedDeviceAdded(hmdDevice->GetSerial().c_str(), vr::ETrackedDeviceClass::TrackedDeviceClass_HMD, hmdDevice.get()))
+        this->devices_.push_back(hmdDevice);
 
 	return vr::VRInitError_None;
 }
@@ -29,16 +29,16 @@ void ExampleDriver::VRDriver::RunFrame()
     {
         events.push_back(event);
     }
-    this->openvrEvents = events;
+    this->openvr_events_ = events;
 
     // Update frame timing
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-    this->frameTiming = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->lastFrameTime);
-    this->lastFrameTime = now;
+    this->frame_timing_ = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->last_frame_time_);
+    this->last_frame_time_ = now;
 
     // Update devices
-    for (auto& device : this->devices)
-        device->update();
+    for (auto& device : this->devices_)
+        device->Update();
 }
 
 bool ExampleDriver::VRDriver::ShouldBlockStandbyMode()
@@ -54,17 +54,17 @@ void ExampleDriver::VRDriver::LeaveStandby()
 {
 }
 
-std::vector<std::shared_ptr<ExampleDriver::IVRDevice>> ExampleDriver::VRDriver::getDevices()
+std::vector<std::shared_ptr<ExampleDriver::IVRDevice>> ExampleDriver::VRDriver::GetDevices()
 {
-    return this->devices;
+    return this->devices_;
 }
 
-std::vector<vr::VREvent_t> ExampleDriver::VRDriver::getOpenVREvents()
+std::vector<vr::VREvent_t> ExampleDriver::VRDriver::GetOpenVREvents()
 {
-    return this->openvrEvents;
+    return this->openvr_events_;
 }
 
-std::chrono::milliseconds ExampleDriver::VRDriver::getLastFrameTime()
+std::chrono::milliseconds ExampleDriver::VRDriver::GetLastFrameTime()
 {
-    return this->frameTiming;
+    return this->frame_timing_;
 }
