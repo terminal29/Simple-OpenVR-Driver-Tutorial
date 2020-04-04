@@ -1,5 +1,6 @@
 #include "VRDriver.hpp"
 #include <Driver/HMDDevice.hpp>
+#include <Driver/TrackerDevice.hpp>
 #include <Driver/ControllerDevice.hpp>
 
 vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverContext)
@@ -15,6 +16,9 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
     // Add a couple controllers
     this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice_Left", ControllerDevice::Handedness::LEFT));
     this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice_Right", ControllerDevice::Handedness::RIGHT));
+
+    // Add a tracker
+    this->AddDevice(std::make_shared<TrackerDevice>("Example_TrackerDevice"));
     
 	return vr::VRInitError_None;
 }
