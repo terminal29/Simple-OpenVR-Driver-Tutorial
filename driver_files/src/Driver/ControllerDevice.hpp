@@ -41,5 +41,10 @@ namespace ExampleDriver {
         Handedness handedness_;
 
         vr::DriverPose_t last_pose_;
+
+        bool did_vibrate_ = false;
+        float vibrate_anim_state_ = 0.f;
+
+        vr::VRInputComponentHandle_t haptic_component_ = 0;
     };
 };

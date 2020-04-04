@@ -1,9 +1,9 @@
 [
   {
     "language_tag": "en_US",
-    "tutorial_controller": "Tutorial Controller",
-    "tutorial_tracker": "Tutorial Tracker",
-    "tutorial_basestation": "Tutorial BaseStation",
+    "example_controller": "Example Controller",
+    "example_tracker": "Example Tracker",
+    "example_basestation": "Example BaseStation",
     "/input/a": "A Button",
     "/input/b": "B Button",
     "/input/system": "System Button",

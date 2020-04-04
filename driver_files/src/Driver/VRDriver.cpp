@@ -97,3 +97,18 @@ bool ExampleDriver::VRDriver::AddDevice(std::shared_ptr<IVRDevice> device)
         this->devices_.push_back(device);
     return result;
 }
+
+vr::IVRDriverInput* ExampleDriver::VRDriver::GetInput()
+{
+    return vr::VRDriverInput();
+}
+
+vr::CVRPropertyHelpers* ExampleDriver::VRDriver::GetProperties()
+{
+    return vr::VRProperties();
+}
+
+vr::IVRServerDriverHost* ExampleDriver::VRDriver::GetDriverHost()
+{
+    return vr::VRServerDriverHost();
+}

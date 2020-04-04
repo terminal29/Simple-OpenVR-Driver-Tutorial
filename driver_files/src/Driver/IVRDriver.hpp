@@ -34,6 +34,23 @@ namespace ExampleDriver {
         /// <returns>True on success, false on failure</returns>
         virtual bool AddDevice(std::shared_ptr<IVRDevice> device) = 0;
 
+        /// <summary>
+        /// Gets the OpenVR VRDriverInput pointer
+        /// </summary>
+        /// <returns>OpenVR VRDriverInput pointer</returns>
+        virtual vr::IVRDriverInput* GetInput() = 0;
+
+        /// <summary>
+        /// Gets the OpenVR VRDriverProperties pointer
+        /// </summary>
+        /// <returns>OpenVR VRDriverProperties pointer</returns>
+        virtual vr::CVRPropertyHelpers* GetProperties() = 0;
+
+        /// <summary>
+        /// Gets the OpenVR VRServerDriverHost pointer
+        /// </summary>
+        /// <returns>OpenVR VRServerDriverHost pointer</returns>
+        virtual vr::IVRServerDriverHost* GetDriverHost() = 0;
 
         virtual inline const char* const* GetInterfaceVersions() override {
             return vr::k_InterfaceVersions;

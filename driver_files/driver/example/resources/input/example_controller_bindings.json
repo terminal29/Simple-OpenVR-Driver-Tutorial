@@ -1,17 +1,16 @@
 {
   "jsonid": "input_profile",
-  "controller_type": "tutorial_controller",
+  "controller_type": "example_controller",
   "device_class": "TrackedDeviceClass_Controller",
-  "resource_root": "tutorial_devices",
-  "driver_name": "tutorial_devices",
+  "resource_root": "example",
+  "driver_name": "example",
   "input_bindingui_mode": "controller_handed",
   "should_show_binding_errors": true,
   "input_bindingui_left": {
-    "transform": "scale(-1,1)",
-    "image": "{tutorial_devices}/icons/tutorial_controller.svg"
+    "image": "{example}/icons/example_controller_left.svg"
   },
   "input_bindingui_right": {
-    "image": "{tutorial_devices}/icons/tutorial_controller.svg"
+    "image": "{example}/icons/example_controller_right.svg"
   },
   "input_source": {
     "/pose/raw" : {

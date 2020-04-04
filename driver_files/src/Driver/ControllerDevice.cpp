@@ -1,4 +1,5 @@
 #include "ControllerDevice.hpp"
+#include <sstream>
 
 ExampleDriver::ControllerDevice::ControllerDevice(std::string serial, ControllerDevice::Handedness handedness):
     serial_(serial),
@@ -16,11 +17,33 @@ void ExampleDriver::ControllerDevice::Update()
     if (this->device_index_ == vr::k_unTrackedDeviceIndexInvalid)
         return;
 
+    // Check if this device was asked to be identified
+    auto events = GetDriver()->GetOpenVREvents();
+    for (auto event : events) {
+        // Note here, event.trackedDeviceIndex does not necissarily equal this->device_index_, not sure why, but the component handle will match so we can just use that instead
+        //if (event.trackedDeviceIndex == this->device_index_) {
+        if (event.eventType == vr::EVREventType::VREvent_Input_HapticVibration) {
+            if (event.data.hapticVibration.componentHandle == this->haptic_component_) {
+                this->did_vibrate_ = true;
+            }
+        }
+        //}
+    }
+
+    // Check if we need to keep vibrating
+    if (this->did_vibrate_) {
+        this->vibrate_anim_state_ += (GetDriver()->GetLastFrameTime().count()/1000.f);
+        if (this->vibrate_anim_state_ > 1.0f) {
+            this->did_vibrate_ = false;
+            this->vibrate_anim_state_ = 0.0f;
+        }
+    }
+
     // Setup pose for this frame
     auto pose = IVRDevice::MakeDefaultPose();
 
     // Find a HMD
-    auto devices = ExampleDriver::getDriver()->GetDevices();
+    auto devices = GetDriver()->GetDevices();
     auto hmd = std::find_if(devices.begin(), devices.end(), [](const std::shared_ptr<IVRDevice>& device_ptr) {return device_ptr->GetDeviceType() == DeviceType::HMD; });
     if (hmd != devices.end()) {
         // Found a HMD
@@ -30,8 +53,13 @@ void ExampleDriver::ControllerDevice::Update()
         linalg::vec<float, 3> hmd_position{ (float)hmd_pose.vecPosition[0], (float)hmd_pose.vecPosition[1], (float)hmd_pose.vecPosition[2] };
         linalg::vec<float, 4> hmd_rotation{ (float)hmd_pose.qRotation.x, (float)hmd_pose.qRotation.y, (float)hmd_pose.qRotation.z, (float)hmd_pose.qRotation.w };
 
+        // Do shaking animation if haptic vibration was requested
+        float controller_y = -0.2f + 0.01f * std::sinf(8 * 3.1415f * vibrate_anim_state_);
+
         // Left hand controller on the left, right hand controller on the right, any other handedness sticks to the middle
-        linalg::vec<float, 3> hmd_pose_offset = { this->handedness_ == Handedness::LEFT ? -0.2f : (this->handedness_ == Handedness::RIGHT ? 0.2f : 0.f), -0.2f, -0.5f };
+        float controller_x = this->handedness_ == Handedness::LEFT ? -0.2f : (this->handedness_ == Handedness::RIGHT ? 0.2f : 0.f);
+
+        linalg::vec<float, 3> hmd_pose_offset = { controller_x, controller_y, -0.5f };
 
         hmd_pose_offset = linalg::qrot(hmd_rotation, hmd_pose_offset);
 
@@ -72,24 +100,34 @@ vr::EVRInitError ExampleDriver::ControllerDevice::Activate(uint32_t unObjectId)
     this->device_index_ = unObjectId;
 
     // Get the properties handle
-    auto props = vr::VRProperties()->TrackedDeviceToPropertyContainer(this->device_index_);
+    auto props = GetDriver()->GetProperties()->TrackedDeviceToPropertyContainer(this->device_index_);
+
+    // Setup inputs and outputs
+    GetDriver()->GetInput()->CreateHapticComponent(props, "/output/haptic", &this->haptic_component_);
 
     // Set some universe ID (Must be 2 or higher)
-    vr::VRProperties()->SetUint64Property(props, vr::Prop_CurrentUniverseId_Uint64, 2);
+    GetDriver()->GetProperties()->SetUint64Property(props, vr::Prop_CurrentUniverseId_Uint64, 2);
     
     // Set up a model "number" (not needed but good to have)
-    vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "EXAMPLE_CONTROLLER_DEVICE");
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "example_controller");
 
-    // Set up icon paths
-    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReady_String, "{example}/icons/controller_ready.png");
+    // Set controller profile
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, "{example}/input/example_controller_bindings.json");
 
-    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceOff_String, "{example}/icons/controller_not_ready.png");
-    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceSearching_String, "{example}/icons/controller_not_ready.png");
-    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceSearchingAlert_String, "{example}/icons/controller_not_ready.png");
-    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReadyAlert_String, "{example}/icons/controller_not_ready.png");
-    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceNotReady_String, "{example}/icons/controller_not_ready.png");
-    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceStandby_String, "{example}/icons/controller_not_ready.png");
-    vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceAlertLow_String, "{example}/icons/controller_not_ready.png");
+    // Change the icon depending on which handedness this controller is using (ANY uses right)
+    std::string controller_handedness_str = this->handedness_ == Handedness::LEFT ? "left" : "right";
+    std::string controller_ready_file = "{example}/icons/controller_ready_" + controller_handedness_str + ".png";
+    std::string controller_not_ready_file = "{example}/icons/controller_not_ready_" + controller_handedness_str + ".png";
+
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReady_String, controller_ready_file.c_str());
+
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceOff_String, controller_not_ready_file.c_str());
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceSearching_String, controller_not_ready_file.c_str());
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceSearchingAlert_String, controller_not_ready_file.c_str());
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReadyAlert_String, controller_not_ready_file.c_str());
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceNotReady_String, controller_not_ready_file.c_str());
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceStandby_String, controller_not_ready_file.c_str());
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceAlertLow_String, controller_not_ready_file.c_str());
 
     return vr::EVRInitError::VRInitError_None;
 }

@@ -1,17 +1,17 @@
 {
   "jsonid": "input_profile",
-  "controller_type": "tutorial_tracker",
+  "controller_type": "example_tracker",
   "device_class": "TrackedDeviceClass_GenericTracker",
-  "resource_root": "tutorial_devices",
-  "driver_name": "tutorial_devices",
+  "resource_root": "example",
+  "driver_name": "example",
   "input_bindingui_mode": "single_device",
   "should_show_binding_errors": true,
   "input_bindingui_left": {
     "transform": "scale(-1,1)",
-    "image": "{tutorial_devices}/icons/tutorial_tracker.svg"
+    "image": "{example}/icons/example_tracker.svg"
   },
   "input_bindingui_right": {
-    "image": "{tutorial_devices}/icons/tutorial_tracker.svg"
+    "image": "{example}/icons/example_tracker.svg"
   },
   "input_source": {
     "/pose/raw" : {

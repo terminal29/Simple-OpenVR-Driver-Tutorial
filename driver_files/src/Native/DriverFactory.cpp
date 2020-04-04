@@ -22,6 +22,6 @@ void* HmdDriverFactory(const char* interface_name, int* return_code) {
 	return nullptr;
 }
 
-std::shared_ptr<ExampleDriver::IVRDriver> ExampleDriver::getDriver() {
+std::shared_ptr<ExampleDriver::IVRDriver> ExampleDriver::GetDriver() {
 	return driver;
 }
