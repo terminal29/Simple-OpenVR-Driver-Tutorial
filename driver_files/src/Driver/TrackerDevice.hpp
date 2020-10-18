@@ -8,11 +8,17 @@
 #include <Driver/IVRDevice.hpp>
 #include <Native/DriverFactory.hpp>
 
+#include <windows.h>
+#include <thread>
+#include <sstream>
+#include <iostream>
+#include <string>
+
 namespace ExampleDriver {
     class TrackerDevice : public IVRDevice {
         public:
 
-            TrackerDevice(std::string serial);
+            TrackerDevice(std::string serial, HANDLE pipe);
             ~TrackerDevice() = default;
 
             // Inherited via IVRDevice
@@ -31,6 +37,12 @@ namespace ExampleDriver {
     private:
         vr::TrackedDeviceIndex_t device_index_ = vr::k_unTrackedDeviceIndexInvalid;
         std::string serial_;
+        HANDLE hpipe;
+        bool isSetup;
+
+        char buffer[1024];
+        DWORD dwWritten;
+        DWORD dwRead;
 
         vr::DriverPose_t last_pose_ = IVRDevice::MakeDefaultPose();
 

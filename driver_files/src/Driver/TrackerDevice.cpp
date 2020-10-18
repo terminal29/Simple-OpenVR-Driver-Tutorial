@@ -1,9 +1,11 @@
 #include "TrackerDevice.hpp"
 #include <Windows.h>
 
-ExampleDriver::TrackerDevice::TrackerDevice(std::string serial):
-    serial_(serial)
+ExampleDriver::TrackerDevice::TrackerDevice(std::string serial, HANDLE pipe):
+    serial_(serial), hpipe(pipe)
 {
+    this->last_pose_ = MakeDefaultPose();
+    this->isSetup = false;
 }
 
 std::string ExampleDriver::TrackerDevice::GetSerial()
@@ -39,41 +41,61 @@ void ExampleDriver::TrackerDevice::Update()
     }
 
     // Setup pose for this frame
-    auto pose = IVRDevice::MakeDefaultPose();
+    auto pose = this->last_pose_;
 
-    // Find a HMD
-    auto devices = GetDriver()->GetDevices();
-    auto hmd = std::find_if(devices.begin(), devices.end(), [](const std::shared_ptr<IVRDevice>& device_ptr) {return device_ptr->GetDeviceType() == DeviceType::HMD; });
-    if (hmd != devices.end()) {
-        // Found a HMD
-        vr::DriverPose_t hmd_pose = (*hmd)->GetPose();
+    if (PeekNamedPipe(hpipe, NULL, 0, NULL, &dwRead, NULL) != FALSE)
+    {
+        //if data is ready,
+        if (dwRead > 0)
+        {
+            //we go and read it into our buffer
+            if (ReadFile(hpipe, buffer, sizeof(buffer) - 1, &dwRead, NULL) != FALSE)
+            {
 
-        // Here we setup some transforms so our controllers are offset from the headset by a small amount so we can see them
-        linalg::vec<float, 3> hmd_position{ (float)hmd_pose.vecPosition[0], (float)hmd_pose.vecPosition[1], (float)hmd_pose.vecPosition[2] };
-        linalg::vec<float, 4> hmd_rotation{ (float)hmd_pose.qRotation.x, (float)hmd_pose.qRotation.y, (float)hmd_pose.qRotation.z, (float)hmd_pose.qRotation.w };
+                buffer[dwRead] = '\0'; //add terminating zero
+                //convert our buffer to string
+                std::string s = buffer;
 
-        // Do shaking animation if haptic vibration was requested
-        float controller_y = -0.35f + 0.01f * std::sinf(8 * 3.1415f * vibrate_anim_state_);
+                //first three variables are a position vector
+                double a;
+                double b;
+                double c;
 
-        linalg::vec<float, 3> hmd_pose_offset = { 0.f, controller_y, -0.5f };
+                //second four are rotation quaternion
+                double qw;
+                double qx;
+                double qy;
+                double qz;
 
-        hmd_pose_offset = linalg::qrot(hmd_rotation, hmd_pose_offset);
+                //convert to string stream
+                std::istringstream iss(s);
 
-        linalg::vec<float, 3> final_pose = hmd_pose_offset + hmd_position;
+                //read to our variables
+                iss >> a;
+                iss >> b;
+                iss >> c;
+                iss >> qw;
+                iss >> qx;
+                iss >> qy;
+                iss >> qz;
 
-        pose.vecPosition[0] = final_pose.x;
-        pose.vecPosition[1] = final_pose.y;
-        pose.vecPosition[2] = final_pose.z;
+                //send the new position and rotation from the pipe to the tracker object
+                pose.vecPosition[0] = a;
+                pose.vecPosition[1] = c;
+                pose.vecPosition[2] = b;
 
-        pose.qRotation.w = hmd_rotation.w;
-        pose.qRotation.x = hmd_rotation.x;
-        pose.qRotation.y = hmd_rotation.y;
-        pose.qRotation.z = hmd_rotation.z;
-    }
+                pose.qRotation.w = qw;
+                pose.qRotation.x = qx;
+                pose.qRotation.y = qy;
+                pose.qRotation.z = qz;
 
-    // Post pose
-    GetDriver()->GetDriverHost()->TrackedDevicePoseUpdated(this->device_index_, pose, sizeof(vr::DriverPose_t));
-    this->last_pose_ = pose;
+                // Post pose
+                GetDriver()->GetDriverHost()->TrackedDevicePoseUpdated(this->device_index_, pose, sizeof(vr::DriverPose_t));
+                this->last_pose_ = pose;
+            }
+        }
+    }  
+    
 }
 
 DeviceType ExampleDriver::TrackerDevice::GetDeviceType()

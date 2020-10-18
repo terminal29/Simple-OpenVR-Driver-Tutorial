@@ -1,4 +1,5 @@
 #pragma once
+#define NOMINMAX
 
 #include <vector>
 #include <memory>
@@ -8,10 +9,10 @@
 #include <Driver/IVRDriver.hpp>
 #include <Driver/IVRDevice.hpp>
 
+
 namespace ExampleDriver {
     class VRDriver : public IVRDriver {
     public:
-
 
         // Inherited via IVRDriver
         virtual std::vector<std::shared_ptr<IVRDevice>> GetDevices() override;
@@ -41,5 +42,7 @@ namespace ExampleDriver {
         std::chrono::system_clock::time_point last_frame_time_ = std::chrono::system_clock::now();
         std::string settings_key_ = "driver_example";
 
+        int pipeNum = 1;
+        double smoothFactor = 0.2;
     };
 };
