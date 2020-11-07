@@ -7,7 +7,7 @@ namespace HmdPipeExample
     {
         static void Main(string[] args)
         {
-            /
+            
             Console.WriteLine("Hello World!");
             NamedPipeServerStream namedPipeServer = new NamedPipeServerStream("HMDPipe");
             
