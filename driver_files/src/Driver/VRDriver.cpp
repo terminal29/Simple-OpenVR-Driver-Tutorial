@@ -19,12 +19,32 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
     // Add a couple controllers
     //this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice_Left", ControllerDevice::Handedness::LEFT));
     //this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice_Right", ControllerDevice::Handedness::RIGHT));
+    
+    std::string hmdPipeName = "\\\\.\\pipe\\HMDPipe";
 
+    //open the pipe
+    hmdPipe = CreateFileA(hmdPipeName.c_str(),
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        NULL,
+        OPEN_EXISTING,
+        0,
+        NULL);
+
+    if (hmdPipe == INVALID_HANDLE_VALUE)
+    {
+        //if connection was unsuccessful, return an error. This means SteamVR will start without this driver running
+        return vr::EVRInitError::VRInitError_Driver_Failed;
+    }
+    //wait for a second to ensure data was sent and next pipe is set up if there is more than one tracker
+    
+    Sleep(1000);
+    
     // Add a tracker
     char buffer[1024];
     DWORD dwWritten;
     DWORD dwRead;
-
+    
     //on init, we try to connect to our pipes
     for (int i = 0; i < pipeNum; i++)
     {
@@ -67,7 +87,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
         //save our pipe to global
         this->AddDevice(std::make_shared<TrackerDevice>("AprilTracker"+std::to_string(i),pipe));
     }
-
+    
     // Add a couple tracking references
     //this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_A"));
     //this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_B"));
@@ -100,6 +120,29 @@ void ExampleDriver::VRDriver::RunFrame()
     // Update devices
     for (auto& device : this->devices_)
         device->Update();
+
+    vr::TrackedDevicePose_t hmd_pose[10];
+    vr::VRServerDriverHost()->GetRawTrackedDevicePoses(0, hmd_pose, 10);
+
+    vr::HmdQuaternion_t q = GetRotation(hmd_pose[0].mDeviceToAbsoluteTracking);
+    vr::HmdVector3_t pos = GetPosition(hmd_pose[0].mDeviceToAbsoluteTracking);
+
+    std::string s;
+    s = std::to_string(pos.v[0]) +
+        " " + std::to_string(pos.v[1]) +
+        " " + std::to_string(pos.v[2]) +
+        " " + std::to_string(q.w) +
+        " " + std::to_string(q.x) +
+        " " + std::to_string(q.y) +
+        " " + std::to_string(q.z) + "\n";
+
+    DWORD dwWritten;
+    WriteFile(hmdPipe,
+        s.c_str(),
+        (s.length() + 1),   // = length of string + terminating '\0' !!!
+        &dwWritten,
+        NULL);
+
 }
 
 bool ExampleDriver::VRDriver::ShouldBlockStandbyMode()
@@ -203,4 +246,36 @@ vr::CVRPropertyHelpers* ExampleDriver::VRDriver::GetProperties()
 vr::IVRServerDriverHost* ExampleDriver::VRDriver::GetDriverHost()
 {
     return vr::VRServerDriverHost();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Calculates quaternion (qw,qx,qy,qz) representing the rotation
+// from: https://github.com/Omnifinity/OpenVR-Tracking-Example/blob/master/HTC%20Lighthouse%20Tracking%20Example/LighthouseTracking.cpp
+//-----------------------------------------------------------------------------
+
+vr::HmdQuaternion_t ExampleDriver::VRDriver::GetRotation(vr::HmdMatrix34_t matrix) {
+    vr::HmdQuaternion_t q;
+
+    q.w = sqrt(fmax(0, 1 + matrix.m[0][0] + matrix.m[1][1] + matrix.m[2][2])) / 2;
+    q.x = sqrt(fmax(0, 1 + matrix.m[0][0] - matrix.m[1][1] - matrix.m[2][2])) / 2;
+    q.y = sqrt(fmax(0, 1 - matrix.m[0][0] + matrix.m[1][1] - matrix.m[2][2])) / 2;
+    q.z = sqrt(fmax(0, 1 - matrix.m[0][0] - matrix.m[1][1] + matrix.m[2][2])) / 2;
+    q.x = copysign(q.x, matrix.m[2][1] - matrix.m[1][2]);
+    q.y = copysign(q.y, matrix.m[0][2] - matrix.m[2][0]);
+    q.z = copysign(q.z, matrix.m[1][0] - matrix.m[0][1]);
+    return q;
+}
+//-----------------------------------------------------------------------------
+// Purpose: Extracts position (x,y,z).
+// from: https://github.com/Omnifinity/OpenVR-Tracking-Example/blob/master/HTC%20Lighthouse%20Tracking%20Example/LighthouseTracking.cpp
+//-----------------------------------------------------------------------------
+
+vr::HmdVector3_t ExampleDriver::VRDriver::GetPosition(vr::HmdMatrix34_t matrix) {
+    vr::HmdVector3_t vector;
+
+    vector.v[0] = matrix.m[0][3];
+    vector.v[1] = matrix.m[1][3];
+    vector.v[2] = matrix.m[2][3];
+
+    return vector;
 }

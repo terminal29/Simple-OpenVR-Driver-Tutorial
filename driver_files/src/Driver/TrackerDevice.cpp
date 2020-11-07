@@ -42,7 +42,7 @@ void ExampleDriver::TrackerDevice::Update()
 
     // Setup pose for this frame
     auto pose = this->last_pose_;
-
+    
     if (PeekNamedPipe(hpipe, NULL, 0, NULL, &dwRead, NULL) != FALSE)
     {
         //if data is ready,
@@ -94,8 +94,9 @@ void ExampleDriver::TrackerDevice::Update()
                 this->last_pose_ = pose;
             }
         }
-    }  
+    } 
     
+
 }
 
 DeviceType ExampleDriver::TrackerDevice::GetDeviceType()
@@ -176,3 +177,4 @@ vr::DriverPose_t ExampleDriver::TrackerDevice::GetPose()
 {
     return last_pose_;
 }
+
