@@ -81,8 +81,8 @@ void ExampleDriver::TrackerDevice::Update()
 
                 //send the new position and rotation from the pipe to the tracker object
                 pose.vecPosition[0] = a;
-                pose.vecPosition[1] = c;
-                pose.vecPosition[2] = b;
+                pose.vecPosition[1] = b;
+                pose.vecPosition[2] = c;
 
                 pose.qRotation.w = qw;
                 pose.qRotation.x = qx;
