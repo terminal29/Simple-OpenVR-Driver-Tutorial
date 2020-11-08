@@ -24,6 +24,8 @@ endif()
 
 find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH )
 
+add_subdirectory("example")
+
 # Example Driver
 set(DRIVER_NAME "example")
 set(EXAMPLE_PROJECT "driver_${DRIVER_NAME}")

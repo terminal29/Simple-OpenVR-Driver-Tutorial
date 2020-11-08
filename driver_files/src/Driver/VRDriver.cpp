@@ -91,7 +91,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
     // Add a couple tracking references
     //this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_A"));
     //this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_B"));
-
+    
     Log("ExampleDriver Loaded Successfully");
 
 	return vr::VRInitError_None;
