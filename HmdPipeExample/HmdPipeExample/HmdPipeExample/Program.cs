@@ -7,13 +7,14 @@ namespace HmdPipeExample
     {
         static void Main(string[] args)
         {
-            /
+            
             Console.WriteLine("Hello World!");
             NamedPipeServerStream namedPipeServer = new NamedPipeServerStream("HMDPipe");
             
             namedPipeServer.WaitForConnection();
             //namedPipeServer.WriteByte(1);
             Console.WriteLine("Connected");
+            
             int pipeNum = 1;
 
             NamedPipeServerStream[] trackerPipe = new NamedPipeServerStream[pipeNum];
@@ -25,7 +26,7 @@ namespace HmdPipeExample
                 byte[] bytes = System.Text.Encoding.ASCII.GetBytes(pipeNum + " 0\n");
                 trackerPipe[i].Write(bytes, 0, bytes.Length);
             }
-
+            
             while (true)
             {
                 byte[] buffer = new byte[1024];
@@ -53,6 +54,7 @@ namespace HmdPipeExample
                     trackerPipe[i].Write(bytes, 0, bytes.Length);
                     Console.WriteLine("hi");
                 }
+                
             }
         }
     }

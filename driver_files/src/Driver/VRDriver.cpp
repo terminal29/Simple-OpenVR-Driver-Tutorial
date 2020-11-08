@@ -37,7 +37,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
         return vr::EVRInitError::VRInitError_Driver_Failed;
     }
     //wait for a second to ensure data was sent and next pipe is set up if there is more than one tracker
-    
+
     Sleep(1000);
     
     // Add a tracker
@@ -91,7 +91,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
     // Add a couple tracking references
     //this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_A"));
     //this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_B"));
-    
+
     Log("ExampleDriver Loaded Successfully");
 
 	return vr::VRInitError_None;
