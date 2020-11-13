@@ -11,7 +11,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
         return init_error;
     }
 
-    Log("Activating ExampleDriver...");
+    Log("Activating AprilTag Driver...");
 
     // Add a HMD
     //this->AddDevice(std::make_shared<HMDDevice>("Example_HMDDevice"));
@@ -72,7 +72,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
     //this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_A"));
     //this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_B"));
 
-    Log("ExampleDriver Loaded Successfully");
+    Log("AprilTag Driver Loaded Successfully");
 
 	return vr::VRInitError_None;
 }
