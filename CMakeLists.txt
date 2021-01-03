@@ -24,10 +24,10 @@ endif()
 
 find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH )
 
-add_subdirectory("example")
+add_subdirectory("ApriltagTrackers")
 
 # Example Driver
-set(DRIVER_NAME "example")
+set(DRIVER_NAME "ApriltagTrackers")
 set(EXAMPLE_PROJECT "driver_${DRIVER_NAME}")
 file(GLOB_RECURSE HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/src/*.hpp")
 file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/src/*.cpp")
