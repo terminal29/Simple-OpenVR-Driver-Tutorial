@@ -1,2 +1,8 @@
 /build
 /CMakeFiles
+/.vs
+*.vcxproj*
+*.sln
+CMakeCache.txt
+*.stamp*
+cmake_install.cmake
