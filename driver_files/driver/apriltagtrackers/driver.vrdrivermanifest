@@ -1,6 +1,6 @@
 {
 	"alwaysActivate": true,
-	"name" : "ApriltagTrackers",
+	"name" : "apriltagtrackers",
 	"directory" : "",
 	"resourceOnly" : false
 }
