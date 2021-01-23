@@ -146,6 +146,9 @@ void ExampleDriver::VRDriver::PipeThread()
                     std::string rec = buffer;
                     std::istringstream iss(rec);
                     std::string word;
+
+                    std::string s = "";
+
                     while (iss >> word)
                     {
                         if (word == "addtracker")
@@ -154,6 +157,7 @@ void ExampleDriver::VRDriver::PipeThread()
                             auto addtracker = std::make_shared<TrackerDevice>("AprilTracker" + std::to_string(this->devices_.size()), inPipe);
                             this->AddDevice(addtracker);
                             this->trackers_.push_back(addtracker);
+                            s = s + " added";
                         }
                         else if (word == "updatepose")
                         {
@@ -161,11 +165,39 @@ void ExampleDriver::VRDriver::PipeThread()
                             double a, b, c, qw, qx, qy, qz;
                             iss >> idx; iss >> a; iss >> b; iss >> c; iss >> qw; iss >> qx; iss >> qy; iss >> qz;
 
-                            this->trackers_[idx]->Update(a, b, c, qw, qx, qy, qz);
+                            if (idx < this->devices_.size())
+                            {
+                                this->trackers_[idx]->Update(a, b, c, qw, qx, qy, qz);
+                                s = s + " updated";
+                            }
+                            else
+                            {
+                                s = s + " idinvalid";
+                            }
+
+                        }
+                        else if (word == "getdevicepose")
+                        {
+                            int idx;
+                            iss >> idx;
+
+                            vr::TrackedDevicePose_t hmd_pose[10];
+                            vr::VRServerDriverHost()->GetRawTrackedDevicePoses(0, hmd_pose, 10);
+
+                            vr::HmdQuaternion_t q = GetRotation(hmd_pose[idx].mDeviceToAbsoluteTracking);
+                            vr::HmdVector3_t pos = GetPosition(hmd_pose[idx].mDeviceToAbsoluteTracking);
+
+                            s = s + " " + std::to_string(pos.v[0]) +
+                                " " + std::to_string(pos.v[1]) +
+                                " " + std::to_string(pos.v[2]) +
+                                " " + std::to_string(q.w) +
+                                " " + std::to_string(q.x) +
+                                " " + std::to_string(q.y) +
+                                " " + std::to_string(q.z) + "\n";
                         }
                     }
 
-                    std::string s = "OK\0";
+                    s = s + "  OK\0";
 
                     DWORD dwWritten;
                     WriteFile(inPipe,

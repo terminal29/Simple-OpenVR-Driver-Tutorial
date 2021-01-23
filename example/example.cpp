@@ -9,18 +9,18 @@ int main()
 	const int BUFSIZE = 1024;
 	std::string pipeName = "\\\\.\\pipe\\ApriltagPipeIn";
 
-	LPTSTR lpszWrite = TEXT("addtracker");
+	LPTSTR lpszWrite[7] = { TEXT("addtracker"), TEXT("updatepose 0 0 1 0 1 0 0 0"), TEXT("updatepose 5 0 1 0 1 0 0 0"),  TEXT("getdevicepose 0"),  TEXT("getdevicepose 1"),  TEXT("getdevicepose 3"),  TEXT("getdevicepose 7") };
 	TCHAR chReadBuf[BUFSIZE];
 	BOOL fSuccess;
 	DWORD cbRead;
 	LPTSTR lpszPipename = TEXT("\\\\.\\pipe\\ApriltagPipeIn");
 
 
-	for (int i = 0; i < 61; i++) {
+	for (int i = 0; i < 7; i++) {
 		fSuccess = CallNamedPipe(
 			lpszPipename,        // pipe name 
-			lpszWrite,           // message to server 
-			(lstrlen(lpszWrite) + 1) * sizeof(TCHAR), // message length 
+			lpszWrite[i],           // message to server 
+			(lstrlen(lpszWrite[i]) + 1) * sizeof(TCHAR), // message length 
 			chReadBuf,              // buffer to receive reply 
 			BUFSIZE * sizeof(TCHAR),  // size of read buffer 
 			&cbRead,                // number of bytes read 
@@ -43,7 +43,7 @@ int main()
 		}
 		//lpszWrite = TEXT("updatepose 0 0 1 0 1 0 0 0");
 	}
-	Sleep(1000);
+	Sleep(15000);
 
 	/*
 
