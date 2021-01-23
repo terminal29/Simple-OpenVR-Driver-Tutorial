@@ -9,6 +9,7 @@
 
 #include <Driver/IVRDriver.hpp>
 #include <Driver/IVRDevice.hpp>
+#include <Driver/TrackerDevice.hpp>
 
 
 namespace ExampleDriver {
@@ -37,8 +38,10 @@ namespace ExampleDriver {
         virtual ~VRDriver() = default;
 
     private:
-        HANDLE hmdPipe;
+        HANDLE inPipe;
+        HANDLE outPipe;
         std::vector<std::shared_ptr<IVRDevice>> devices_;
+        std::vector<std::shared_ptr<TrackerDevice>> trackers_;
         std::vector<vr::VREvent_t> openvr_events_;
         std::chrono::milliseconds frame_timing_ = std::chrono::milliseconds(16);
         std::chrono::system_clock::time_point last_frame_time_ = std::chrono::system_clock::now();
@@ -46,6 +49,7 @@ namespace ExampleDriver {
 
         vr::HmdQuaternion_t GetRotation(vr::HmdMatrix34_t matrix);
         vr::HmdVector3_t GetPosition(vr::HmdMatrix34_t matrix);
+        void PipeThread();
 
         int pipeNum = 1;
         double smoothFactor = 0.2;

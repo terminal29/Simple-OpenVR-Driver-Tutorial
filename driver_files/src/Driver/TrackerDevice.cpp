@@ -15,6 +15,11 @@ std::string ExampleDriver::TrackerDevice::GetSerial()
 
 void ExampleDriver::TrackerDevice::Update()
 {
+    return;
+}
+
+void ExampleDriver::TrackerDevice::Update(double a, double b, double c, double qw, double qx, double qy, double qz)
+{
     if (this->device_index_ == vr::k_unTrackedDeviceIndexInvalid)
         return;
 
@@ -43,59 +48,19 @@ void ExampleDriver::TrackerDevice::Update()
     // Setup pose for this frame
     auto pose = this->last_pose_;
 
-    if (PeekNamedPipe(hpipe, NULL, 0, NULL, &dwRead, NULL) != FALSE)
-    {
-        //if data is ready,
-        if (dwRead > 0)
-        {
-            //we go and read it into our buffer
-            if (ReadFile(hpipe, buffer, sizeof(buffer) - 1, &dwRead, NULL) != FALSE)
-            {
+    //send the new position and rotation from the pipe to the tracker object
+    pose.vecPosition[0] = a;
+    pose.vecPosition[1] = b;
+    pose.vecPosition[2] = c;
 
-                buffer[dwRead] = '\0'; //add terminating zero
-                //convert our buffer to string
-                std::string s = buffer;
+    pose.qRotation.w = qw;
+    pose.qRotation.x = qx;
+    pose.qRotation.y = qy;
+    pose.qRotation.z = qz;
 
-                //first three variables are a position vector
-                double a;
-                double b;
-                double c;
-
-                //second four are rotation quaternion
-                double qw;
-                double qx;
-                double qy;
-                double qz;
-
-                //convert to string stream
-                std::istringstream iss(s);
-
-                //read to our variables
-                iss >> a;
-                iss >> b;
-                iss >> c;
-                iss >> qw;
-                iss >> qx;
-                iss >> qy;
-                iss >> qz;
-
-                //send the new position and rotation from the pipe to the tracker object
-                pose.vecPosition[0] = a;
-                pose.vecPosition[1] = b;
-                pose.vecPosition[2] = c;
-
-                pose.qRotation.w = qw;
-                pose.qRotation.x = qx;
-                pose.qRotation.y = qy;
-                pose.qRotation.z = qz;
-
-                // Post pose
-                GetDriver()->GetDriverHost()->TrackedDevicePoseUpdated(this->device_index_, pose, sizeof(vr::DriverPose_t));
-                this->last_pose_ = pose;
-            }
-        }
-    }  
-    
+    // Post pose
+    GetDriver()->GetDriverHost()->TrackedDevicePoseUpdated(this->device_index_, pose, sizeof(vr::DriverPose_t));
+    this->last_pose_ = pose;
 }
 
 DeviceType ExampleDriver::TrackerDevice::GetDeviceType()

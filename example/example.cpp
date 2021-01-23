@@ -4,8 +4,72 @@ int main()
 {
 	std::cout << "Waiting..." << std::endl;
 
-	std::string pipeName = "\\\\.\\pipe\\HMDPipe";
 
+
+	const int BUFSIZE = 1024;
+	std::string pipeName = "\\\\.\\pipe\\ApriltagPipeIn";
+
+	LPTSTR lpszWrite = TEXT("addtracker");
+	TCHAR chReadBuf[BUFSIZE];
+	BOOL fSuccess;
+	DWORD cbRead;
+	LPTSTR lpszPipename = TEXT("\\\\.\\pipe\\ApriltagPipeIn");
+
+
+	for (int i = 0; i < 61; i++) {
+		fSuccess = CallNamedPipe(
+			lpszPipename,        // pipe name 
+			lpszWrite,           // message to server 
+			(lstrlen(lpszWrite) + 1) * sizeof(TCHAR), // message length 
+			chReadBuf,              // buffer to receive reply 
+			BUFSIZE * sizeof(TCHAR),  // size of read buffer 
+			&cbRead,                // number of bytes read 
+			2000);                 // waits for 20 seconds 
+
+		if (fSuccess || GetLastError() == ERROR_MORE_DATA)
+		{
+			std::cout << chReadBuf << std::endl;
+
+			// The pipe is closed; no more data can be read. 
+
+			if (!fSuccess)
+			{
+				printf("\nExtra data in message was lost\n");
+			}
+		}
+		else
+		{
+			std::cout << GetLastError() << " :(" << std::endl;
+		}
+		//lpszWrite = TEXT("updatepose 0 0 1 0 1 0 0 0");
+	}
+	Sleep(1000);
+
+	/*
+
+	HANDLE pipe;
+	//open the pipe
+	pipe = CreateFileA(pipeName.c_str(),
+		GENERIC_READ | GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		0,
+		NULL);
+
+	if (pipe == INVALID_HANDLE_VALUE)
+	{
+		std::cout << "error :(" << std::endl;
+	}
+	else
+	{
+
+	}
+
+	//wait for a second to ensure data was sent and next pipe is set up if there is more than one tracker
+	Sleep(1000);
+
+	
 	hmdPipe = CreateNamedPipeA(pipeName.c_str(),
 		PIPE_ACCESS_DUPLEX,
 		PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,   // FILE_FLAG_FIRST_PIPE_INSTANCE is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists...
@@ -126,6 +190,7 @@ int main()
 	}
 
 	return 0;
+	*/
 }
 
 void Send(int id, double a, double b, double c, double qw, double qx, double qy, double qz)

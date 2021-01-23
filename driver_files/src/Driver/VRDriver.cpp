@@ -20,7 +20,28 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
     //this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice_Left", ControllerDevice::Handedness::LEFT));
     //this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice_Right", ControllerDevice::Handedness::RIGHT));
     
+    std::string inPipeName = "\\\\.\\pipe\\ApriltagPipeIn";
+
+    inPipe = CreateNamedPipeA(inPipeName.c_str(),
+        PIPE_ACCESS_DUPLEX,
+        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE |PIPE_NOWAIT,   // FILE_FLAG_FIRST_PIPE_INSTANCE is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists...
+        1,
+        1024 * 16,
+        1024 * 16,
+        NMPWAIT_USE_DEFAULT_WAIT,
+        NULL);
+
+    //if pipe was successfully created wait for a connection
+    ConnectNamedPipe(inPipe, NULL);
+
+    std::thread pipeThread(&ExampleDriver::VRDriver::PipeThread, this);
+    pipeThread.detach();
+
+    /*
+
     std::string hmdPipeName = "\\\\.\\pipe\\HMDPipe";
+
+
 
     //open the pipe
     hmdPipe = CreateFileA(hmdPipeName.c_str(),
@@ -92,6 +113,8 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
     //this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_A"));
     //this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_B"));
 
+    */
+
     Log("AprilTag Driver Loaded Successfully");
 
 	return vr::VRInitError_None;
@@ -99,6 +122,67 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
 
 void ExampleDriver::VRDriver::Cleanup()
 {
+}
+
+void ExampleDriver::VRDriver::PipeThread()
+{
+    char buffer[1024];
+    DWORD dwWritten;
+    DWORD dwRead;
+
+    for (;;) 
+    {
+        if (PeekNamedPipe(inPipe, NULL, 0, NULL, &dwRead, NULL) != FALSE)
+        {
+            //if data is ready,
+            if (dwRead > 0)
+            {
+                //we go and read it into our buffer
+                if (ReadFile(inPipe, buffer, sizeof(buffer) - 1, &dwRead, NULL) != FALSE)
+                {
+                    buffer[dwRead] = '\0'; //add terminating zero
+                    //convert our buffer to string
+
+                    std::string rec = buffer;
+                    std::istringstream iss(rec);
+                    std::string word;
+                    while (iss >> word)
+                    {
+                        if (word == "addtracker")
+                        {
+                            //MessageBoxA(NULL, word.c_str(), "Example Driver", MB_OK);
+                            auto addtracker = std::make_shared<TrackerDevice>("AprilTracker" + std::to_string(this->devices_.size()), inPipe);
+                            this->AddDevice(addtracker);
+                            this->trackers_.push_back(addtracker);
+                        }
+                        else if (word == "updatepose")
+                        {
+                            int idx;
+                            double a, b, c, qw, qx, qy, qz;
+                            iss >> idx; iss >> a; iss >> b; iss >> c; iss >> qw; iss >> qx; iss >> qy; iss >> qz;
+
+                            this->trackers_[idx]->Update(a, b, c, qw, qx, qy, qz);
+                        }
+                    }
+
+                    std::string s = "OK\0";
+
+                    DWORD dwWritten;
+                    WriteFile(inPipe,
+                        s.c_str(),
+                        (s.length() + 1),   // = length of string + terminating '\0' !!!
+                        &dwWritten,
+                        NULL);
+                }
+            }
+            DisconnectNamedPipe(inPipe);
+            ConnectNamedPipe(inPipe, NULL);
+        }
+        else
+        {
+            Sleep(1);
+        }
+    }
 }
 
 void ExampleDriver::VRDriver::RunFrame()
@@ -116,6 +200,9 @@ void ExampleDriver::VRDriver::RunFrame()
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
     this->frame_timing_ = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->last_frame_time_);
     this->last_frame_time_ = now;
+
+
+    /*
 
     // Update devices
     for (auto& device : this->devices_)
@@ -142,7 +229,7 @@ void ExampleDriver::VRDriver::RunFrame()
         (s.length() + 1),   // = length of string + terminating '\0' !!!
         &dwWritten,
         NULL);
-
+    */
 }
 
 bool ExampleDriver::VRDriver::ShouldBlockStandbyMode()
