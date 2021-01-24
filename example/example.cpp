@@ -1,202 +1,116 @@
 #include "example.h"
 
+const int BUFSIZE = 1024;
+
+TCHAR chReadBuf[BUFSIZE];
+BOOL fSuccess;
+DWORD cbRead;
+LPTSTR lpszPipename = TEXT("\\\\.\\pipe\\ApriltagPipeIn");
+
+int trackernum = 4;
+
 int main()
 {
 	std::cout << "Waiting..." << std::endl;
 
-
-
 	const int BUFSIZE = 1024;
 	std::string pipeName = "\\\\.\\pipe\\ApriltagPipeIn";
 
-	LPTSTR lpszWrite[7] = { TEXT("addtracker"), TEXT("updatepose 0 0 1 0 1 0 0 0"), TEXT("updatepose 5 0 1 0 1 0 0 0"),  TEXT("getdevicepose 0"),  TEXT("getdevicepose 1"),  TEXT("getdevicepose 3"),  TEXT("getdevicepose 7") };
-	TCHAR chReadBuf[BUFSIZE];
-	BOOL fSuccess;
-	DWORD cbRead;
-	LPTSTR lpszPipename = TEXT("\\\\.\\pipe\\ApriltagPipeIn");
+	std::istringstream ret;
+	std::string word;
 
-
-	for (int i = 0; i < 7; i++) {
-		fSuccess = CallNamedPipe(
-			lpszPipename,        // pipe name 
-			lpszWrite[i],           // message to server 
-			(lstrlen(lpszWrite[i]) + 1) * sizeof(TCHAR), // message length 
-			chReadBuf,              // buffer to receive reply 
-			BUFSIZE * sizeof(TCHAR),  // size of read buffer 
-			&cbRead,                // number of bytes read 
-			2000);                 // waits for 20 seconds 
-
-		if (fSuccess || GetLastError() == ERROR_MORE_DATA)
-		{
-			std::cout << chReadBuf << std::endl;
-
-			// The pipe is closed; no more data can be read. 
-
-			if (!fSuccess)
-			{
-				printf("\nExtra data in message was lost\n");
-			}
-		}
-		else
-		{
-			std::cout << GetLastError() << " :(" << std::endl;
-		}
-		//lpszWrite = TEXT("updatepose 0 0 1 0 1 0 0 0");
-	}
-	Sleep(15000);
-
-	/*
-
-	HANDLE pipe;
-	//open the pipe
-	pipe = CreateFileA(pipeName.c_str(),
-		GENERIC_READ | GENERIC_WRITE,
-		0,
-		NULL,
-		OPEN_EXISTING,
-		0,
-		NULL);
-
-	if (pipe == INVALID_HANDLE_VALUE)
+	ret = Send(TEXT("numtrackers"));
+	ret >> word;
+	if (word != "numtrackers")
 	{
-		std::cout << "error :(" << std::endl;
+		std::cout << "Wrong message received!" << std::endl;
+		return 24;
 	}
-	else
+	int connected_trackers;
+	ret >> connected_trackers;
+	for(int i = connected_trackers;i<trackernum;i++)
 	{
-
+		ret = Send(TEXT("addtracker"));
+		ret >> word;
+		if (word != "added")
+		{
+			std::cout << "Wrong message received!" << std::endl;
+			return 25;
+		}
 	}
 
-	//wait for a second to ensure data was sent and next pipe is set up if there is more than one tracker
 	Sleep(1000);
 
-	
-	hmdPipe = CreateNamedPipeA(pipeName.c_str(),
-		PIPE_ACCESS_DUPLEX,
-		PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,   // FILE_FLAG_FIRST_PIPE_INSTANCE is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists...
-		1,
-		1024 * 16,
-		1024 * 16,
-		NMPWAIT_USE_DEFAULT_WAIT,
-		NULL);
-	if (hmdPipe != INVALID_HANDLE_VALUE)
+	while (true)
 	{
-		//if pipe was successfully created wait for a connection
-		if (ConnectNamedPipe(hmdPipe, NULL) != FALSE)   // wait for someone to connect to the pipe
+		ret = Send(TEXT("getdevicepose 1"));
+		ret >> word;
+		if (word != "devicepose")
 		{
-			//when pipe is connected, send number of pipes and driversmoothfactor to our connected driver
-			std::cout << "Connected!" << std::endl;
-
+			std::cout << "Wrong message received!" << std::endl;
+			return 26;
 		}
+
+		//first three variables are a position vector
+		int idx; double a; double b; double c;
+
+		//second four are rotation quaternion
+		double qw; double qx; double qy; double qz;
+
+		//read to our variables
+		ret >> idx; ret >> a; ret >> b; ret >> c; ret >> qw; ret >> qx; ret >> qy; ret >> qz;
+
+		std::cout << a << " " << b << " " << c << std::endl;
+
+		SendTracker(0, a + 1, b, c, qw, qx, qy, qz);
+		SendTracker(1, a - 1, b, c, qw, qx, qy, qz);
+		SendTracker(2, a, b, c + 1, qw, qx, qy, qz);
+		SendTracker(3, a, b, c - 1, qw, qx, qy, qz);
+
+		Sleep(10);
+	}
+}
+
+std::istringstream Send(LPTSTR lpszWrite)
+{
+	fSuccess = CallNamedPipeA(
+		lpszPipename,        // pipe name 
+		lpszWrite,           // message to server 
+		(lstrlen(lpszWrite) + 1) * sizeof(TCHAR), // message length 
+		chReadBuf,              // buffer to receive reply 
+		BUFSIZE * sizeof(TCHAR),  // size of read buffer 
+		&cbRead,                // number of bytes read 
+		2000);                 // waits for 2 seconds 
+
+	if (fSuccess || GetLastError() == ERROR_MORE_DATA)
+	{
+		std::cout << chReadBuf << std::endl;
+		chReadBuf[cbRead] = '\0'; //add terminating zero
+					//convert our buffer to string
+		std::string rec = chReadBuf;
+		std::istringstream iss(rec);
+		// The pipe is closed; no more data can be read. 
+
+		if (!fSuccess)
+		{
+			printf("\nExtra data in message was lost\n");
+		}
+		return iss;
 	}
 	else
 	{
-		std::cout << "Could not connect!" << std::endl;
-		return 1;
+		//std::cout << GetLastError() << " :(" << std::endl;
+		std::string rec = " senderror";
+		std::istringstream iss(rec);
+		return iss;
 	}
-
-	for (int i = 0; i < pipeNum; i++)
-	{
-		//create a pipe with given name and index
-		std::string pipeName = "\\\\.\\pipe\\TrackPipe" + std::to_string(i);
-		HANDLE pipe;
-		pipe = CreateNamedPipeA(pipeName.c_str(),
-			PIPE_ACCESS_DUPLEX,
-			PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,   // FILE_FLAG_FIRST_PIPE_INSTANCE is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists...
-			1,
-			1024 * 16,
-			1024 * 16,
-			NMPWAIT_USE_DEFAULT_WAIT,
-			NULL);
-		if (pipe != INVALID_HANDLE_VALUE)
-		{
-			//if pipe was successfully created wait for a connection
-			if (ConnectNamedPipe(pipe, NULL) != FALSE)   // wait for someone to connect to the pipe
-			{
-				//when pipe is connected, send number of pipes and driversmoothfactor to our connected driver
-				std::string s = std::to_string(pipeNum) + " 0";
-
-				std::cout << "Connected tracker " << i << "!" << std::endl;
-
-				//write our data to pipe
-				WriteFile(pipe,
-					s.c_str(),
-					(s.length() + 1),   // = length of string + terminating '\0' !!!
-					&dwWritten,
-					NULL);
-
-			}
-		}
-		else
-		{
-			std::cout << "Could not connect!" << std::endl;
-			return 1;
-		}
-		//add our pipe to our global list of pipes
-		hpipe.push_back(pipe);
-	}
-
-	for (;;)
-	{
-		//std::cout << "frame" << std::endl;
-		if (ReadFile(hmdPipe, buffer, sizeof(buffer) - 1, &dwRead, NULL) != FALSE)		//Wait untill HMD position data is availible, then read data to buffer.
-		{
-			buffer[dwRead] = '\0'; //add terminating zero
-				//convert our buffer to string
-			std::string s = buffer;
-
-			//first three variables are a position vector
-			double a;
-			double b;
-			double c;
-
-			//second four are rotation quaternion
-			double qw;
-			double qx;
-			double qy;
-			double qz;
-
-			std::cout << s << std::endl;		//print the rotation and position data to console
-	
-			//convert to string stream
-			std::istringstream iss(s);
-
-			//read to our variables
-			iss >> a;
-			iss >> b;
-			iss >> c;
-			iss >> qw;
-			iss >> qx;
-			iss >> qy;
-			iss >> qz;
-
-			//a, b, c is now headset position in meters, qw, qx, qy, qz is heatset rotation in quaternion.
-
-			//do processing here
-
-			if (waitFrames <= 0)		//after starting program, wait for some time
-			{
-				//send the position data for each tracker. In this example, i have 4 trackers (pipeNum variable) and will put one left, one right, one in front and one behind the headset.
-				Send(0, a + 1, b, c, qw, qx, qy, qz);
-				Send(1, a - 1, b, c, qw, qx, qy, qz);
-				Send(2, a, b, c + 1, qw, qx, qy, qz);
-				Send(3, a, b, c - 1, qw, qx, qy, qz);
-			}
-			else
-			{
-				waitFrames--;
-			}
-
-		}
-	}
-
-	return 0;
-	*/
 }
 
-void Send(int id, double a, double b, double c, double qw, double qx, double qy, double qz)
+std::istringstream SendTracker(int id, double a, double b, double c, double qw, double qx, double qy, double qz)
 {
 	std::string s;
-	s = std::to_string(a) +
+	s = " updatepose " + std::to_string(id) +
+		" " + std::to_string(a) +
 		" " + std::to_string(b) +
 		" " + std::to_string(c) +
 		" " + std::to_string(qw) +
@@ -206,9 +120,7 @@ void Send(int id, double a, double b, double c, double qw, double qx, double qy,
 
 	//send the string to our driver
 
-	WriteFile(hpipe[id],
-		s.c_str(),
-		(s.length() + 1),   // = length of string + terminating '\0' !!!
-		&dwWritten,
-		NULL);
+	LPTSTR sendstring = (LPTSTR)s.c_str();
+
+	return Send(sendstring);
 }

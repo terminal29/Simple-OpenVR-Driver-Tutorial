@@ -187,13 +187,45 @@ void ExampleDriver::VRDriver::PipeThread()
                             vr::HmdQuaternion_t q = GetRotation(hmd_pose[idx].mDeviceToAbsoluteTracking);
                             vr::HmdVector3_t pos = GetPosition(hmd_pose[idx].mDeviceToAbsoluteTracking);
 
+                            s = s + " devicepose " + std::to_string(idx);
                             s = s + " " + std::to_string(pos.v[0]) +
                                 " " + std::to_string(pos.v[1]) +
                                 " " + std::to_string(pos.v[2]) +
                                 " " + std::to_string(q.w) +
                                 " " + std::to_string(q.x) +
                                 " " + std::to_string(q.y) +
-                                " " + std::to_string(q.z) + "\n";
+                                " " + std::to_string(q.z);
+                        }
+                        else if (word == "gettrackerpose")
+                        {
+                            int idx;
+                            iss >> idx;
+
+                            if (idx < this->devices_.size())
+                            {
+                                s = s + " trackerpose " + std::to_string(idx);
+                                vr::DriverPose_t pose = this->trackers_[idx]->GetPose();
+                                s = s + " " + std::to_string(pose.vecPosition[0]) +
+                                    " " + std::to_string(pose.vecPosition[1]) +
+                                    " " + std::to_string(pose.vecPosition[2]) +
+                                    " " + std::to_string(pose.qRotation.w) +
+                                    " " + std::to_string(pose.qRotation.x) +
+                                    " " + std::to_string(pose.qRotation.y) +
+                                    " " + std::to_string(pose.qRotation.z);
+                            }
+                            else
+                            {
+                                s = s + " idinvalid";
+                            }
+
+                        }
+                        else if (word == "numtrackers")
+                        {
+                            s = s + " numtrackers " + std::to_string(this->devices_.size());
+                        }
+                        else
+                        {
+                            s = s + "  unrecognized";
                         }
                     }
 
