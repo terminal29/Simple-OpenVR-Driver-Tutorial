@@ -6,6 +6,7 @@ TCHAR chReadBuf[BUFSIZE];
 BOOL fSuccess;
 DWORD cbRead;
 LPTSTR lpszPipename = TEXT("\\\\.\\pipe\\ApriltagPipeIn");
+LPTSTR lpszPipenameSync = TEXT("\\\\.\\pipe\\ApriltagPipeSync");
 
 int trackernum = 4;
 
@@ -43,11 +44,17 @@ int main()
 
 	while (true)
 	{
-		ret = Send(TEXT("getdevicepose 1"));
+		clock_t start, end;
+		//for timing our detection
+		start = clock();
+
+		Sync();
+		ret = Send(TEXT("getdevicepose 0"));
 		ret >> word;
 		if (word != "devicepose")
 		{
-			std::cout << "Wrong message received!" << std::endl;
+			std::cout << "Wrong message received!" << " " << word << std::endl;
+			continue;
 			return 26;
 		}
 
@@ -62,18 +69,25 @@ int main()
 
 		std::cout << a << " " << b << " " << c << std::endl;
 
+		//Sync();
+
 		SendTracker(0, a + 1, b, c, qw, qx, qy, qz);
 		SendTracker(1, a - 1, b, c, qw, qx, qy, qz);
 		SendTracker(2, a, b, c + 1, qw, qx, qy, qz);
 		SendTracker(3, a, b, c - 1, qw, qx, qy, qz);
 
-		Sleep(10);
+		end = clock();
+		double frameTime = double(end - start) / double(CLOCKS_PER_SEC);
+
+		std::cout << frameTime << double(CLOCKS_PER_SEC) << std::endl;
+
+		//Sleep(6);
 	}
 }
 
 std::istringstream Send(LPTSTR lpszWrite)
 {
-	fSuccess = CallNamedPipeA(
+	fSuccess = CallNamedPipe(
 		lpszPipename,        // pipe name 
 		lpszWrite,           // message to server 
 		(lstrlen(lpszWrite) + 1) * sizeof(TCHAR), // message length 
@@ -99,10 +113,33 @@ std::istringstream Send(LPTSTR lpszWrite)
 	}
 	else
 	{
-		//std::cout << GetLastError() << " :(" << std::endl;
+		std::cout << GetLastError() << " :(" << std::endl;
 		std::string rec = " senderror";
 		std::istringstream iss(rec);
 		return iss;
+	}
+}
+
+void Sync()
+{
+	LPTSTR lpszWrite = TEXT("SYNC");
+	fSuccess = CallNamedPipe(
+		lpszPipenameSync,        // pipe name 
+		lpszWrite,           // message to server 
+		(lstrlen(lpszWrite) + 1) * sizeof(TCHAR), // message length 
+		chReadBuf,              // buffer to receive reply 
+		BUFSIZE * sizeof(TCHAR),  // size of read buffer 
+		&cbRead,                // number of bytes read 
+		2000);                 // waits for 2 seconds 
+
+	if (fSuccess || GetLastError() == ERROR_MORE_DATA)
+	{
+		std::cout << chReadBuf << std::endl;
+
+		if (!fSuccess)
+		{
+			printf("\nExtra data in message was lost\n");
+		}
 	}
 }
 

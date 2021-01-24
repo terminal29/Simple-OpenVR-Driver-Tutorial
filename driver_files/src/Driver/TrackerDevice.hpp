@@ -45,6 +45,8 @@ namespace ExampleDriver {
         DWORD dwWritten;
         DWORD dwRead;
 
+        double wantedPose[7] = { 0,0,0,1,0,0,0 };
+
         vr::DriverPose_t last_pose_ = IVRDevice::MakeDefaultPose();
 
         bool did_vibrate_ = false;

@@ -24,7 +24,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
 
     inPipe = CreateNamedPipeA(inPipeName.c_str(),
         PIPE_ACCESS_DUPLEX,
-        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE |PIPE_NOWAIT,   // FILE_FLAG_FIRST_PIPE_INSTANCE is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists...
+        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE |PIPE_WAIT,   // FILE_FLAG_FIRST_PIPE_INSTANCE is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists...
         1,
         1024 * 16,
         1024 * 16,
@@ -32,88 +32,28 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
         NULL);
 
     //if pipe was successfully created wait for a connection
-    ConnectNamedPipe(inPipe, NULL);
+    //ConnectNamedPipe(inPipe, NULL);
+
+    std::string syncPipeName = "\\\\.\\pipe\\ApriltagPipeSync";
+
+    syncPipe = CreateNamedPipeA(syncPipeName.c_str(),
+        PIPE_ACCESS_DUPLEX,
+        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT,   // FILE_FLAG_FIRST_PIPE_INSTANCE is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists...
+        1,
+        1024 * 16,
+        1024 * 16,
+        NMPWAIT_USE_DEFAULT_WAIT,
+        NULL);
+
+    //if pipe was successfully created wait for a connection
+    ConnectNamedPipe(syncPipe, NULL);
 
     std::thread pipeThread(&ExampleDriver::VRDriver::PipeThread, this);
     pipeThread.detach();
-
-    /*
-
-    std::string hmdPipeName = "\\\\.\\pipe\\HMDPipe";
-
-
-
-    //open the pipe
-    hmdPipe = CreateFileA(hmdPipeName.c_str(),
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        NULL,
-        OPEN_EXISTING,
-        0,
-        NULL);
-
-    if (hmdPipe == INVALID_HANDLE_VALUE)
-    {
-        //if connection was unsuccessful, return an error. This means SteamVR will start without this driver running
-        return vr::EVRInitError::VRInitError_Driver_Failed;
-    }
-    //wait for a second to ensure data was sent and next pipe is set up if there is more than one tracker
-
-    Sleep(1000);
-    
-    // Add a tracker
-    char buffer[1024];
-    DWORD dwWritten;
-    DWORD dwRead;
-    
-    //on init, we try to connect to our pipes
-    for (int i = 0; i < pipeNum; i++)
-    {
-        //MessageBoxA(NULL, "It works!  " + pipeNum, "Example Driver", MB_OK);
-        HANDLE pipe;
-        //pipe name, same as in our server program
-        std::string pipeName = "\\\\.\\pipe\\TrackPipe" + std::to_string(i);
-
-        //open the pipe
-        pipe = CreateFileA(pipeName.c_str(),
-            GENERIC_READ | GENERIC_WRITE,
-            0,
-            NULL,
-            OPEN_EXISTING,
-            0,
-            NULL);
-
-        if (pipe == INVALID_HANDLE_VALUE)
-        {
-            //if connection was unsuccessful, return an error. This means SteamVR will start without this driver running
-            return vr::EVRInitError::VRInitError_Driver_Failed;
-        }
-
-        //wait for a second to ensure data was sent and next pipe is set up if there is more than one tracker
-        Sleep(1000);
-
-        //read the number of pipes and smoothing factor from the pipe
-        if (ReadFile(pipe, buffer, sizeof(buffer) - 1, &dwRead, NULL) != FALSE)
-        {
-            //we receive raw data, so we first add terminating zero and save to a string.
-            buffer[dwRead] = '\0'; //add terminating zero
-            std::string s = buffer;
-            //from a string, we convert to a string stream for easier reading of each sent value
-            std::istringstream iss(s);
-            //read each value into our variables
-
-            iss >> pipeNum;
-            iss >> smoothFactor;
-        }
-        //save our pipe to global
-        this->AddDevice(std::make_shared<TrackerDevice>("AprilTracker"+std::to_string(i),pipe));
-    }
-    
+  
     // Add a couple tracking references
     //this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_A"));
     //this->AddDevice(std::make_shared<TrackingReferenceDevice>("Example_TrackingReference_B"));
-
-    */
 
     Log("AprilTag Driver Loaded Successfully");
 
@@ -132,120 +72,119 @@ void ExampleDriver::VRDriver::PipeThread()
 
     for (;;) 
     {
-        if (PeekNamedPipe(inPipe, NULL, 0, NULL, &dwRead, NULL) != FALSE)
+        ConnectNamedPipe(inPipe, NULL);
+        //MessageBoxA(NULL, "connected", "Example Driver", MB_OK);
+
+        //we go and read it into our buffer
+        if (ReadFile(inPipe, buffer, sizeof(buffer) - 1, &dwRead, NULL) != FALSE)
         {
-            //if data is ready,
-            if (dwRead > 0)
+            //MessageBoxA(NULL, "connected2", "Example Driver", MB_OK);
+            buffer[dwRead] = '\0'; //add terminating zero
+            //convert our buffer to string
+
+            std::string rec = buffer;
+            std::istringstream iss(rec);
+            std::string word;
+
+            std::string s = "";
+
+            while (iss >> word)
             {
-                //we go and read it into our buffer
-                if (ReadFile(inPipe, buffer, sizeof(buffer) - 1, &dwRead, NULL) != FALSE)
+                if (word == "addtracker")
                 {
-                    buffer[dwRead] = '\0'; //add terminating zero
-                    //convert our buffer to string
+                    //MessageBoxA(NULL, word.c_str(), "Example Driver", MB_OK);
+                    auto addtracker = std::make_shared<TrackerDevice>("AprilTracker" + std::to_string(this->devices_.size()), inPipe);
+                    this->AddDevice(addtracker);
+                    this->trackers_.push_back(addtracker);
+                    s = s + " added";
+                }
+                else if (word == "updatepose")
+                {
+                    int idx;
+                    double a, b, c, qw, qx, qy, qz;
+                    iss >> idx; iss >> a; iss >> b; iss >> c; iss >> qw; iss >> qx; iss >> qy; iss >> qz;
 
-                    std::string rec = buffer;
-                    std::istringstream iss(rec);
-                    std::string word;
-
-                    std::string s = "";
-
-                    while (iss >> word)
+                    if (idx < this->devices_.size())
                     {
-                        if (word == "addtracker")
-                        {
-                            //MessageBoxA(NULL, word.c_str(), "Example Driver", MB_OK);
-                            auto addtracker = std::make_shared<TrackerDevice>("AprilTracker" + std::to_string(this->devices_.size()), inPipe);
-                            this->AddDevice(addtracker);
-                            this->trackers_.push_back(addtracker);
-                            s = s + " added";
-                        }
-                        else if (word == "updatepose")
-                        {
-                            int idx;
-                            double a, b, c, qw, qx, qy, qz;
-                            iss >> idx; iss >> a; iss >> b; iss >> c; iss >> qw; iss >> qx; iss >> qy; iss >> qz;
-
-                            if (idx < this->devices_.size())
-                            {
-                                this->trackers_[idx]->Update(a, b, c, qw, qx, qy, qz);
-                                s = s + " updated";
-                            }
-                            else
-                            {
-                                s = s + " idinvalid";
-                            }
-
-                        }
-                        else if (word == "getdevicepose")
-                        {
-                            int idx;
-                            iss >> idx;
-
-                            vr::TrackedDevicePose_t hmd_pose[10];
-                            vr::VRServerDriverHost()->GetRawTrackedDevicePoses(0, hmd_pose, 10);
-
-                            vr::HmdQuaternion_t q = GetRotation(hmd_pose[idx].mDeviceToAbsoluteTracking);
-                            vr::HmdVector3_t pos = GetPosition(hmd_pose[idx].mDeviceToAbsoluteTracking);
-
-                            s = s + " devicepose " + std::to_string(idx);
-                            s = s + " " + std::to_string(pos.v[0]) +
-                                " " + std::to_string(pos.v[1]) +
-                                " " + std::to_string(pos.v[2]) +
-                                " " + std::to_string(q.w) +
-                                " " + std::to_string(q.x) +
-                                " " + std::to_string(q.y) +
-                                " " + std::to_string(q.z);
-                        }
-                        else if (word == "gettrackerpose")
-                        {
-                            int idx;
-                            iss >> idx;
-
-                            if (idx < this->devices_.size())
-                            {
-                                s = s + " trackerpose " + std::to_string(idx);
-                                vr::DriverPose_t pose = this->trackers_[idx]->GetPose();
-                                s = s + " " + std::to_string(pose.vecPosition[0]) +
-                                    " " + std::to_string(pose.vecPosition[1]) +
-                                    " " + std::to_string(pose.vecPosition[2]) +
-                                    " " + std::to_string(pose.qRotation.w) +
-                                    " " + std::to_string(pose.qRotation.x) +
-                                    " " + std::to_string(pose.qRotation.y) +
-                                    " " + std::to_string(pose.qRotation.z);
-                            }
-                            else
-                            {
-                                s = s + " idinvalid";
-                            }
-
-                        }
-                        else if (word == "numtrackers")
-                        {
-                            s = s + " numtrackers " + std::to_string(this->devices_.size());
-                        }
-                        else
-                        {
-                            s = s + "  unrecognized";
-                        }
+                        this->trackers_[idx]->Update(a, b, c, qw, qx, qy, qz);
+                        s = s + " updated";
+                    }
+                    else
+                    {
+                        s = s + " idinvalid";
                     }
 
-                    s = s + "  OK\0";
+                }
+                else if (word == "getdevicepose")
+                {
+                    int idx;
+                    iss >> idx;
 
-                    DWORD dwWritten;
-                    WriteFile(inPipe,
-                        s.c_str(),
-                        (s.length() + 1),   // = length of string + terminating '\0' !!!
-                        &dwWritten,
-                        NULL);
+                    vr::TrackedDevicePose_t hmd_pose[10];
+                    vr::VRServerDriverHost()->GetRawTrackedDevicePoses(0, hmd_pose, 10);
+
+                    vr::HmdQuaternion_t q = GetRotation(hmd_pose[idx].mDeviceToAbsoluteTracking);
+                    vr::HmdVector3_t pos = GetPosition(hmd_pose[idx].mDeviceToAbsoluteTracking);
+
+                    s = s + " devicepose " + std::to_string(idx);
+                    s = s + " " + std::to_string(pos.v[0]) +
+                        " " + std::to_string(pos.v[1]) +
+                        " " + std::to_string(pos.v[2]) +
+                        " " + std::to_string(q.w) +
+                        " " + std::to_string(q.x) +
+                        " " + std::to_string(q.y) +
+                        " " + std::to_string(q.z);
+                }
+                else if (word == "gettrackerpose")
+                {
+                    int idx;
+                    iss >> idx;
+
+                    if (idx < this->devices_.size())
+                    {
+                        s = s + " trackerpose " + std::to_string(idx);
+                        vr::DriverPose_t pose = this->trackers_[idx]->GetPose();
+                        s = s + " " + std::to_string(pose.vecPosition[0]) +
+                            " " + std::to_string(pose.vecPosition[1]) +
+                            " " + std::to_string(pose.vecPosition[2]) +
+                            " " + std::to_string(pose.qRotation.w) +
+                            " " + std::to_string(pose.qRotation.x) +
+                            " " + std::to_string(pose.qRotation.y) +
+                            " " + std::to_string(pose.qRotation.z);
+                    }
+                    else
+                    {
+                        s = s + " idinvalid";
+                    }
+
+                }
+                else if (word == "numtrackers")
+                {
+                    s = s + " numtrackers " + std::to_string(this->devices_.size());
+                }
+                else
+                {
+                    s = s + "  unrecognized";
                 }
             }
-            DisconnectNamedPipe(inPipe);
-            ConnectNamedPipe(inPipe, NULL);
+
+            s = s + "  OK\0";
+
+            DWORD dwWritten;
+            WriteFile(inPipe,
+                s.c_str(),
+                (s.length() + 1),   // = length of string + terminating '\0' !!!
+                &dwWritten,
+                NULL);
+        }
+        DisconnectNamedPipe(inPipe);
+        /*
         }
         else
         {
             Sleep(1);
         }
+        */
     }
 }
 
@@ -265,35 +204,52 @@ void ExampleDriver::VRDriver::RunFrame()
     this->frame_timing_ = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->last_frame_time_);
     this->last_frame_time_ = now;
 
-
-    /*
-
-    // Update devices
     for (auto& device : this->devices_)
         device->Update();
 
-    vr::TrackedDevicePose_t hmd_pose[10];
-    vr::VRServerDriverHost()->GetRawTrackedDevicePoses(0, hmd_pose, 10);
-
-    vr::HmdQuaternion_t q = GetRotation(hmd_pose[0].mDeviceToAbsoluteTracking);
-    vr::HmdVector3_t pos = GetPosition(hmd_pose[0].mDeviceToAbsoluteTracking);
-
-    std::string s;
-    s = std::to_string(pos.v[0]) +
-        " " + std::to_string(pos.v[1]) +
-        " " + std::to_string(pos.v[2]) +
-        " " + std::to_string(q.w) +
-        " " + std::to_string(q.x) +
-        " " + std::to_string(q.y) +
-        " " + std::to_string(q.z) + "\n";
-
+    char buffer[1024];
     DWORD dwWritten;
-    WriteFile(hmdPipe,
-        s.c_str(),
-        (s.length() + 1),   // = length of string + terminating '\0' !!!
-        &dwWritten,
-        NULL);
-    */
+    DWORD dwRead;
+
+    while (PeekNamedPipe(syncPipe, NULL, 0, NULL, &dwRead, NULL) != FALSE)
+    {
+        //if data is ready,
+        if (dwRead > 0)
+        {
+            //we go and read it into our buffer
+            if (ReadFile(syncPipe, buffer, sizeof(buffer) - 1, &dwRead, NULL) != FALSE)
+            {
+                std::string s = "";
+
+                /*
+                buffer[dwRead] = '\0'; //add terminating zero
+                //convert our buffer to string
+
+                std::string rec = buffer;
+                std::istringstream iss(rec);
+                std::string word;
+
+                
+
+                while (iss >> word)
+                {
+                    
+                }
+                */
+
+                s = s + "  SYNC\0";
+
+                DWORD dwWritten;
+                WriteFile(syncPipe,
+                    s.c_str(),
+                    (s.length() + 1),   // = length of string + terminating '\0' !!!
+                    &dwWritten,
+                    NULL);
+            }
+        }
+        DisconnectNamedPipe(syncPipe);
+        ConnectNamedPipe(syncPipe, NULL);
+    } 
 }
 
 bool ExampleDriver::VRDriver::ShouldBlockStandbyMode()

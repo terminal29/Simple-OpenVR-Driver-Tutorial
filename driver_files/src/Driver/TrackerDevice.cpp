@@ -15,11 +15,6 @@ std::string ExampleDriver::TrackerDevice::GetSerial()
 
 void ExampleDriver::TrackerDevice::Update()
 {
-    return;
-}
-
-void ExampleDriver::TrackerDevice::Update(double a, double b, double c, double qw, double qx, double qy, double qz)
-{
     if (this->device_index_ == vr::k_unTrackedDeviceIndexInvalid)
         return;
 
@@ -38,7 +33,7 @@ void ExampleDriver::TrackerDevice::Update(double a, double b, double c, double q
 
     // Check if we need to keep vibrating
     if (this->did_vibrate_) {
-        this->vibrate_anim_state_ += (GetDriver()->GetLastFrameTime().count()/1000.f);
+        this->vibrate_anim_state_ += (GetDriver()->GetLastFrameTime().count() / 1000.f);
         if (this->vibrate_anim_state_ > 1.0f) {
             this->did_vibrate_ = false;
             this->vibrate_anim_state_ = 0.0f;
@@ -49,18 +44,29 @@ void ExampleDriver::TrackerDevice::Update(double a, double b, double c, double q
     auto pose = this->last_pose_;
 
     //send the new position and rotation from the pipe to the tracker object
-    pose.vecPosition[0] = a;
-    pose.vecPosition[1] = b;
-    pose.vecPosition[2] = c;
+    pose.vecPosition[0] = wantedPose[0];
+    pose.vecPosition[1] = wantedPose[1];
+    pose.vecPosition[2] = wantedPose[2];
 
-    pose.qRotation.w = qw;
-    pose.qRotation.x = qx;
-    pose.qRotation.y = qy;
-    pose.qRotation.z = qz;
+    pose.qRotation.w = wantedPose[3];
+    pose.qRotation.x = wantedPose[4];
+    pose.qRotation.y = wantedPose[5];
+    pose.qRotation.z = wantedPose[6];
 
     // Post pose
     GetDriver()->GetDriverHost()->TrackedDevicePoseUpdated(this->device_index_, pose, sizeof(vr::DriverPose_t));
     this->last_pose_ = pose;
+}
+
+void ExampleDriver::TrackerDevice::Update(double a, double b, double c, double qw, double qx, double qy, double qz)
+{
+    this->wantedPose[0] = a;
+    this->wantedPose[1] = b;
+    this->wantedPose[2] = c;
+    this->wantedPose[3] = qw;
+    this->wantedPose[4] = qx;
+    this->wantedPose[5] = qy;
+    this->wantedPose[6] = qz;
 }
 
 DeviceType ExampleDriver::TrackerDevice::GetDeviceType()
@@ -83,13 +89,13 @@ vr::EVRInitError ExampleDriver::TrackerDevice::Activate(uint32_t unObjectId)
     auto props = GetDriver()->GetProperties()->TrackedDeviceToPropertyContainer(this->device_index_);
 
     // Setup inputs and outputs
-    GetDriver()->GetInput()->CreateHapticComponent(props, "/output/haptic", &this->haptic_component_);
+    //GetDriver()->GetInput()->CreateHapticComponent(props, "/output/haptic", &this->haptic_component_);
 
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/system/click", &this->system_click_component_);
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/system/touch", &this->system_touch_component_);
+    //GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/system/click", &this->system_click_component_);
+    //GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/system/touch", &this->system_touch_component_);
 
     // Set some universe ID (Must be 2 or higher)
-    GetDriver()->GetProperties()->SetUint64Property(props, vr::Prop_CurrentUniverseId_Uint64, 2);
+    GetDriver()->GetProperties()->SetUint64Property(props, vr::Prop_CurrentUniverseId_Uint64, 3);
     
     // Set up a model "number" (not needed but good to have)
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "apriltag_tracker");
@@ -98,10 +104,10 @@ vr::EVRInitError ExampleDriver::TrackerDevice::Activate(uint32_t unObjectId)
     GetDriver()->GetProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, vr::ETrackedControllerRole::TrackedControllerRole_OptOut);
 
     // Set up a render model path
-    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "vr_controller_05_wireless_b");
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "{htc}/rendermodels/vr_tracker_vive_1_0");
 
     // Set controller profile
-    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, "{apriltagtrackers}/input/example_tracker_bindings.json");
+    //GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, "{apriltagtrackers}/input/example_tracker_bindings.json");
 
     // Set the icon
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReady_String, "{apriltagtrackers}/icons/tracker_ready.png");

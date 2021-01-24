@@ -39,7 +39,7 @@ namespace ExampleDriver {
 
     private:
         HANDLE inPipe;
-        HANDLE outPipe;
+        HANDLE syncPipe;
         std::vector<std::shared_ptr<IVRDevice>> devices_;
         std::vector<std::shared_ptr<TrackerDevice>> trackers_;
         std::vector<vr::VREvent_t> openvr_events_;
