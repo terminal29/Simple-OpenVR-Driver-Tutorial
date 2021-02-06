@@ -6,7 +6,7 @@ ExampleDriver::TrackingReferenceDevice::TrackingReferenceDevice(std::string seri
 {
 
     // Get some random angle to place this tracking reference at in the scene
-    this->random_angle_rad_ = fmod(rand() / 10000.f, 2 * 3.14159f);
+    //this->random_angle_rad_ = fmod(rand() / 10000.f, 2 * 3.14159f);
 }
 
 std::string ExampleDriver::TrackingReferenceDevice::GetSerial()
@@ -47,6 +47,25 @@ void ExampleDriver::TrackingReferenceDevice::Update()
     this->last_pose_ = pose;
 }
 
+void ExampleDriver::TrackingReferenceDevice::UpdatePose(double a, double b, double c, double qw, double qx, double qy, double qz)
+{
+    // Setup pose for this frame
+    auto pose = IVRDevice::MakeDefaultPose();
+
+    pose.vecPosition[0] = a;
+    pose.vecPosition[1] = b;
+    pose.vecPosition[2] = c;
+
+    pose.qRotation.w = qw;
+    pose.qRotation.x = qx;
+    pose.qRotation.y = qy;
+    pose.qRotation.z = qz;
+
+    // Post pose
+    GetDriver()->GetDriverHost()->TrackedDevicePoseUpdated(this->device_index_, pose, sizeof(vr::DriverPose_t));
+    this->last_pose_ = pose;
+}
+
 DeviceType ExampleDriver::TrackingReferenceDevice::GetDeviceType()
 {
     return DeviceType::TRACKING_REFERENCE;
@@ -70,10 +89,10 @@ vr::EVRInitError ExampleDriver::TrackingReferenceDevice::Activate(uint32_t unObj
     GetDriver()->GetProperties()->SetUint64Property(props, vr::Prop_CurrentUniverseId_Uint64, 2);
     
     // Set up a model "number" (not needed but good to have)
-    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "example_trackingreference");
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "apriltag_trackingreference");
 
     // Set up a render model path
-    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "locator");
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "dk2_camera");
 
     // Set the icons
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReady_String, "{example}/icons/trackingreference_ready.png");

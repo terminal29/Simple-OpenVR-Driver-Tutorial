@@ -18,6 +18,7 @@ namespace ExampleDriver {
             // Inherited via IVRDevice
             virtual std::string GetSerial() override;
             virtual void Update() override;
+            virtual void UpdatePose(double a, double b, double c, double qw, double qx, double qy, double qz);
             virtual vr::TrackedDeviceIndex_t GetDeviceIndex() override;
             virtual DeviceType GetDeviceType() override;
 

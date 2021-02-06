@@ -1,8 +1,8 @@
 #include "TrackerDevice.hpp"
 #include <Windows.h>
 
-ExampleDriver::TrackerDevice::TrackerDevice(std::string serial, HANDLE pipe):
-    serial_(serial), hpipe(pipe)
+ExampleDriver::TrackerDevice::TrackerDevice(std::string serial):
+    serial_(serial)
 {
     this->last_pose_ = MakeDefaultPose();
     this->isSetup = false;
@@ -43,6 +43,18 @@ void ExampleDriver::TrackerDevice::Update()
     // Setup pose for this frame
     auto pose = this->last_pose_;
 
+    // Update time delta (for working out velocity)
+    std::chrono::milliseconds time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    double time_since_epoch_seconds = time_since_epoch.count() / 1000.0;
+    double pose_time_delta_seconds = (time_since_epoch - _pose_timestamp).count() / 1000.0;
+
+    // Update pose timestamp
+    _pose_timestamp = time_since_epoch;
+
+    // Copy the previous position data
+    double previous_position[3] = { 0 };
+    std::copy(std::begin(pose.vecPosition), std::end(pose.vecPosition), std::begin(previous_position));
+
     //send the new position and rotation from the pipe to the tracker object
     pose.vecPosition[0] = wantedPose[0];
     pose.vecPosition[1] = wantedPose[1];
@@ -53,20 +65,36 @@ void ExampleDriver::TrackerDevice::Update()
     pose.qRotation.y = wantedPose[5];
     pose.qRotation.z = wantedPose[6];
 
+    pose.vecVelocity[0] = 0.8 * pose.vecVelocity[0] + 0.2 * (pose.vecPosition[0] - previous_position[0]) / pose_time_delta_seconds;
+    pose.vecVelocity[1] = 0.8 * pose.vecVelocity[1] + 0.2 * (pose.vecPosition[1] - previous_position[1]) / pose_time_delta_seconds;
+    pose.vecVelocity[2] = 0.8 * pose.vecVelocity[2] + 0.2 * (pose.vecPosition[2] - previous_position[2]) / pose_time_delta_seconds;
+
+    pose.poseTimeOffset = this->wantedTimeOffset;
+
     // Post pose
     GetDriver()->GetDriverHost()->TrackedDevicePoseUpdated(this->device_index_, pose, sizeof(vr::DriverPose_t));
     this->last_pose_ = pose;
 }
 
-void ExampleDriver::TrackerDevice::Update(double a, double b, double c, double qw, double qx, double qy, double qz)
+void ExampleDriver::TrackerDevice::UpdatePos(double a, double b, double c, double time)
 {
     this->wantedPose[0] = a;
     this->wantedPose[1] = b;
     this->wantedPose[2] = c;
+
+    this->wantedTimeOffset = time;
+
+}
+
+void ExampleDriver::TrackerDevice::UpdateRot(double qw, double qx, double qy, double qz, double time)
+{
     this->wantedPose[3] = qw;
     this->wantedPose[4] = qx;
     this->wantedPose[5] = qy;
     this->wantedPose[6] = qz;
+
+    this->wantedTimeOffset = time;
+
 }
 
 DeviceType ExampleDriver::TrackerDevice::GetDeviceType()

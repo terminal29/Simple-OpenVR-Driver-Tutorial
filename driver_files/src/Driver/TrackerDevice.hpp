@@ -18,13 +18,14 @@ namespace ExampleDriver {
     class TrackerDevice : public IVRDevice {
         public:
 
-            TrackerDevice(std::string serial, HANDLE pipe);
+            TrackerDevice(std::string serial);
             ~TrackerDevice() = default;
 
             // Inherited via IVRDevice
             virtual std::string GetSerial() override;
             virtual void Update() override;
-            virtual void Update(double a, double b, double c, double qw, double qx, double qy, double qz);
+            virtual void UpdatePos(double a, double b, double c, double time);
+            virtual void UpdateRot(double qw, double qx, double qy, double qz, double time);
             virtual vr::TrackedDeviceIndex_t GetDeviceIndex() override;
             virtual DeviceType GetDeviceType() override;
 
@@ -38,14 +39,12 @@ namespace ExampleDriver {
     private:
         vr::TrackedDeviceIndex_t device_index_ = vr::k_unTrackedDeviceIndexInvalid;
         std::string serial_;
-        HANDLE hpipe;
         bool isSetup;
 
-        char buffer[1024];
-        DWORD dwWritten;
-        DWORD dwRead;
+        std::chrono::milliseconds _pose_timestamp;
 
         double wantedPose[7] = { 0,0,0,1,0,0,0 };
+        double wantedTimeOffset = 0;
 
         vr::DriverPose_t last_pose_ = IVRDevice::MakeDefaultPose();
 

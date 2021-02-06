@@ -34,20 +34,6 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
     //if pipe was successfully created wait for a connection
     //ConnectNamedPipe(inPipe, NULL);
 
-    std::string syncPipeName = "\\\\.\\pipe\\ApriltagPipeSync";
-
-    syncPipe = CreateNamedPipeA(syncPipeName.c_str(),
-        PIPE_ACCESS_DUPLEX,
-        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_NOWAIT,   // FILE_FLAG_FIRST_PIPE_INSTANCE is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists...
-        1,
-        1024 * 16,
-        1024 * 16,
-        NMPWAIT_USE_DEFAULT_WAIT,
-        NULL);
-
-    //if pipe was successfully created wait for a connection
-    ConnectNamedPipe(syncPipe, NULL);
-
     std::thread pipeThread(&ExampleDriver::VRDriver::PipeThread, this);
     pipeThread.detach();
   
@@ -93,20 +79,88 @@ void ExampleDriver::VRDriver::PipeThread()
                 if (word == "addtracker")
                 {
                     //MessageBoxA(NULL, word.c_str(), "Example Driver", MB_OK);
-                    auto addtracker = std::make_shared<TrackerDevice>("AprilTracker" + std::to_string(this->devices_.size()), inPipe);
+                    auto addtracker = std::make_shared<TrackerDevice>("AprilTracker" + std::to_string(this->trackers_.size()));
                     this->AddDevice(addtracker);
                     this->trackers_.push_back(addtracker);
                     s = s + " added";
                 }
-                else if (word == "updatepose")
+                if (word == "addstation")
+                {
+                    auto addstation = std::make_shared<TrackingReferenceDevice>("AprilCamera" + std::to_string(this->devices_.size()));
+                    this->AddDevice(addstation);
+                    this->stations_.push_back(addstation);
+                    s = s + " added";
+                }
+                else if (word == "updatestation")
                 {
                     int idx;
                     double a, b, c, qw, qx, qy, qz;
                     iss >> idx; iss >> a; iss >> b; iss >> c; iss >> qw; iss >> qx; iss >> qy; iss >> qz;
 
+                    if (idx < this->stations_.size())
+                    {
+                        this->stations_[idx]->UpdatePose(a, b, c, qw, qx, qy, qz);
+                        s = s + " updated";
+                    }
+                    else
+                    {
+                        s = s + " idinvalid";
+                    }
+
+                }
+                else if (word == "synctime")
+                {
+                    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+                    s = s + " " + std::to_string(this->frame_timing_avg_);
+                    s = s + " " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(now - this->last_frame_time_).count());
+                }
+                else if (word == "updatepose")
+                {
+                    int idx;
+                    double a, b, c, qw, qx, qy, qz, time;
+                    iss >> idx; iss >> a; iss >> b; iss >> c; iss >> qw; iss >> qx; iss >> qy; iss >> qz; iss >> time;
+
                     if (idx < this->devices_.size())
                     {
-                        this->trackers_[idx]->Update(a, b, c, qw, qx, qy, qz);
+                        this->trackers_[idx]->UpdatePos(a, b, c, time);
+                        this->trackers_[idx]->UpdateRot(qw, qx, qy, qz, time);
+                        this->trackers_[idx]->Update();
+                        s = s + " updated";
+                    }
+                    else
+                    {
+                        s = s + " idinvalid";
+                    }
+
+                }
+                else if (word == "updatepos")
+                {
+                    int idx;
+                    double a, b, c, time;
+                    iss >> idx; iss >> a; iss >> b; iss >> c; iss >> time;
+
+                    if (idx < this->devices_.size())
+                    {
+                        this->trackers_[idx]->UpdatePos(a, b, c, time);
+                        this->trackers_[idx]->Update();
+                        s = s + " updated";
+                    }
+                    else
+                    {
+                        s = s + " idinvalid";
+                    }
+
+                }
+                else if (word == "updaterot")
+                {
+                    int idx;
+                    double qw, qx, qy, qz, time;
+                    iss >> qw; iss >> qx; iss >> qy; iss >> qz; iss >> time;
+
+                    if (idx < this->devices_.size())
+                    {
+                        this->trackers_[idx]->UpdateRot(qw, qx, qy, qz, time);
+                        this->trackers_[idx]->Update();
                         s = s + " updated";
                     }
                     else
@@ -160,7 +214,7 @@ void ExampleDriver::VRDriver::PipeThread()
                 }
                 else if (word == "numtrackers")
                 {
-                    s = s + " numtrackers " + std::to_string(this->devices_.size());
+                    s = s + " numtrackers " + std::to_string(this->trackers_.size());
                 }
                 else
                 {
@@ -190,6 +244,7 @@ void ExampleDriver::VRDriver::PipeThread()
 
 void ExampleDriver::VRDriver::RunFrame()
 {
+    //MessageBox(NULL, std::to_string(this->frame_timing_avg_.count()).c_str(), "Example Driver", MB_OK);
     // Collect events
     vr::VREvent_t event;
     std::vector<vr::VREvent_t> events;
@@ -204,52 +259,12 @@ void ExampleDriver::VRDriver::RunFrame()
     this->frame_timing_ = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->last_frame_time_);
     this->last_frame_time_ = now;
 
-    for (auto& device : this->devices_)
-        device->Update();
+    this->frame_timing_avg_ = this->frame_timing_avg_ * 0.9 + ((double)this->frame_timing_.count()) * 0.1;
+    //MessageBox(NULL, std::to_string(((double)this->frame_timing_.count()) * 0.1).c_str(), "Example Driver", MB_OK);
 
-    char buffer[1024];
-    DWORD dwWritten;
-    DWORD dwRead;
+    //for (auto& device : this->devices_)
+    //   device->Update();
 
-    while (PeekNamedPipe(syncPipe, NULL, 0, NULL, &dwRead, NULL) != FALSE)
-    {
-        //if data is ready,
-        if (dwRead > 0)
-        {
-            //we go and read it into our buffer
-            if (ReadFile(syncPipe, buffer, sizeof(buffer) - 1, &dwRead, NULL) != FALSE)
-            {
-                std::string s = "";
-
-                /*
-                buffer[dwRead] = '\0'; //add terminating zero
-                //convert our buffer to string
-
-                std::string rec = buffer;
-                std::istringstream iss(rec);
-                std::string word;
-
-                
-
-                while (iss >> word)
-                {
-                    
-                }
-                */
-
-                s = s + "  SYNC\0";
-
-                DWORD dwWritten;
-                WriteFile(syncPipe,
-                    s.c_str(),
-                    (s.length() + 1),   // = length of string + terminating '\0' !!!
-                    &dwWritten,
-                    NULL);
-            }
-        }
-        DisconnectNamedPipe(syncPipe);
-        ConnectNamedPipe(syncPipe, NULL);
-    } 
 }
 
 bool ExampleDriver::VRDriver::ShouldBlockStandbyMode()

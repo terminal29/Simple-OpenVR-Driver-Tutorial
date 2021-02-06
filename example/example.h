@@ -6,7 +6,7 @@
 #include <sstream> 
 #include <time.h>
 
-std::istringstream SendTracker(int id, double a, double b, double c, double qw, double qx, double qy, double qz);
+std::istringstream SendTracker(int id, double a, double b, double c, double qw, double qx, double qy, double qz, double time);
 std::istringstream Send(LPTSTR lpszWrite);
 void Sync();
 
