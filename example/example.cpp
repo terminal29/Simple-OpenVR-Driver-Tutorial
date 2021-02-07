@@ -59,7 +59,8 @@ int main()
 
 		Sleep((int)(avgtime - (lasttime % (int)avgtime)));
 
-		ret = Send(TEXT("getdevicepose 0"));
+
+		ret = Send(TEXT("getdevicepose 1")); // 0 for HMD, 1 is left controller
 		ret >> word;
 		if (word != "devicepose")
 		{

@@ -120,7 +120,7 @@ void ExampleDriver::VRDriver::PipeThread()
                     double a, b, c, qw, qx, qy, qz, time;
                     iss >> idx; iss >> a; iss >> b; iss >> c; iss >> qw; iss >> qx; iss >> qy; iss >> qz; iss >> time;
 
-                    if (idx < this->devices_.size())
+                    if (idx < this->trackers_.size())
                     {
                         this->trackers_[idx]->UpdatePos(a, b, c, time);
                         this->trackers_[idx]->UpdateRot(qw, qx, qy, qz, time);
