@@ -66,41 +66,64 @@ void ExampleDriver::TrackerDevice::Update()
     pose.qRotation.y = wantedPose[5];
     pose.qRotation.z = wantedPose[6];
 
-             
+
     if (pose_time_delta_seconds > 0)            //unless we get two pose updates at the same time, update velocity so steamvr can do some interpolation
     {
         pose.vecVelocity[0] = 0.8 * pose.vecVelocity[0] + 0.2 * (pose.vecPosition[0] - previous_position[0]) / pose_time_delta_seconds;
         pose.vecVelocity[1] = 0.8 * pose.vecVelocity[1] + 0.2 * (pose.vecPosition[1] - previous_position[1]) / pose_time_delta_seconds;
         pose.vecVelocity[2] = 0.8 * pose.vecVelocity[2] + 0.2 * (pose.vecPosition[2] - previous_position[2]) / pose_time_delta_seconds;
     }
-    
+    pose.poseTimeOffset = this->wantedTimeOffset;
+ 
+
     //pose.vecVelocity[0] = (pose.vecPosition[0] - previous_position[0]) / pose_time_delta_seconds;
     //pose.vecVelocity[1] = (pose.vecPosition[1] - previous_position[1]) / pose_time_delta_seconds;
     //pose.vecVelocity[2] = (pose.vecPosition[2] - previous_position[2]) / pose_time_delta_seconds;
-
-    pose.poseTimeOffset = this->wantedTimeOffset;
 
     // Post pose
     GetDriver()->GetDriverHost()->TrackedDevicePoseUpdated(this->device_index_, pose, sizeof(vr::DriverPose_t));
     this->last_pose_ = pose;
 }
 
-void ExampleDriver::TrackerDevice::UpdatePos(double a, double b, double c, double time)
+void ExampleDriver::TrackerDevice::UpdatePos(double a, double b, double c, double time, double smoothing)
 {
-    this->wantedPose[0] = a;
-    this->wantedPose[1] = b;
-    this->wantedPose[2] = c;
+    this->wantedPose[0] = (1 - smoothing) * this->wantedPose[0] + smoothing * a;
+    this->wantedPose[1] = (1 - smoothing) * this->wantedPose[1] + smoothing * b;
+    this->wantedPose[2] = (1 - smoothing) * this->wantedPose[2] + smoothing * c;
 
     this->wantedTimeOffset = time;
 
 }
 
-void ExampleDriver::TrackerDevice::UpdateRot(double qw, double qx, double qy, double qz, double time)
+void ExampleDriver::TrackerDevice::UpdateRot(double qw, double qx, double qy, double qz, double time, double smoothing)
 {
-    this->wantedPose[3] = qw;
-    this->wantedPose[4] = qx;
-    this->wantedPose[5] = qy;
-    this->wantedPose[6] = qz;
+    //lerp
+    double dot = qx * this->wantedPose[4] + qy * this->wantedPose[5] + qz * this->wantedPose[6] + qw * this->wantedPose[3];
+
+    if (dot < 0)
+    {
+        this->wantedPose[3] = smoothing * qw - (1 - smoothing) * this->wantedPose[3];
+        this->wantedPose[4] = smoothing * qx - (1 - smoothing) * this->wantedPose[4];
+        this->wantedPose[5] = smoothing * qy - (1 - smoothing) * this->wantedPose[5];
+        this->wantedPose[6] = smoothing * qz - (1 - smoothing) * this->wantedPose[6];
+    }
+    else
+    {
+        this->wantedPose[3] = smoothing * qw + (1 - smoothing) * this->wantedPose[3];
+        this->wantedPose[4] = smoothing * qx + (1 - smoothing) * this->wantedPose[4];
+        this->wantedPose[5] = smoothing * qy + (1 - smoothing) * this->wantedPose[5];
+        this->wantedPose[6] = smoothing * qz + (1 - smoothing) * this->wantedPose[6];
+    }
+    //normalize
+    double mag = sqrt(this->wantedPose[3] * this->wantedPose[3] +
+        this->wantedPose[4] * this->wantedPose[4] +
+        this->wantedPose[5] * this->wantedPose[5] +
+        this->wantedPose[6] * this->wantedPose[6]);
+
+    this->wantedPose[3] /= mag;
+    this->wantedPose[4] /= mag;
+    this->wantedPose[5] /= mag;
+    this->wantedPose[6] /= mag;
 
     this->wantedTimeOffset = time;
 

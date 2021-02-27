@@ -58,7 +58,7 @@ int main()
 		ret >> lasttime; 
 
 		Sleep((int)(avgtime - (lasttime % (int)avgtime)));
-
+		//Sleep(30);
 
 		ret = Send(TEXT("getdevicepose 1")); // 0 for HMD, 1 is left controller
 		ret >> word;
@@ -80,10 +80,10 @@ int main()
 
 		std::cout << a << " " << b << " " << c << std::endl;
 
-		SendTracker(0, a, b, c, qw, qx, qy, qz, -0.01);
-		SendTracker(1, a - 1, b, c, qw, qx, qy, qz, -0.01);
-		SendTracker(2, a, b, c + 1, qw, qx, qy, qz, -0.01);
-		SendTracker(3, a, b, c - 1, qw, qx, qy, qz, -0.01);
+		SendTracker(0, a, b, c, qw, qx, qy, qz, -1, 0.9);
+		SendTracker(1, a - 1, b, c, qw, qx, qy, qz, -1, 0.9);
+		SendTracker(2, a, b, c + 1, qw, qx, qy, qz, -1, 0.9);
+		SendTracker(3, a, b, c - 1, qw, qx, qy, qz, -1, 0.9);
 
 		//ret = Send(TEXT("updatestation 0 0 0 0 1 0 0 0"));
 
@@ -129,7 +129,7 @@ std::istringstream Send(LPTSTR lpszWrite)
 	}
 }
 
-std::istringstream SendTracker(int id, double a, double b, double c, double qw, double qx, double qy, double qz, double time)
+std::istringstream SendTracker(int id, double a, double b, double c, double qw, double qx, double qy, double qz, double time, double smoothing)
 {
 	std::string s;
 	s = " updatepose " + std::to_string(id) +
@@ -140,7 +140,8 @@ std::istringstream SendTracker(int id, double a, double b, double c, double qw, 
 		" " + std::to_string(qx) +
 		" " + std::to_string(qy) +
 		" " + std::to_string(qz) +
-		" " + std::to_string(time) + "\n";
+		" " + std::to_string(time) +
+		" " + std::to_string(smoothing) + "\n";
 
 	//send the string to our driver
 

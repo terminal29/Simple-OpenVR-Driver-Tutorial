@@ -68,6 +68,8 @@ void ExampleDriver::VRDriver::PipeThread()
             buffer[dwRead] = '\0'; //add terminating zero
             //convert our buffer to string
 
+            //MessageBoxA(NULL, buffer, "Example Driver", MB_OK);
+
             std::string rec = buffer;
             std::istringstream iss(rec);
             std::string word;
@@ -117,13 +119,13 @@ void ExampleDriver::VRDriver::PipeThread()
                 else if (word == "updatepose")
                 {
                     int idx;
-                    double a, b, c, qw, qx, qy, qz, time;
-                    iss >> idx; iss >> a; iss >> b; iss >> c; iss >> qw; iss >> qx; iss >> qy; iss >> qz; iss >> time;
+                    double a, b, c, qw, qx, qy, qz, time, smoothing;
+                    iss >> idx; iss >> a; iss >> b; iss >> c; iss >> qw; iss >> qx; iss >> qy; iss >> qz; iss >> time; iss >> smoothing;
 
                     if (idx < this->trackers_.size())
                     {
-                        this->trackers_[idx]->UpdatePos(a, b, c, time);
-                        this->trackers_[idx]->UpdateRot(qw, qx, qy, qz, time);
+                        this->trackers_[idx]->UpdatePos(a, b, c, time, 1-smoothing);
+                        this->trackers_[idx]->UpdateRot(qw, qx, qy, qz, time, 1-smoothing);
                         this->trackers_[idx]->Update();
                         s = s + " updated";
                     }
@@ -136,12 +138,12 @@ void ExampleDriver::VRDriver::PipeThread()
                 else if (word == "updatepos")
                 {
                     int idx;
-                    double a, b, c, time;
-                    iss >> idx; iss >> a; iss >> b; iss >> c; iss >> time;
+                    double a, b, c, time, smoothing;
+                    iss >> idx; iss >> a; iss >> b; iss >> c; iss >> time; iss >> smoothing;
 
                     if (idx < this->devices_.size())
                     {
-                        this->trackers_[idx]->UpdatePos(a, b, c, time);
+                        this->trackers_[idx]->UpdatePos(a, b, c, time, smoothing);
                         this->trackers_[idx]->Update();
                         s = s + " updated";
                     }
@@ -154,12 +156,12 @@ void ExampleDriver::VRDriver::PipeThread()
                 else if (word == "updaterot")
                 {
                     int idx;
-                    double qw, qx, qy, qz, time;
-                    iss >> qw; iss >> qx; iss >> qy; iss >> qz; iss >> time;
+                    double qw, qx, qy, qz, time, smoothing;
+                    iss >> qw; iss >> qx; iss >> qy; iss >> qz; iss >> time; iss >> smoothing;
 
                     if (idx < this->devices_.size())
                     {
-                        this->trackers_[idx]->UpdateRot(qw, qx, qy, qz, time);
+                        this->trackers_[idx]->UpdateRot(qw, qx, qy, qz, time, smoothing);
                         this->trackers_[idx]->Update();
                         s = s + " updated";
                     }
