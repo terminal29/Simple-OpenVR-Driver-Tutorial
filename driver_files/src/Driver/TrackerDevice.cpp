@@ -180,6 +180,19 @@ vr::EVRInitError ExampleDriver::TrackerDevice::Activate(uint32_t unObjectId)
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceStandby_String, "{apriltagtrackers}/icons/tracker_not_ready.png");
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceAlertLow_String, "{apriltagtrackers}/icons/tracker_not_ready.png");
 
+    char id = this->serial_.at(12);
+    std::string role;
+    switch (id)
+    {
+    case '0':
+        role = "vive_tracker_waist"; break;
+    case '1':
+        role = "vive_tracker_left_foot"; break;
+    case '2':
+        role = "vive_tracker_right_foot"; break;
+    }
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, role.c_str());
+
     return vr::EVRInitError::VRInitError_None;
 }
 
