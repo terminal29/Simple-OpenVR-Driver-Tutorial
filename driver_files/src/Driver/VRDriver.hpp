@@ -10,6 +10,7 @@
 #include <Driver/IVRDriver.hpp>
 #include <Driver/IVRDevice.hpp>
 #include <Driver/TrackerDevice.hpp>
+#include <Driver/ControllerDevice.hpp>
 #include <Driver/TrackingReferenceDevice.hpp>
 
 
@@ -41,6 +42,7 @@ namespace ExampleDriver {
     private:
         HANDLE inPipe;
         HANDLE syncPipe;
+        std::shared_ptr<ControllerDevice> fakemove_;
         std::vector<std::shared_ptr<IVRDevice>> devices_;
         std::vector<std::shared_ptr<TrackerDevice>> trackers_;
         std::vector<std::shared_ptr<TrackingReferenceDevice>> stations_;

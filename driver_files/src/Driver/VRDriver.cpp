@@ -17,7 +17,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
     //this->AddDevice(std::make_shared<HMDDevice>("Example_HMDDevice"));
 
     // Add a couple controllers
-    //this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice_Left", ControllerDevice::Handedness::LEFT));
+    //this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice", ControllerDevice::Handedness::ANY));
     //this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice_Right", ControllerDevice::Handedness::RIGHT));
     
     std::string inPipeName = "\\\\.\\pipe\\ApriltagPipeIn";
@@ -78,7 +78,37 @@ void ExampleDriver::VRDriver::PipeThread()
 
             while (iss >> word)
             {
-                if (word == "addtracker")
+                if (word == "addfakemove")
+                {
+                    if (fakemove_ != nullptr)
+                    {
+                        s = s + " alreadyadded";
+                    }
+                    else
+                    {
+                        fakemove_ = std::make_shared<ControllerDevice>("Example_ControllerDevice", ControllerDevice::Handedness::ANY);
+                        this->AddDevice(fakemove_);
+
+                        s = s + " added";
+                    }
+                }
+                else if (word == "fakemoveinput")
+                {
+                    if (fakemove_ == nullptr)
+                    {
+                        s = s + " notspawned";
+                    }
+                    else
+                    {
+                        float x, y;
+                        iss >> x; iss >> y;
+
+                        fakemove_->SetDirection(x, y);
+
+                        s = s + " updated";
+                    }
+                }
+                else if (word == "addtracker")
                 {
                     //MessageBoxA(NULL, word.c_str(), "Example Driver", MB_OK);
                     auto addtracker = std::make_shared<TrackerDevice>("AprilTracker" + std::to_string(this->trackers_.size()));
@@ -86,7 +116,7 @@ void ExampleDriver::VRDriver::PipeThread()
                     this->trackers_.push_back(addtracker);
                     s = s + " added";
                 }
-                if (word == "addstation")
+                else if (word == "addstation")
                 {
                     auto addstation = std::make_shared<TrackingReferenceDevice>("AprilCamera" + std::to_string(this->devices_.size()));
                     this->AddDevice(addstation);

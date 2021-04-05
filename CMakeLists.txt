@@ -25,6 +25,7 @@ endif()
 find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH )
 
 add_subdirectory("example")
+add_subdirectory("FakeDecaMove")
 
 # Example Driver
 set(DRIVER_NAME "apriltagtrackers")
@@ -34,9 +35,11 @@ file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/src/*.cpp")
 add_library("${EXAMPLE_PROJECT}" SHARED "${HEADERS}" "${SOURCES}")
 
 target_include_directories("${EXAMPLE_PROJECT}" PUBLIC "${OPENVR_INCLUDE_DIR}")
+
 target_include_directories("${EXAMPLE_PROJECT}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/libraries/linalg")
 target_include_directories("${EXAMPLE_PROJECT}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/src/")
 target_link_libraries("${EXAMPLE_PROJECT}" PUBLIC "${OPENVR_LIB}")
+
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/src" PREFIX "Header Files" FILES ${HEADERS})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/src" PREFIX "Source Files" FILES ${SOURCES})
 set_property(TARGET "${EXAMPLE_PROJECT}" PROPERTY CXX_STANDARD 17)
