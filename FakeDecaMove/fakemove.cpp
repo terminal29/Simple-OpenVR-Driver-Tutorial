@@ -43,6 +43,7 @@ int main()
 	vr::VRActionHandle_t m_actionAnalongInput = vr::k_ulInvalidActionHandle;
 	vr::VRActionHandle_t m_actionHideCubes = vr::k_ulInvalidActionHandle;
 	vr::VRActionHandle_t m_actionsetDemo = vr::k_ulInvalidActionHandle;
+	vr::VRActionHandle_t m_actionPose = vr::k_ulInvalidActionHandle;
 
 	DWORD  retval = 0;
 	BOOL   success;
@@ -75,12 +76,16 @@ int main()
 
 	vr::VRInput()->GetActionHandle("/actions/demo/in/AnalogInput", &m_actionAnalongInput);
 	vr::VRInput()->GetActionHandle("/actions/demo/in/HideCubes", &m_actionHideCubes);
+	vr::VRInput()->GetActionHandle("/actions/demo/in/Hand_Left", &m_actionPose);
 
 	vr::VRInput()->GetActionSetHandle("/actions/demo", &m_actionsetDemo);
 
 	vr::TrackedDevicePose_t pTrackedDevicePose[10];
 
 	vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding,0, pTrackedDevicePose,10);
+
+	float controllerRotation = 0;
+	float hmdRotation = 0;
 
 	while (true) {
 		vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding, 0, pTrackedDevicePose, 10);
@@ -90,20 +95,43 @@ int main()
 		vr::VRInput()->UpdateActionState(&actionSet, sizeof(actionSet), 1);
 
 		
-		std::cout << pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[0][3] << " " << pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[1][3] << " " << pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[2][3] << std::endl;		
+		//std::cout << pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[0][3] << " " << pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[1][3] << " " << pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[2][3] << std::endl;		
+		hmdRotation = atan2(pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[0][2], pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[2][2]);
 
 		vr::InputAnalogActionData_t analogData;
 		if (vr::VRInput()->GetAnalogActionData(m_actionAnalongInput, &analogData, sizeof(analogData), vr::k_ulInvalidInputValueHandle) == vr::VRInputError_None && analogData.bActive)
 		{
-			std::cout << "x: " << analogData.x << " y: " << analogData.y << std::endl;
-			SendMove(analogData.x, analogData.y);
+			//std::cout << "x: " << analogData.x << " y: " << analogData.y << std::endl;
+			//SendMove(analogData.x, analogData.y);
 		}
 		else
 			std::cout << "error getting data " << analogData.bActive <<  std::endl;
 		
-		std::cout << GetDigitalActionState(m_actionHideCubes) << std::endl;
+		//std::cout << GetDigitalActionState(m_actionHideCubes) << std::endl;
 
-		Sleep(5);
+		vr::InputPoseActionData_t poseData;
+
+		//std::cout << "error:" <<vr::VRInput()->GetPoseActionDataForNextFrame(m_actionPose, vr::TrackingUniverseStanding, &poseData, sizeof(poseData), vr::k_ulInvalidInputValueHandle) << std::endl;
+		if (vr::VRInput()->GetPoseActionDataForNextFrame(m_actionPose, vr::TrackingUniverseStanding, &poseData, sizeof(poseData), vr::k_ulInvalidInputValueHandle) == vr::VRInputError_None)
+		{
+			//std::cout <<  "controller pose: " << poseData.pose.mDeviceToAbsoluteTracking.m[0][3] << " " << poseData.pose.mDeviceToAbsoluteTracking.m[1][3] << " " << poseData.pose.mDeviceToAbsoluteTracking.m[2][3] << std::endl;
+
+			controllerRotation = atan2(poseData.pose.mDeviceToAbsoluteTracking.m[0][2], poseData.pose.mDeviceToAbsoluteTracking.m[2][2]);
+		}
+
+		std::cout << "rotation fix: " << controllerRotation - hmdRotation << std::endl;
+
+		float magnitude = sqrt(analogData.x * analogData.x + analogData.y * analogData.y);
+		float angle = atan2(analogData.x, analogData.y);
+
+		float newDataX = sin(angle - (controllerRotation - hmdRotation)) * magnitude;
+		float newDataY = cos(angle - (controllerRotation - hmdRotation)) * magnitude;
+
+		std::cout << "Received data: " << analogData.x << "," << analogData.y << " Calculated data: " << newDataX << "," << newDataY << std::endl;
+
+		SendMove(newDataX, newDataY);
+
+		Sleep(10);
 
 	}
 	return 0;

@@ -6,7 +6,7 @@
 #include <sstream> 
 #include <time.h>
 #include <openvr.h>
-
+#include <math.h>
 #include <filesystem>
 
 
