@@ -33,6 +33,8 @@ Hip direction should now be calibrated!
 
 - The tracker should not be pointing up or direction is not going to work properly. This means that, if you use owotrack with a phone in your pocket, crouching may break direction.
 
+Below is the build instructions of the original driver that this one is based on. Most should still be relavant in case you want to build this driver.
+
 # Simple OpenVR Driver Tutorial
 I created this driver as a demonstration for how to write some of the most common things a SteamVR/OpenVR driver would want to do. You will need to understand C++11 and some C++17 features at least to make the most use of this repo. It features:
 
