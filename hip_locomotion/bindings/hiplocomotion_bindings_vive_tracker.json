@@ -3,79 +3,13 @@
       "/actions/demo" : {
          "poses" : [
             {
-               "output" : "/actions/demo/in/hand_left",
+               "output" : "/actions/demo/in/Tracker",
                "path" : "/user/waist/pose/raw"
-            }
-         ],
-         "haptics" : [
-            {
-               "output" : "/actions/demo/out/haptic_right",
-               "path" : "/user/hand/right/output/haptic"
-            },
-            {
-               "output" : "/actions/demo/out/haptic_left",
-               "path" : "/user/hand/left/output/haptic"
-            }
-         ],
-         "sources" : [
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/demo/in/hidecubes"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/right/input/trigger"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/demo/in/triggerhaptic"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/right/input/grip"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/demo/in/hidecubes"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/left/input/trigger"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/demo/in/triggerhaptic"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/left/input/grip"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/demo/in/hidethiscontroller"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/left/input/application_menu"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/demo/in/hidethiscontroller"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/right/input/application_menu"
             }
          ]
       }
    },
    "controller_type" : "vive_tracker",
-   "description" : "Bindings for the OpenVR SDK \"hellovr_opengl\" demo for a generic controller",
-   "name" : "HelloVR bindings for a generic controller"
+   "description" : "Bindings for the hip locomotion for a tracker",
+   "name" : "Hip locomotion bindings for a tracker"
 }

@@ -1,16 +1,16 @@
 {
   "jsonid": "input_profile",
-  "controller_type": "example_controller",
+  "controller_type": "hip_locomotion",
   "device_class": "TrackedDeviceClass_Controller",
-  "resource_root": "example",
-  "driver_name": "example",
+  "resource_root": "apriltagtrackers",
+  "driver_name": "apriltagtrackers",
   "input_bindingui_mode": "single_device",
   "should_show_binding_errors": true,
   "input_bindingui_left": {
-    "image": "{example}/icons/example_controller_left.svg"
+    "image": "{apriltagtrackers}/icons/example_controller_left.svg"
   },
   "input_bindingui_right": {
-    "image": "{example}/icons/example_controller_right.svg"
+    "image": "{apriltagtrackers}/icons/example_controller_right.svg"
   },
   "input_source": {
 

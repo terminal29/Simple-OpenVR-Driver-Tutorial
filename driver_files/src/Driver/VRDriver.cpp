@@ -78,7 +78,7 @@ void ExampleDriver::VRDriver::PipeThread()
 
             while (iss >> word)
             {
-                if (word == "addfakemove")
+                if (word == "addhipmove")
                 {
                     if (fakemove_ != nullptr)
                     {
@@ -92,7 +92,7 @@ void ExampleDriver::VRDriver::PipeThread()
                         s = s + " added";
                     }
                 }
-                else if (word == "fakemoveinput")
+                else if (word == "hipmoveinput")
                 {
                     if (fakemove_ == nullptr)
                     {

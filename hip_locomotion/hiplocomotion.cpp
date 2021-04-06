@@ -1,4 +1,4 @@
-#include "fakemove.h"
+#include "hiplocomotion.h"
 
 const int BUFSIZE = 1024;
 
@@ -20,16 +20,16 @@ int main()
 	std::istringstream ret;
 	std::string word;
 
-	ret = Send(TEXT("addfakemove"));
+	ret = Send(TEXT("addhipmove"));
 	ret >> word;
 	if (word != "added")
 	{
 		std::cout << "Wrong message received!" << std::endl;
 	}
-
+	/*
 	vr::VROverlayHandle_t handle;
-	vr::VROverlay()->CreateOverlay("image", "image", &handle); /* key has to be unique, name doesn't matter */
-	vr::VROverlay()->SetOverlayFromFile(handle, "deca.jpg");
+	vr::VROverlay()->CreateOverlay("image", "image", &handle); /* key has to be unique, name doesn't matter 
+	vr::VROverlay()->SetOverlayFromFile(handle, "nothing.jpg");
 	vr::VROverlay()->SetOverlayWidthInMeters(handle, 3);
 	vr::VROverlay()->ShowOverlay(handle);
 
@@ -40,8 +40,9 @@ int main()
 	};
 	vr::VROverlay()->SetOverlayTransformAbsolute(handle, vr::TrackingUniverseStanding, &transform);
 
+	*/
+
 	vr::VRActionHandle_t m_actionAnalongInput = vr::k_ulInvalidActionHandle;
-	vr::VRActionHandle_t m_actionHideCubes = vr::k_ulInvalidActionHandle;
 	vr::VRActionHandle_t m_actionsetDemo = vr::k_ulInvalidActionHandle;
 	vr::VRActionHandle_t m_actionPose = vr::k_ulInvalidActionHandle;
 
@@ -51,7 +52,7 @@ int main()
 	TCHAR  buf[BUFSIZE] = TEXT("");
 	TCHAR** lppPart = { NULL };
 
-	retval = GetFullPathName("fakemove_actions.json",
+	retval = GetFullPathName("hiplocomotion_actions.json",
 		BUFSIZE,
 		buffer,
 		lppPart);
@@ -75,8 +76,7 @@ int main()
 	vr::VRInput()->SetActionManifestPath(buffer);
 
 	vr::VRInput()->GetActionHandle("/actions/demo/in/AnalogInput", &m_actionAnalongInput);
-	vr::VRInput()->GetActionHandle("/actions/demo/in/HideCubes", &m_actionHideCubes);
-	vr::VRInput()->GetActionHandle("/actions/demo/in/Hand_Left", &m_actionPose);
+	vr::VRInput()->GetActionHandle("/actions/demo/in/Tracker", &m_actionPose);
 
 	vr::VRInput()->GetActionSetHandle("/actions/demo", &m_actionsetDemo);
 
@@ -107,8 +107,6 @@ int main()
 		else
 			std::cout << "error getting data " << analogData.bActive <<  std::endl;
 		
-		//std::cout << GetDigitalActionState(m_actionHideCubes) << std::endl;
-
 		vr::InputPoseActionData_t poseData;
 
 		//std::cout << "error:" <<vr::VRInput()->GetPoseActionDataForNextFrame(m_actionPose, vr::TrackingUniverseStanding, &poseData, sizeof(poseData), vr::k_ulInvalidInputValueHandle) << std::endl;
@@ -194,7 +192,7 @@ std::istringstream Send(LPTSTR lpszWrite)
 std::istringstream SendMove(double x, double y)
 {
 	std::string s;
-	s = " fakemoveinput " + std::to_string(x) +
+	s = " hipmoveinput " + std::to_string(x) +
 		" " + std::to_string(y)  + "\n";
 
 	//send the string to our driver
