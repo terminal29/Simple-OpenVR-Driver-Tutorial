@@ -26,7 +26,9 @@ Hip direction should now be calibrated!
 
 ## Troubleshooting:
 VIVE BINDING IS WRONG, FIX IN PROGRESS
+
 On vive, make sure you dont unbind "activate movement", only unbind the trackpad position!
+
 If you have decamove installed, try uninstalling it as it may sometimes still disable input even if its not connected.
 
 Using kinecttovr or driver4vr is untested: if you tried using it, please let me know, if it works or not!
