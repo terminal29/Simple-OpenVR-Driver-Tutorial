@@ -1,6 +1,6 @@
 # Hip locomotion branch
 
-Navigation in VR using hip orientation. You need a hip tracker that provides orientation information, which can be a vive tracker, apriltag or a phone with owotrack!
+Navigation in VR using hip orientation. You need a hip tracker that provides orientation information, which can be a vive tracker, apriltag trackers or a phone with owotrack!
 
 ### Installation
 
