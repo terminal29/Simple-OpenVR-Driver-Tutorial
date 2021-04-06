@@ -8,7 +8,7 @@ Navigation in VR using hip orientation. You need a hip tracker that provides ori
 2. Run install_driver.exe from driver_files
 3. Start up steamvr, connect your tracker and ensure it is set to waist.
 4. Launch your game of choice.
-5. Go to steamvr settings -> controllers -> manage controller bindings, set it to custom and click edit this binding. Unbind the left joystick of your controller.
+5. Go to steamvr settings -> controllers -> manage controller bindings, set it to custom and click edit this binding. Unbind the left joystick position of your controller. Only unbind the position part, leave touch and click bound!
 6. Ensure your games locomotion direction is set to hmd.
 7. Launch hip_locomotion.exe from the bin directory
 8. Play!
@@ -25,7 +25,8 @@ Hip direction should now be calibrated!
 
 
 ## Troubleshooting:
-VIVE BINDING IS WRONG, FIX IN PROGRESS
+
+Vive and index bindings were broken in 0.1, make sure you have 0.1.1!
 
 On vive, make sure you dont unbind "activate movement", only unbind the trackpad position!
 
