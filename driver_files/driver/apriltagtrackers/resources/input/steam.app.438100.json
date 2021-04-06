@@ -20,8 +20,8 @@
   },
   "category": "legacy",
   "controller_type": "Bindings",
-  "description": "Default DecaMove bindings for VRChat",
-  "name": "Default DecaMove bindings for VRChat",
+  "description": "Default hip locomotion bindings for VRChat",
+  "name": "Default hip locomotion bindings for VRChat",
   "options": {
     "returnBindingsWithLeftHand": true
   },

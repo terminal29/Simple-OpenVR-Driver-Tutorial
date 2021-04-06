@@ -2,15 +2,15 @@
   "default_bindings": [
     {
       "controller_type": "vive_controller",
-      "binding_url": "fakemove_bindings_vive_controller.json"
+      "binding_url": "hiplocomotion_bindings_vive_controller.json"
     },
     {
       "controller_type": "vive_tracker_waist",
-      "binding_url": "fakemove_bindings_vive_tracker.json"
+      "binding_url": "hiplocomotion_bindings_vive_tracker.json"
     },
     {
       "controller_type": "generic",
-      "binding_url": "fakemove_bindings_generic.json"
+      "binding_url": "hiplocomotion_bindings_generic.json"
     }
   ], 
   "actions": [
