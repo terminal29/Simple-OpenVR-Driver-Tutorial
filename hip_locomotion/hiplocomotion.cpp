@@ -87,6 +87,14 @@ int main()
 	float controllerRotation = 0;
 	float hmdRotation = 0;
 
+	float offset = 0;
+
+	bool recalibrate = true;
+
+	std::cout << "Hip locomotion started!" << std::endl;
+
+	Sleep(1000);
+
 	while (true) {
 		vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding, 0, pTrackedDevicePose, 10);
 
@@ -105,7 +113,12 @@ int main()
 			//SendMove(analogData.x, analogData.y);
 		}
 		else
-			std::cout << "error getting data " << analogData.bActive <<  std::endl;
+		{
+			Sleep(100);
+			recalibrate = true;
+			continue;
+		}
+			//std::cout << "error getting data " << analogData.bActive <<  std::endl;
 		
 		vr::InputPoseActionData_t poseData;
 
@@ -122,14 +135,20 @@ int main()
 		float magnitude = sqrt(analogData.x * analogData.x + analogData.y * analogData.y);
 		float angle = atan2(analogData.x, analogData.y);
 
-		float newDataX = sin(angle - (controllerRotation - hmdRotation)) * magnitude;
-		float newDataY = cos(angle - (controllerRotation - hmdRotation)) * magnitude;
+		if (recalibrate)
+		{
+			offset = controllerRotation - hmdRotation;
+			recalibrate = false;
+		}
+
+		float newDataX = sin(angle - (controllerRotation - hmdRotation)+offset) * magnitude;
+		float newDataY = cos(angle - (controllerRotation - hmdRotation)+offset) * magnitude;
 
 		std::cout << "Received data: " << analogData.x << "," << analogData.y << " Calculated data: " << newDataX << "," << newDataY << std::endl;
 
 		SendMove(newDataX, newDataY);
 
-		Sleep(10);
+		Sleep(5);
 
 	}
 	return 0;

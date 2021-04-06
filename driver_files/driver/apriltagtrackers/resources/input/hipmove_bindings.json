@@ -24,8 +24,164 @@
   },
   "default_bindings": [
     {
+      "app_key": "steam.app.546560",
+      "binding_url": "steam.app.546560.json"
+    },
+    {
+      "app_key": "steam.app.555160",
+      "binding_url": "steam.app.555160.json"
+    },
+    {
+      "app_key": "steam.app.916840",
+      "binding_url": "steam.app.916840.json"
+    },
+    {
+      "app_key": "steam.app.691260",
+      "binding_url": "steam.app.691260.json"
+    },
+    {
+      "app_key": "steam.app.877200",
+      "binding_url": "steam.app.877200.json"
+    },
+    {
+      "app_key": "steam.app.963930",
+      "binding_url": "steam.app.963930.json"
+    },
+    {
+      "app_key": "system.generated.hlvr.exe",
+      "binding_url": "system.generated.hlvr.exe.json"
+    },
+    {
       "app_key": "steam.app.438100",
       "binding_url": "steam.app.438100.json"
+    },
+    {
+      "app_key": "steam.app.739630",
+      "binding_url": "steam.app.739630.json"
+    },
+    {
+      "app_key": "steam.app.858260",
+      "binding_url": "steam.app.858260.json"
+    },
+    {
+      "app_key": "steam.app.520010",
+      "binding_url": "steam.app.520010.json"
+    },
+    {
+      "app_key": "steam.app.342180",
+      "binding_url": "steam.app.342180.json"
+    },
+    {
+      "app_key": "steam.app.823500",
+      "binding_url": "steam.app.823500.json"
+    },
+    {
+      "app_key": "steam.app.1039880",
+      "binding_url": "steam.app.1039880.json"
+    },
+    {
+      "app_key": "steam.app.629730",
+      "binding_url": "steam.app.629730.json"
+    },
+    {
+      "app_key": "steam.app.615120",
+      "binding_url": "steam.app.615120.json"
+    },
+    {
+      "app_key": "steam.app.578620",
+      "binding_url": "steam.app.578620.json"
+    },
+    {
+      "app_key": "steam.app.450540",
+      "binding_url": "steam.app.450540.json"
+    },
+    {
+      "app_key": "steam.app.1386890",
+      "binding_url": "steam.app.1386890.json"
+    },
+    {
+      "app_key": "steam.app.1402320",
+      "binding_url": "steam.app.1402320.json"
+    },
+    {
+      "app_key": "steam.app.991260",
+      "binding_url": "steam.app.991260.json"
+    },
+    {
+      "app_key": "steam.app.611670",
+      "binding_url": "steam.app.611670.json"
+    },
+    {
+      "app_key": "steam.app.551700",
+      "binding_url": "steam.app.551700.json"
+    },
+    {
+      "app_key": "steam.app.566860",
+      "binding_url": "steam.app.566860.json"
+    },
+    {
+      "app_key": "steam.app.1092430",
+      "binding_url": "steam.app.1092430.json"
+    },
+    {
+      "app_key": "steam.app.436320",
+      "binding_url": "steam.app.436320.json"
+    },
+    {
+      "app_key": "steam.app.496240",
+      "binding_url": "steam.app.496240.json"
+    },
+    {
+      "app_key": "steam.app.740250",
+      "binding_url": "steam.app.740250.json"
+    },
+    {
+      "app_key": "steam.app.242760",
+      "binding_url": "steam.app.242760.json"
+    },
+    {
+      "app_key": "steam.app.275850",
+      "binding_url": "steam.app.275850.json"
+    },
+    {
+      "app_key": "steam.app.1090890",
+      "binding_url": "steam.app.1090890.json"
+    },
+    {
+      "app_key": "steam.app.690810",
+      "binding_url": "steam.app.690810.json"
+    },
+    {
+      "app_key": "steam.app.1012790",
+      "binding_url": "steam.app.1012790.json"
+    },
+    {
+      "app_key": "steam.app.512220",
+      "binding_url": "steam.app.512220.json"
+    },
+    {
+      "app_key": "steam.app.1019550",
+      "binding_url": "steam.app.1019550.json"
+    },
+    {
+      "app_key": "steam.app.1384320",
+      "binding_url": "steam.app.1384320.json"
+    },
+    {
+      "app_key": "steam.app.476700",
+      "binding_url": "steam.app.476700.json"
+    },
+    {
+      "app_key": "steam.app.669290",
+      "binding_url": "steam.app.669290.json"
+    },
+    {
+      "app_key": "steam.app.1075400",
+      "binding_url": "steam.app.1075400.json"
+    },
+    {
+      "app_key": "steam.app.1294760",
+      "binding_url": "steam.app.1294760.json"
     }
   ]
 }

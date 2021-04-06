@@ -117,7 +117,7 @@ vr::EVRInitError ExampleDriver::ControllerDevice::Activate(uint32_t unObjectId)
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "hip_locomotion");
 
     // Set up a render model path
-    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "rendermodels/vr_controller_05_wireless_b");
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "vr_controller_05_wireless_b");
 
     // Give SteamVR a hint at what hand this controller is for
 
@@ -128,8 +128,8 @@ vr::EVRInitError ExampleDriver::ControllerDevice::Activate(uint32_t unObjectId)
 
     // Change the icon depending on which handedness this controller is using (ANY uses right)
     std::string controller_handedness_str = this->handedness_ == Handedness::LEFT ? "left" : "right";
-    std::string controller_ready_file = "{apriltagtrackers}/icons/controller_ready_" + controller_handedness_str + ".png";
-    std::string controller_not_ready_file = "{apriltagtrackers}/icons/controller_not_ready_" + controller_handedness_str + ".png";
+    std::string controller_ready_file = "other_status_ready.png";
+    std::string controller_not_ready_file = "other_status_off.png";
 
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReady_String, controller_ready_file.c_str());
 
