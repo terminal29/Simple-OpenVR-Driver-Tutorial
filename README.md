@@ -23,6 +23,16 @@ To calibrate the direction of your hip controller, simply:
 
 Hip direction should now be calibrated!
 
+
+## Troubleshooting:
+VIVE BINDING IS WRONG, FIX IN PROGRESS
+On vive, make sure you dont unbind "activate movement", only unbind the trackpad position!
+If you have decamove installed, try uninstalling it as it may sometimes still disable input even if its not connected.
+
+Using kinecttovr or driver4vr is untested: if you tried using it, please let me know, if it works or not!
+
+If you find any other problems, write into the help channel of ApriltagTrackers [link to Discord](https://discord.gg/aDmSkZ5uHu "https://discord.gg/aDmSkZ5uHu"), or write an issue.
+
 ## Examples of tracking systems you can use with this: 
 
 - OwoTrack ([link to Discord](https://discord.com/invite/ZVFfgt7tuj "https://discord.com/invite/ZVFfgt7tuj")) - uses phone as a hip tracker
