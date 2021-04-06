@@ -1,3 +1,38 @@
+# Hip locomotion branch
+
+Navigation in VR using hip orientation. You need a hip tracker that provides orientation information, which can be a vive tracker, apriltag or a phone with owotrack!
+
+### Installation
+
+1. Download hip_locomotion_v0.1.zip from releases and extract it
+2. Run install_driver.exe from driver_files
+3. Start up steamvr, connect your tracker and ensure it is set to waist.
+4. Launch your game of choice.
+5. Go to steamvr settings -> controllers -> manage controller bindings, set it to custom and click edit this binding. Unbind the left joystick of your controller.
+6. Ensure your games locomotion direction is set to hmd.
+7. Launch hip_locomotion.exe from the bin directory
+8. Play!
+
+### Calibration
+
+To calibrate the direction of your hip controller, simply:
+
+1. Open your steamvr dashboard
+2. Stand and look straight
+3. Close steamvr dashboard
+
+Hip direction should now be calibrated!
+
+## Examples of tracking systems you can use with this: 
+
+- OwoTrack ([link to Discord](https://discord.com/invite/ZVFfgt7tuj "https://discord.com/invite/ZVFfgt7tuj")) - uses phone as a hip tracker
+- ApriltagTrackers ([link to Discord](https://discord.gg/aDmSkZ5uHu "https://discord.gg/aDmSkZ5uHu"), [link to Github]( https://github.com/ju1ce/April-Tag-VR-FullBody-Tracker "https://github.com/ju1ce/April-Tag-VR-FullBody-Tracker")) - uses cardboard/3d printed markers for fullbody tracking
+- any other commercial tracker systems where you have a hip tracker
+
+### Known issues:
+
+- The tracker should not be pointing up or direction is not going to work properly. This means that, if you use owotrack with a phone in your pocket, crouching may break direction.
+
 # Simple OpenVR Driver Tutorial
 I created this driver as a demonstration for how to write some of the most common things a SteamVR/OpenVR driver would want to do. You will need to understand C++11 and some C++17 features at least to make the most use of this repo. It features:
 
