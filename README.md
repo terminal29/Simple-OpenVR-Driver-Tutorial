@@ -6,6 +6,10 @@ This driver opens a named pipe, on which it listens for commands. This enables a
 
 The main project for which i use this driver is ApriltagTrackes, which is why the trackers are named as such in the driver. If you have any questions or want to use this driver, feel free to join the ApriltagsTrackers discord and write in the dev-talk channel, link on its github page.
 
+## Hip locomotion
+
+For hip locomotion, check the [Hip Locomotion](https://github.com/ju1ce/Simple-OpenVR-Bridge-Driver/tree/hip-locomotion) branch.
+
 Bellow is the original Readme. Most of the installation should stay the same.
 
 # Simple OpenVR Driver Tutorial
