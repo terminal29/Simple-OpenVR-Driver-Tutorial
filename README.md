@@ -2,6 +2,8 @@
 
 Navigation in VR using hip orientation. You need a hip tracker that provides orientation information, which can be a vive tracker, apriltag trackers or a phone with owotrack!
 
+For help or questions, write into hip-locomotion related channels on my [discord](https://discord.gg/CSnp8AB3yy)!
+
 ### Installation
 
 1. Download hip_locomotion_v0.1.zip from [releases](https://github.com/ju1ce/Simple-OpenVR-Bridge-Driver/releases/tag/v0.1) and extract it
@@ -23,30 +25,31 @@ To calibrate the direction of your hip controller, simply:
 
 Hip direction should now be calibrated!
 
-
 ## Troubleshooting:
 
 Vive and index bindings were broken in 0.1, make sure you have 0.1.1!
 
 On vive, make sure you dont unbind "activate movement", only unbind the trackpad position!
 
+Dont unbind click or touch, only position!
+
 If you have decamove installed, try uninstalling it as it may sometimes still disable input even if its not connected.
 
 Using kinecttovr or driver4vr is untested: if you tried using it, please let me know, if it works or not!
 
-If you find any other problems, write into the help channel of ApriltagTrackers [link to Discord](https://discord.gg/aDmSkZ5uHu "https://discord.gg/aDmSkZ5uHu"), or write an issue.
+If you find any other problems, write into the hip-locomotion-help channel of ApriltagTrackers [link to Discord](https://discord.gg/CSnp8AB3yy "https://discord.gg/CSnp8AB3yy"), or write an issue.
 
 ## Examples of tracking systems you can use with this: 
 
 - OwoTrack ([link to Discord](https://discord.com/invite/ZVFfgt7tuj "https://discord.com/invite/ZVFfgt7tuj")) - uses phone as a hip tracker
-- ApriltagTrackers ([link to Discord](https://discord.gg/aDmSkZ5uHu "https://discord.gg/aDmSkZ5uHu"), [link to Github]( https://github.com/ju1ce/April-Tag-VR-FullBody-Tracker "https://github.com/ju1ce/April-Tag-VR-FullBody-Tracker")) - uses cardboard/3d printed markers for fullbody tracking
+- ApriltagTrackers ([link to Discord](https://discord.gg/CSnp8AB3yy "https://discord.gg/CSnp8AB3yy"), [link to Github]( https://github.com/ju1ce/April-Tag-VR-FullBody-Tracker "https://github.com/ju1ce/April-Tag-VR-FullBody-Tracker")) - uses cardboard/3d printed markers for fullbody tracking
 - any other commercial tracker systems where you have a hip tracker
 
 ### Known issues:
 
 - The tracker should not be pointing up or direction is not going to work properly. This means that, if you use owotrack with a phone in your pocket, crouching may break direction.
 
-Below is the build instructions of the original driver that this one is based on. Most should still be relavant in case you want to build this driver.
+Below is the build instructions of the original driver that this one is based on. Most should still be relavant in case you want to build this driver. **This is only to build it from source for development. If you just wish to try this project, you do not need it.**
 
 # Simple OpenVR Driver Tutorial
 I created this driver as a demonstration for how to write some of the most common things a SteamVR/OpenVR driver would want to do. You will need to understand C++11 and some C++17 features at least to make the most use of this repo. It features:
