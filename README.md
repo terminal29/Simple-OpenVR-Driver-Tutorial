@@ -29,6 +29,8 @@ Hip direction should now be calibrated!
 
 ## Troubleshooting:
 
+If you had ApriltagTrackers installed previously, you may need to remove the driver first before installing this one. That can be done by removing steam/steamapps/common/steamvr/drivers/apriltagtrackers folder.
+
 Vive and index bindings were broken in 0.1, make sure you have 0.1.1!
 
 On vive, make sure you dont unbind "activate movement", only unbind the trackpad position!
