@@ -1,3 +1,7 @@
+## Hip locomotion
+
+For hip locomotion information and instructions, go to the [Hip Locomotion](https://github.com/ju1ce/Simple-OpenVR-Bridge-Driver/tree/hip-locomotion) branch.
+
 # Simple OpenVR Driver bridge
 
 This is my fork if simple OpenVR driver tutorial, which is made to be used as a bridge between any program and SteamVR. If you have any tracking system that you wish to use as SteamVR trackers, this is probably a good place to start.
@@ -5,10 +9,6 @@ This is my fork if simple OpenVR driver tutorial, which is made to be used as a 
 This driver opens a named pipe, on which it listens for commands. This enables an easy way to create and move trackers in SteamVR by simply connecting to a named pipe and sending messages to it. A c++ example is included, but it should be possible to use in any language. To use on linux, windows API for named pipes would have to be replaced with the linux one.
 
 The main project for which i use this driver is ApriltagTrackes, which is why the trackers are named as such in the driver. If you have any questions or want to use this driver, feel free to join the ApriltagsTrackers discord and write in the dev-talk channel, link on its github page.
-
-## Hip locomotion
-
-For hip locomotion, check the [Hip Locomotion](https://github.com/ju1ce/Simple-OpenVR-Bridge-Driver/tree/hip-locomotion) branch.
 
 Bellow is the original Readme. Most of the installation should stay the same.
 
