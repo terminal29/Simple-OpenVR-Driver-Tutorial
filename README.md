@@ -4,6 +4,8 @@ Navigation in VR using hip orientation. You need a hip tracker that provides ori
 
 For help or questions, write into hip-locomotion related channels on my [discord](https://discord.gg/CSnp8AB3yy)!
 
+**NOTE:** This is still a very early version that has not been tested with every headset yet, meaning that it may not work as expected with some hardware. If you have problems, please message me on the ApriltagTrackers discord!
+
 ### Installation
 
 1. Download hip_locomotion_v0.1.zip from [releases](https://github.com/ju1ce/Simple-OpenVR-Bridge-Driver/releases/tag/v0.1) and extract it
