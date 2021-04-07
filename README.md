@@ -8,7 +8,7 @@ For help or questions, write into hip-locomotion related channels on my [discord
 
 ### Installation
 
-1. Download hip_locomotion_v0.1.zip from [releases](https://github.com/ju1ce/Simple-OpenVR-Bridge-Driver/releases/tag/v0.1) and extract it
+1. Download hip_locomotion_v0.1.1.zip from [releases](https://github.com/ju1ce/Simple-OpenVR-Bridge-Driver/releases/tag/v0.1.1) and extract it
 2. Run install_driver.exe from driver_files
 3. Start up steamvr, connect your tracker and ensure it is set to waist.
 4. Launch your game of choice.
