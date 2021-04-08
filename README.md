@@ -39,6 +39,8 @@ Dont unbind click or touch, only position!
 
 If you have decamove installed, try uninstalling it as it may sometimes still disable input even if its not connected.
 
+Some people report having issues with setting their bindings or their bindings not saving, especialy with WMR controllers. If you find a fix for this, let me know!
+
 Using kinecttovr or driver4vr is untested: if you tried using it, please let me know, if it works or not!
 
 If you find any other problems, write into the hip-locomotion-help channel of ApriltagTrackers [link to Discord](https://discord.gg/CSnp8AB3yy "https://discord.gg/CSnp8AB3yy"), or write an issue.
