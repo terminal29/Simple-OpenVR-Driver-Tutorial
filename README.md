@@ -39,7 +39,7 @@ Dont unbind click or touch, only position!
 
 If you have decamove installed, try uninstalling it as it may sometimes still disable input even if its not connected.
 
-Some people report having issues with setting their bindings or their bindings not saving, especialy with WMR controllers. If you find a fix for this, let me know!
+Some people report having issues with setting their bindings or their bindings not saving, especialy with WMR controllers. If you find a fix for this, let me know! This may be fixed by editing your bindings before running the game or hip locomotion, and only running the two after the movement binding has been unbound.
 
 Using kinecttovr or driver4vr is untested: if you tried using it, please let me know, if it works or not!
 
