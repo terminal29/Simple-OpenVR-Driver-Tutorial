@@ -1,5 +1,7 @@
 # Hip locomotion branch
 
+**Owotrack now has hip-locomotion built in, meaning you dont have to download this to use with owotrack! Just follow the instructions on the owotrack discord!**
+
 Navigation in VR using hip orientation. You need a hip tracker that provides orientation information, which can be a vive tracker, apriltag trackers or a phone with owotrack!
 
 For help or questions, write into hip-locomotion related channels on my [discord](https://discord.gg/CSnp8AB3yy)!
