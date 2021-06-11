@@ -4,6 +4,8 @@
 
 Navigation in VR using hip orientation. You need a hip tracker that provides orientation information, which can be a vive tracker, apriltag trackers or a phone with owotrack!
 
+Thanks to [Korejan](https://github.com/korejan) for all their help with getting this to work!
+
 For help or questions, write into hip-locomotion related channels on my [discord](https://discord.gg/CSnp8AB3yy)!
 
 **NOTE:** This is still a very early version that has not been tested with every headset yet, meaning that it may not work as expected with some hardware. If you have problems, please message me on the ApriltagTrackers discord!
