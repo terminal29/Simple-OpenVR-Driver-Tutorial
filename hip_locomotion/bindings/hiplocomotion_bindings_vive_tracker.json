@@ -1,0 +1,15 @@
+{
+   "bindings" : {
+      "/actions/demo" : {
+         "poses" : [
+            {
+               "output" : "/actions/demo/in/Tracker",
+               "path" : "/user/waist/pose/raw"
+            }
+         ]
+      }
+   },
+   "controller_type" : "vive_tracker",
+   "description" : "Bindings for the hip locomotion for a tracker",
+   "name" : "Hip locomotion bindings for a tracker"
+}

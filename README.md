@@ -12,7 +12,6 @@ The main project for which i use this driver is ApriltagTrackes, which is why th
 
 Bellow is the original Readme. Most of the installation should stay the same.
 
-
 # Simple OpenVR Driver Tutorial
 I created this driver as a demonstration for how to write some of the most common things a SteamVR/OpenVR driver would want to do. You will need to understand C++11 and some C++17 features at least to make the most use of this repo. It features:
 

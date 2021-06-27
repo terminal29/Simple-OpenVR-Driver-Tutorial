@@ -12,6 +12,19 @@ std::string ExampleDriver::ControllerDevice::GetSerial()
     return this->serial_;
 }
 
+long long counter = 0;
+
+void ExampleDriver::ControllerDevice::SetDirection(float x, float y)
+{
+    if(x == 0.0f && y == 0.0f)
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->joystick_touch_component_, false, 0);
+    else
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->joystick_touch_component_, true, 0);
+
+    GetDriver()->GetInput()->UpdateScalarComponent(this->joystick_x_component_, x, -1);
+    GetDriver()->GetInput()->UpdateScalarComponent(this->joystick_y_component_, y, -1);
+}
+
 void ExampleDriver::ControllerDevice::Update()
 {
     if (this->device_index_ == vr::k_unTrackedDeviceIndexInvalid)
@@ -42,49 +55,24 @@ void ExampleDriver::ControllerDevice::Update()
     // Setup pose for this frame
     auto pose = IVRDevice::MakeDefaultPose();
 
-    // Find a HMD
-    auto devices = GetDriver()->GetDevices();
-    auto hmd = std::find_if(devices.begin(), devices.end(), [](const std::shared_ptr<IVRDevice>& device_ptr) {return device_ptr->GetDeviceType() == DeviceType::HMD; });
-    if (hmd != devices.end()) {
-        // Found a HMD
-        vr::DriverPose_t hmd_pose = (*hmd)->GetPose();
-
-        // Here we setup some transforms so our controllers are offset from the headset by a small amount so we can see them
-        linalg::vec<float, 3> hmd_position{ (float)hmd_pose.vecPosition[0], (float)hmd_pose.vecPosition[1], (float)hmd_pose.vecPosition[2] };
-        linalg::vec<float, 4> hmd_rotation{ (float)hmd_pose.qRotation.x, (float)hmd_pose.qRotation.y, (float)hmd_pose.qRotation.z, (float)hmd_pose.qRotation.w };
-
-        // Do shaking animation if haptic vibration was requested
-        float controller_y = -0.2f + 0.01f * std::sinf(8 * 3.1415f * vibrate_anim_state_);
-
-        // Left hand controller on the left, right hand controller on the right, any other handedness sticks to the middle
-        float controller_x = this->handedness_ == Handedness::LEFT ? -0.2f : (this->handedness_ == Handedness::RIGHT ? 0.2f : 0.f);
-
-        linalg::vec<float, 3> hmd_pose_offset = { controller_x, controller_y, -0.5f };
-
-        hmd_pose_offset = linalg::qrot(hmd_rotation, hmd_pose_offset);
-
-        linalg::vec<float, 3> final_pose = hmd_pose_offset + hmd_position;
-
-        pose.vecPosition[0] = final_pose.x;
-        pose.vecPosition[1] = final_pose.y;
-        pose.vecPosition[2] = final_pose.z;
-
-        pose.qRotation.w = hmd_rotation.w;
-        pose.qRotation.x = hmd_rotation.x;
-        pose.qRotation.y = hmd_rotation.y;
-        pose.qRotation.z = hmd_rotation.z;
-    }
-
     // Check if we need to press any buttons (I am only hooking up the A button here but the process is the same for the others)
     // You will still need to go into the games button bindings and hook up each one (ie. a to left click, b to right click, etc.) for them to work properly
-    if (GetAsyncKeyState(0x45 /* E */) != 0) {
+    if (counter%200 < 100) {
         GetDriver()->GetInput()->UpdateBooleanComponent(this->a_button_click_component_, true, 0);
         GetDriver()->GetInput()->UpdateBooleanComponent(this->a_button_touch_component_, true, 0);
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->joystick_touch_component_, true, 0);
+        GetDriver()->GetInput()->UpdateScalarComponent(this->joystick_y_component_, 1.0f, 0);
     }
     else {
         GetDriver()->GetInput()->UpdateBooleanComponent(this->a_button_click_component_, false, 0);
         GetDriver()->GetInput()->UpdateBooleanComponent(this->a_button_touch_component_, false, 0);
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->joystick_touch_component_, false, 0);
+        GetDriver()->GetInput()->UpdateScalarComponent(this->joystick_y_component_, 0.0f, 0);
     }
+
+    counter++;
+
+    
 
     // Post pose
     GetDriver()->GetDriverHost()->TrackedDevicePoseUpdated(this->device_index_, pose, sizeof(vr::DriverPose_t));
@@ -116,30 +104,7 @@ vr::EVRInitError ExampleDriver::ControllerDevice::Activate(uint32_t unObjectId)
     auto props = GetDriver()->GetProperties()->TrackedDeviceToPropertyContainer(this->device_index_);
 
     // Setup inputs and outputs
-    GetDriver()->GetInput()->CreateHapticComponent(props, "/output/haptic", &this->haptic_component_);
-
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/a/click", &this->a_button_click_component_);
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/a/touch", &this->a_button_touch_component_);
-
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/b/click", &this->b_button_click_component_);
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/b/touch", &this->b_button_touch_component_);
-
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/trigger/click", &this->trigger_click_component_);
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/trigger/touch", &this->trigger_touch_component_);
-    GetDriver()->GetInput()->CreateScalarComponent(props, "/input/trigger/value", &this->trigger_value_component_, vr::EVRScalarType::VRScalarType_Absolute, vr::EVRScalarUnits::VRScalarUnits_NormalizedOneSided);
-
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/grip/touch", &this->grip_touch_component_);
-    GetDriver()->GetInput()->CreateScalarComponent(props, "/input/grip/value", &this->grip_value_component_, vr::EVRScalarType::VRScalarType_Absolute, vr::EVRScalarUnits::VRScalarUnits_NormalizedOneSided);
-    GetDriver()->GetInput()->CreateScalarComponent(props, "/input/grip/force", &this->grip_force_component_, vr::EVRScalarType::VRScalarType_Absolute, vr::EVRScalarUnits::VRScalarUnits_NormalizedOneSided);
-
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/system/click", &this->system_click_component_);
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/system/touch", &this->system_touch_component_);
-
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/trackpad/click", &this->trackpad_click_component_);
-    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/trackpad/touch", &this->trackpad_touch_component_); 
-    GetDriver()->GetInput()->CreateScalarComponent(props, "/input/trackpad/x", &this->trackpad_x_component_, vr::EVRScalarType::VRScalarType_Absolute, vr::EVRScalarUnits::VRScalarUnits_NormalizedTwoSided);
-    GetDriver()->GetInput()->CreateScalarComponent(props, "/input/trackpad/y", &this->trackpad_y_component_, vr::EVRScalarType::VRScalarType_Absolute, vr::EVRScalarUnits::VRScalarUnits_NormalizedTwoSided);
-    
+   
     GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/joystick/click", &this->joystick_click_component_);
     GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/joystick/touch", &this->joystick_touch_component_);
     GetDriver()->GetInput()->CreateScalarComponent(props, "/input/joystick/x", &this->joystick_x_component_, vr::EVRScalarType::VRScalarType_Absolute, vr::EVRScalarUnits::VRScalarUnits_NormalizedTwoSided);
@@ -149,29 +114,22 @@ vr::EVRInitError ExampleDriver::ControllerDevice::Activate(uint32_t unObjectId)
     GetDriver()->GetProperties()->SetUint64Property(props, vr::Prop_CurrentUniverseId_Uint64, 2);
     
     // Set up a model "number" (not needed but good to have)
-    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "example_controller");
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "hip_locomotion");
 
     // Set up a render model path
-    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "{example}example_controller");
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, "vr_controller_05_wireless_b");
 
     // Give SteamVR a hint at what hand this controller is for
-    if (this->handedness_ == Handedness::LEFT) {
-        GetDriver()->GetProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, vr::ETrackedControllerRole::TrackedControllerRole_LeftHand);
-    }
-    else if (this->handedness_ == Handedness::RIGHT) {
-        GetDriver()->GetProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, vr::ETrackedControllerRole::TrackedControllerRole_RightHand);
-    }
-    else {
-        GetDriver()->GetProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, vr::ETrackedControllerRole::TrackedControllerRole_OptOut);
-    }
+
+    GetDriver()->GetProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, vr::ETrackedControllerRole::TrackedControllerRole_Treadmill);
 
     // Set controller profile
-    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, "{example}/input/example_controller_bindings.json");
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, "{apriltagtrackers}/input/hipmove_bindings.json");
 
     // Change the icon depending on which handedness this controller is using (ANY uses right)
     std::string controller_handedness_str = this->handedness_ == Handedness::LEFT ? "left" : "right";
-    std::string controller_ready_file = "{example}/icons/controller_ready_" + controller_handedness_str + ".png";
-    std::string controller_not_ready_file = "{example}/icons/controller_not_ready_" + controller_handedness_str + ".png";
+    std::string controller_ready_file = "other_status_ready.png";
+    std::string controller_not_ready_file = "other_status_off.png";
 
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReady_String, controller_ready_file.c_str());
 

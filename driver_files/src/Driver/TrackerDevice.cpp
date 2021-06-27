@@ -184,11 +184,11 @@ vr::EVRInitError ExampleDriver::TrackerDevice::Activate(uint32_t unObjectId)
     std::string role;
     switch (id)
     {
+    //case '0':
+    //    role = "vive_tracker_waist"; break;
     case '0':
-        role = "vive_tracker_waist"; break;
-    case '1':
         role = "vive_tracker_left_foot"; break;
-    case '2':
+    case '1':
         role = "vive_tracker_right_foot"; break;
     }
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, role.c_str());

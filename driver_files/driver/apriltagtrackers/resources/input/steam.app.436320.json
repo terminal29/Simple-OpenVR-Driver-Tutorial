@@ -1,0 +1,29 @@
+{
+  "action_manifest_version": 0,
+  "alias_info": {},
+  "bindings": {
+    "/actions/legacy": {
+      "poses": [],
+      "haptics": [],
+      "sources": [
+        {
+          "inputs": {
+            "position": {
+              "output": "/actions/legacy/in/left_axis0_value"
+            }
+          },
+          "mode": "joystick",
+          "path": "/user/treadmill/input/joystick"
+        }
+      ]
+    }
+  },
+  "category": "legacy",
+  "controller_type": "hip_locomotion",
+  "description": "Default Hip Locomotion bindings for Raw Data",
+  "name": "Default Hip Locomotion bindings for Raw Data",
+  "options": {
+    "returnBindingsWithLeftHand": true
+  },
+  "simulated_actions": []
+}

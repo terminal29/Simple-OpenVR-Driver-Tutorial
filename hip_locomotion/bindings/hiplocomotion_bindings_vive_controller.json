@@ -1,0 +1,20 @@
+{
+   "bindings" : {
+      "/actions/demo" : {
+         "sources" : [
+            {
+               "inputs" : {
+                  "position" : {
+                     "output" : "/actions/demo/in/analoginput"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/right/input/trackpad"
+            }
+         ]
+      }
+   },
+   "controller_type" : "vive_controller",
+   "description" : "Bindings for hip locomotion for the Vive controller",
+   "name" : "Hip locomotion bindings for Vive Controller"
+}

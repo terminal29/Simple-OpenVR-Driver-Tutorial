@@ -1,0 +1,28 @@
+{
+  "action_manifest_version": 0,
+  "alias_info": {},
+  "app_key": "steam.app.471710",
+  "bindings": {
+    "/actions/default": {
+      "sources": [
+        {
+          "inputs": {
+            "position": {
+              "output": "/actions/default/in/walk"
+            }
+          },
+          "mode": "joystick",
+          "path": "/user/treadmill/input/joystick"
+        }
+      ]
+    }
+  },
+  "category": "steamvr_input",
+  "controller_type": "hip_locomotion",
+  "description": "Default Hip Locomotion bindings for Rec Room",
+  "name": "Default Hip Locomotion bindings for Rec Room",
+  "options": {
+    "returnBindingsWithLeftHand": true
+  },
+  "simulated_actions": []
+}

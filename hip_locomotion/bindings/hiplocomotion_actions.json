@@ -1,0 +1,83 @@
+{
+  "default_bindings": [
+    {
+      "controller_type": "vive_controller",
+      "binding_url": "hiplocomotion_bindings_vive_controller.json"
+    },
+    {
+      "controller_type": "vive_tracker_waist",
+      "binding_url": "hiplocomotion_bindings_vive_tracker.json"
+    },
+    {
+      "controller_type": "generic",
+      "binding_url": "hiplocomotion_bindings_generic.json"
+    },
+    {
+      "controller_type": "vive_tracker_left_foot",
+      "binding_url": "hiplocomotion_bindings_empty.json"
+    },
+    {
+      "controller_type": "vive_tracker_right_foot",
+      "binding_url": "hiplocomotion_bindings_empty.json"
+    },
+    {
+      "controller_type": "vive_tracker_left_shoulder",
+      "binding_url": "hiplocomotion_bindings_empty.json"
+    },
+    {
+      "controller_type": "vive_tracker_right_shoulder",
+      "binding_url": "hiplocomotion_bindings_empty.json"
+    },
+    {
+      "controller_type": "vive_tracker_left_elbow",
+      "binding_url": "hiplocomotion_bindings_empty.json"
+    },
+    {
+      "controller_type": "vive_tracker_right_elbow",
+      "binding_url": "hiplocomotion_bindings_empty.json"
+    },
+    {
+      "controller_type": "vive_tracker_left_knee",
+      "binding_url": "hiplocomotion_bindings_empty.json"
+    },
+    {
+      "controller_type": "vive_tracker_right_knee",
+      "binding_url": "hiplocomotion_bindings_empty.json"
+    },
+    {
+      "controller_type": "vive_tracker_chest",
+      "binding_url": "hiplocomotion_bindings_empty.json"
+    },
+    {
+      "controller_type": "vive_tracker_camera",
+      "binding_url": "hiplocomotion_bindings_empty.json"
+    },
+    {
+      "controller_type": "vive_tracker_keyboard",
+      "binding_url": "hiplocomotion_bindings_empty.json"
+    }
+  ], 
+  "actions": [
+    {
+      "name": "/actions/demo/in/AnalogInput",
+      "type": "vector2"
+    },
+    {
+      "name": "/actions/demo/in/Tracker",
+      "type": "pose"
+    }
+  ],
+"action_sets": [
+    {
+      "name": "/actions/demo",
+      "usage": "leftright"
+    }
+  ],
+    "localization" : [
+        {
+            "language_tag": "en_US",
+            "/actions/demo/in/AnalogInput" : "Analog Input",
+            "/actions/demo/in/Tracker" : "Tracker Pose"
+        }
+    ]
+}
