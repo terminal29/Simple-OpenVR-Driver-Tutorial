@@ -24,10 +24,13 @@ namespace ExampleDriver {
             // Inherited via IVRDevice
             virtual std::string GetSerial() override;
             virtual void Update() override;
-            virtual void UpdatePos(double a, double b, double c, double time, double smoothing);
-            virtual void UpdateRot(double qw, double qx, double qy, double qz, double time, double smoothing);
+            //virtual void UpdatePos(double a, double b, double c, double time, double smoothing);
+            //virtual void UpdateRot(double qw, double qx, double qy, double qz, double time, double smoothing);
+            virtual void save_current_pose(double a, double b, double c, double qw, double qx, double qy, double qz, double time);
+            virtual void get_next_pose(double req_time, double pred[]);
             virtual vr::TrackedDeviceIndex_t GetDeviceIndex() override;
             virtual DeviceType GetDeviceType() override;
+            virtual void Log(std::string message);
 
             virtual vr::EVRInitError Activate(uint32_t unObjectId) override;
             virtual void Deactivate() override;
@@ -43,9 +46,6 @@ namespace ExampleDriver {
 
         std::chrono::milliseconds _pose_timestamp;
 
-        double wantedPose[7] = { 0,0,0,1,0,0,0 };
-        double wantedTimeOffset = 0;
-
         vr::DriverPose_t last_pose_ = IVRDevice::MakeDefaultPose();
 
         bool did_vibrate_ = false;
@@ -55,6 +55,11 @@ namespace ExampleDriver {
 
         vr::VRInputComponentHandle_t system_click_component_ = 0;
         vr::VRInputComponentHandle_t system_touch_component_ = 0;
+
+        const int max_saved = 10;
+        double prev_positions[10][8]; // prev_positions[:][0] je time since now (koliko cajta nazaj se je naredl, torej min-->max)
+        double last_update = 0;
+        double max_time = 1;
 
     };
 };

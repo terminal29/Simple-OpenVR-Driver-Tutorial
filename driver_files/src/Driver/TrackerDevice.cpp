@@ -1,6 +1,21 @@
 #include "TrackerDevice.hpp"
 #include <Windows.h>
 
+void normalizeQuat(double pose[])
+{
+
+    //normalize
+    double mag = sqrt(pose[3] * pose[3] +
+        pose[4] * pose[4] +
+        pose[5] * pose[5] +
+        pose[6] * pose[6]);
+
+    pose[3] /= mag;
+    pose[4] /= mag;
+    pose[5] /= mag;
+    pose[6] /= mag;
+}
+
 ExampleDriver::TrackerDevice::TrackerDevice(std::string serial):
     serial_(serial)
 {
@@ -51,22 +66,27 @@ void ExampleDriver::TrackerDevice::Update()
     // Update pose timestamp
 
     _pose_timestamp = time_since_epoch;
-
+    
     // Copy the previous position data
     double previous_position[3] = { 0 };
     std::copy(std::begin(pose.vecPosition), std::end(pose.vecPosition), std::begin(previous_position));
 
+    double next_pose[7];
+    get_next_pose(0, next_pose);
+
+    normalizeQuat(next_pose);
+
     //send the new position and rotation from the pipe to the tracker object
-    pose.vecPosition[0] = wantedPose[0];
-    pose.vecPosition[1] = wantedPose[1];
-    pose.vecPosition[2] = wantedPose[2];
+    pose.vecPosition[0] = next_pose[0];
+    pose.vecPosition[1] = next_pose[1];
+    pose.vecPosition[2] = next_pose[2];
 
-    pose.qRotation.w = wantedPose[3];
-    pose.qRotation.x = wantedPose[4];
-    pose.qRotation.y = wantedPose[5];
-    pose.qRotation.z = wantedPose[6];
+    pose.qRotation.w = next_pose[3];
+    pose.qRotation.x = next_pose[4];
+    pose.qRotation.y = next_pose[5];
+    pose.qRotation.z = next_pose[6];
 
-
+    /*
     if (pose_time_delta_seconds > 0)            //unless we get two pose updates at the same time, update velocity so steamvr can do some interpolation
     {
         pose.vecVelocity[0] = 0.8 * pose.vecVelocity[0] + 0.2 * (pose.vecPosition[0] - previous_position[0]) / pose_time_delta_seconds;
@@ -74,7 +94,10 @@ void ExampleDriver::TrackerDevice::Update()
         pose.vecVelocity[2] = 0.8 * pose.vecVelocity[2] + 0.2 * (pose.vecPosition[2] - previous_position[2]) / pose_time_delta_seconds;
     }
     pose.poseTimeOffset = this->wantedTimeOffset;
- 
+    
+    */
+
+    pose.poseTimeOffset = 0;
 
     //pose.vecVelocity[0] = (pose.vecPosition[0] - previous_position[0]) / pose_time_delta_seconds;
     //pose.vecVelocity[1] = (pose.vecPosition[1] - previous_position[1]) / pose_time_delta_seconds;
@@ -85,6 +108,185 @@ void ExampleDriver::TrackerDevice::Update()
     this->last_pose_ = pose;
 }
 
+void ExampleDriver::TrackerDevice::Log(std::string message)
+{
+    std::string message_endl = message + "\n";
+    vr::VRDriverLog()->Log(message_endl.c_str());
+}
+
+void ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred[])
+{
+    std::chrono::milliseconds time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    double time_since_epoch_seconds = time_since_epoch.count() / 1000.0;
+
+    double req_time = time_since_epoch_seconds - time_offset;
+
+    double new_time = last_update - req_time;
+    int curr_saved = 0;
+    //double pred[7] = {0};
+
+    double avg_time = 0;
+    double avg_time2 = 0;
+    for (int i = 0; i < max_saved; i++)
+    {
+        if (prev_positions[i][0] < 0)
+            break;
+        curr_saved++;
+        avg_time += prev_positions[i][0];
+        avg_time2 += (prev_positions[i][0] * prev_positions[i][0]);
+    }
+    //printf("curr saved %d\n", curr_saved);
+    if (curr_saved < 4)
+    {
+        //printf("Too few values");
+        return;
+        //return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+    }
+    avg_time /= curr_saved;
+    avg_time2 /= curr_saved;
+
+    //printf("avg time %f\n", avg_time);
+
+    double st = 0;
+    for (int j = 0; j < curr_saved; j++)
+    {
+        st += ((prev_positions[j][0] - avg_time) * (prev_positions[j][0] - avg_time));
+    }
+    st = sqrt(st * (1.0 / curr_saved));
+
+
+    for (int i = 1; i < 8; i++)
+    {
+        double avg_val = 0;
+        double avg_val2 = 0;
+        double avg_tval = 0;
+        for (int ii = 0; ii < curr_saved; ii++)
+        {
+            avg_val += prev_positions[ii][i];
+            avg_tval += (prev_positions[ii][0] * prev_positions[ii][i]);
+            avg_val2 += (prev_positions[ii][i] * prev_positions[ii][i]);
+        }
+        avg_val /= curr_saved;
+        avg_tval /= curr_saved;
+        avg_val2 /= curr_saved;
+
+        //printf("--avg: %f\n", avg_val);
+
+        double sv = 0;
+        for (int j = 0; j < curr_saved; j++)
+        {
+            sv += ((prev_positions[j][i] - avg_val) * (prev_positions[j][i] - avg_val));
+        }
+        sv = sqrt(sv * (1.0 / curr_saved));
+
+        //printf("----sv: %f\n", sv);
+
+        double rxy = (avg_tval - (avg_val * avg_time)) / sqrt((avg_time2 - (avg_time * avg_time)) * (avg_val2 - (avg_val * avg_val)));
+        double b = rxy * (sv / st);
+        double a = avg_val - (b * avg_time);
+
+        //printf("a: %f, b: %f\n", a, b);
+
+        double y = a + b * new_time;
+        //Log("aha: " + std::to_string(y) + std::to_string(avg_val));
+        if (avg_val*avg_val == avg_val2)
+            y = avg_val;
+
+        pred[i - 1] = y;
+        //printf("<<<< %f --> %f\n",y, pred[i-1]);
+
+
+    }
+    //printf("::: %f\n", pred[0]);
+    return;
+    //return pred[0], pred[1], pred[2], pred[3], pred[4], pred[5], pred[6];
+}
+
+void ExampleDriver::TrackerDevice::save_current_pose(double a, double b, double c, double w, double x, double y, double z, double time_offset)
+{
+    double next_pose[7];
+    get_next_pose(time_offset, next_pose);
+
+    double dot = x * next_pose[4] + y * next_pose[5] + z * next_pose[6] + w * next_pose[3];
+
+    if (dot < 0)
+    {
+        x = -x;
+        y = -y;
+        z = -z;
+        w = -w;
+    }   
+
+    //update times
+    std::chrono::milliseconds time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    double time_since_epoch_seconds = time_since_epoch.count() / 1000.0;
+
+    //Log("time since epoch: " + std::to_string(time_since_epoch_seconds));
+    
+    //lock_t curr_time = clock();
+    //clock_t capture_time = curr_time - (timeOffset*1000);
+    double curr_time = time_since_epoch_seconds;
+    double time_since_update = curr_time - this->last_update;
+    this->last_update = curr_time;
+
+    for (int i = 0; i < max_saved; i++)
+    {
+        if (prev_positions[i][0] >= 0)
+            prev_positions[i][0] += time_since_update;
+        if (prev_positions[i][0] > max_time)
+            prev_positions[i][0] = -1;
+    }
+
+    double time = time_offset;
+    // double offset = (rand() % 100) / 10000.;
+    // time += offset;
+    // printf("%f %f\n", time, offset);
+
+    //Log("Time: " + std::to_string(time));
+
+    if (time > max_time)
+        return;
+
+    if (prev_positions[max_saved - 1][0] < time && prev_positions[max_saved - 1][0] >= 0)
+        return;
+
+    int i = 0;
+    while (prev_positions[i][0] < time&& prev_positions[i][0] >= 0)
+        i++;
+
+    for (int j = max_saved - 1; j > i; j--)
+    {
+        if (prev_positions[j - 1][0] >= 0)
+        {
+            for (int k = 0; k < 8; k++)
+            {
+                prev_positions[j][k] = prev_positions[j - 1][k];
+            }
+        }
+        else
+        {
+            prev_positions[j][0] = -1;
+        }
+    }
+    prev_positions[i][0] = time;
+    prev_positions[i][1] = a;
+    prev_positions[i][2] = b;
+    prev_positions[i][3] = c;
+    prev_positions[i][4] = w;
+    prev_positions[i][5] = x;
+    prev_positions[i][6] = y;
+    prev_positions[i][7] = z;
+    /*
+    for (int i = 0; i < max_saved; i++)
+    {
+        Log("Time: " + std::to_string(prev_positions[i][0]));
+        Log("Position y: " + std::to_string(prev_positions[i][2]));
+    }
+    */
+    return;
+}
+
+/*
 void ExampleDriver::TrackerDevice::UpdatePos(double a, double b, double c, double time, double smoothing)
 {
     this->wantedPose[0] = (1 - smoothing) * this->wantedPose[0] + smoothing * a;
@@ -128,6 +330,7 @@ void ExampleDriver::TrackerDevice::UpdateRot(double qw, double qx, double qy, do
     this->wantedTimeOffset = time;
 
 }
+*/
 
 DeviceType ExampleDriver::TrackerDevice::GetDeviceType()
 {

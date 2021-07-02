@@ -154,9 +154,13 @@ void ExampleDriver::VRDriver::PipeThread()
 
                     if (idx < this->trackers_.size())
                     {
-                        this->trackers_[idx]->UpdatePos(a, b, c, time, 1-smoothing);
-                        this->trackers_[idx]->UpdateRot(qw, qx, qy, qz, time, 1-smoothing);
-                        this->trackers_[idx]->Update();
+                        if(time < 0)
+                            time = -time;
+                        this->trackers_[idx]->save_current_pose(a, b, c, qw, qx, qy, qz, time);
+                        //this->trackers_[idx]->UpdatePos(a, b, c, time, 1-smoothing);
+                        //this->trackers_[idx]->UpdateRot(qw, qx, qy, qz, time, 1-smoothing);
+
+                        //this->trackers_[idx]->Update();
                         s = s + " updated";
                     }
                     else
@@ -165,6 +169,7 @@ void ExampleDriver::VRDriver::PipeThread()
                     }
 
                 }
+                /*                                      no longer supported by new smoothing
                 else if (word == "updatepos")
                 {
                     int idx;
@@ -200,7 +205,7 @@ void ExampleDriver::VRDriver::PipeThread()
                         s = s + " idinvalid";
                     }
 
-                }
+                }*/
                 else if (word == "getdevicepose")
                 {
                     int idx;
@@ -224,19 +229,24 @@ void ExampleDriver::VRDriver::PipeThread()
                 else if (word == "gettrackerpose")
                 {
                     int idx;
+                    double time_offset;
                     iss >> idx;
+                    iss >> time_offset;
 
                     if (idx < this->devices_.size())
                     {
                         s = s + " trackerpose " + std::to_string(idx);
-                        vr::DriverPose_t pose = this->trackers_[idx]->GetPose();
-                        s = s + " " + std::to_string(pose.vecPosition[0]) +
-                            " " + std::to_string(pose.vecPosition[1]) +
-                            " " + std::to_string(pose.vecPosition[2]) +
-                            " " + std::to_string(pose.qRotation.w) +
-                            " " + std::to_string(pose.qRotation.x) +
-                            " " + std::to_string(pose.qRotation.y) +
-                            " " + std::to_string(pose.qRotation.z);
+
+                        double pose[7];
+                        this->trackers_[idx]->get_next_pose(time_offset, pose);
+
+                        s = s + " " + std::to_string(pose[0]) +
+                            " " + std::to_string(pose[1]) +
+                            " " + std::to_string(pose[2]) +
+                            " " + std::to_string(pose[3]) +
+                            " " + std::to_string(pose[4]) +
+                            " " + std::to_string(pose[5]) +
+                            " " + std::to_string(pose[6]);
                     }
                     else
                     {
@@ -276,7 +286,7 @@ void ExampleDriver::VRDriver::PipeThread()
 
 void ExampleDriver::VRDriver::RunFrame()
 {
-    //MessageBox(NULL, std::to_string(this->frame_timing_avg_.count()).c_str(), "Example Driver", MB_OK);
+    //MessageBox(NULL,"hi", "Example Driver", MB_OK);
     // Collect events
     vr::VREvent_t event;
     std::vector<vr::VREvent_t> events;
@@ -294,8 +304,8 @@ void ExampleDriver::VRDriver::RunFrame()
     this->frame_timing_avg_ = this->frame_timing_avg_ * 0.9 + ((double)this->frame_timing_.count()) * 0.1;
     //MessageBox(NULL, std::to_string(((double)this->frame_timing_.count()) * 0.1).c_str(), "Example Driver", MB_OK);
 
-    //for (auto& device : this->devices_)
-    //   device->Update();
+    for (auto& device : this->trackers_)
+        device->Update();
 
 }
 
