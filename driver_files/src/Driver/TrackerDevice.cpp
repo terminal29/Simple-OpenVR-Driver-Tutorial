@@ -28,6 +28,13 @@ std::string ExampleDriver::TrackerDevice::GetSerial()
     return this->serial_;
 }
 
+void ExampleDriver::TrackerDevice::reinit(int msaved, double mtime)
+{
+    max_saved = msaved;
+    prev_positions[msaved][8];
+    max_time = mtime;
+}
+
 void ExampleDriver::TrackerDevice::Update()
 {
     if (this->device_index_ == vr::k_unTrackedDeviceIndexInvalid)
@@ -72,7 +79,8 @@ void ExampleDriver::TrackerDevice::Update()
     std::copy(std::begin(pose.vecPosition), std::end(pose.vecPosition), std::begin(previous_position));
 
     double next_pose[7];
-    get_next_pose(0, next_pose);
+    if (!get_next_pose(0, next_pose))
+        return;
 
     normalizeQuat(next_pose);
 
@@ -114,7 +122,7 @@ void ExampleDriver::TrackerDevice::Log(std::string message)
     vr::VRDriverLog()->Log(message_endl.c_str());
 }
 
-void ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred[])
+int ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred[])
 {
     std::chrono::milliseconds time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
     double time_since_epoch_seconds = time_since_epoch.count() / 1000.0;
@@ -122,6 +130,10 @@ void ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred
     double req_time = time_since_epoch_seconds - time_offset;
 
     double new_time = last_update - req_time;
+
+    if (new_time < -1)      //limit prediction to max 1 second into the future to prevent your feet from being yeeted into oblivion
+        new_time = -1;
+
     int curr_saved = 0;
     //double pred[7] = {0};
 
@@ -139,7 +151,7 @@ void ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred
     if (curr_saved < 4)
     {
         //printf("Too few values");
-        return;
+        return false;
         //return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
     }
     avg_time /= curr_saved;
@@ -198,7 +210,7 @@ void ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred
 
     }
     //printf("::: %f\n", pred[0]);
-    return;
+    return true;
     //return pred[0], pred[1], pred[2], pred[3], pred[4], pred[5], pred[6];
 }
 
@@ -276,11 +288,11 @@ void ExampleDriver::TrackerDevice::save_current_pose(double a, double b, double 
     prev_positions[i][5] = x;
     prev_positions[i][6] = y;
     prev_positions[i][7] = z;
-    /*
+    /*                                                  for debugging
     for (int i = 0; i < max_saved; i++)
     {
         Log("Time: " + std::to_string(prev_positions[i][0]));
-        Log("Position y: " + std::to_string(prev_positions[i][2]));
+        Log("Position x: " + std::to_string(prev_positions[i][1]));
     }
     */
     return;

@@ -27,7 +27,7 @@ namespace ExampleDriver {
             //virtual void UpdatePos(double a, double b, double c, double time, double smoothing);
             //virtual void UpdateRot(double qw, double qx, double qy, double qz, double time, double smoothing);
             virtual void save_current_pose(double a, double b, double c, double qw, double qx, double qy, double qz, double time);
-            virtual void get_next_pose(double req_time, double pred[]);
+            virtual int get_next_pose(double req_time, double pred[]);
             virtual vr::TrackedDeviceIndex_t GetDeviceIndex() override;
             virtual DeviceType GetDeviceType() override;
             virtual void Log(std::string message);
@@ -38,6 +38,7 @@ namespace ExampleDriver {
             virtual void* GetComponent(const char* pchComponentNameAndVersion) override;
             virtual void DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize) override;
             virtual vr::DriverPose_t GetPose() override;
+            virtual void reinit(int msaved, double mtime);
 
     private:
         vr::TrackedDeviceIndex_t device_index_ = vr::k_unTrackedDeviceIndexInvalid;
@@ -56,7 +57,7 @@ namespace ExampleDriver {
         vr::VRInputComponentHandle_t system_click_component_ = 0;
         vr::VRInputComponentHandle_t system_touch_component_ = 0;
 
-        const int max_saved = 10;
+        int max_saved = 10;
         double prev_positions[10][8]; // prev_positions[:][0] je time since now (koliko cajta nazaj se je naredl, torej min-->max)
         double last_update = 0;
         double max_time = 1;
