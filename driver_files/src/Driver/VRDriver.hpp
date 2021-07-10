@@ -58,5 +58,8 @@ namespace ExampleDriver {
 
         int pipeNum = 1;
         double smoothFactor = 0.2;
+
+        int tracker_max_saved = 10;
+        double tracker_max_time = 1;
     };
 };

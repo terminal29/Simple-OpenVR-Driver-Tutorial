@@ -31,8 +31,11 @@ std::string ExampleDriver::TrackerDevice::GetSerial()
 void ExampleDriver::TrackerDevice::reinit(int msaved, double mtime)
 {
     max_saved = msaved;
-    prev_positions[msaved][8];
+    std::vector<std::vector<double>> temp(msaved, std::vector<double>(8,0));
+    prev_positions = temp;
     max_time = mtime;
+
+    //Log("Settings changed! " + std::to_string(msaved) + " " + std::to_string(mtime));
 }
 
 void ExampleDriver::TrackerDevice::Update()
@@ -288,7 +291,8 @@ void ExampleDriver::TrackerDevice::save_current_pose(double a, double b, double 
     prev_positions[i][5] = x;
     prev_positions[i][6] = y;
     prev_positions[i][7] = z;
-    /*                                                  for debugging
+    /*                                                 //for debugging
+    Log("------------------------------------------------");
     for (int i = 0; i < max_saved; i++)
     {
         Log("Time: " + std::to_string(prev_positions[i][0]));

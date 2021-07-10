@@ -117,6 +117,7 @@ void ExampleDriver::VRDriver::PipeThread()
                     auto addtracker = std::make_shared<TrackerDevice>("AprilTracker" + std::to_string(this->trackers_.size()));
                     this->AddDevice(addtracker);
                     this->trackers_.push_back(addtracker);
+                    addtracker->reinit(tracker_max_saved, tracker_max_time);
                     s = s + " added";
                 }
                 else if (word == "addstation")
@@ -263,7 +264,18 @@ void ExampleDriver::VRDriver::PipeThread()
                 }
                 else if (word == "settings")
                 {
-                    continue;
+                    int msaved;
+                    double mtime;
+                    iss >> msaved;
+                    iss >> mtime;
+                    
+                    for (auto& device : this->trackers_)
+                        device->reinit(msaved,mtime);
+
+                    tracker_max_saved = msaved;
+                    tracker_max_time = mtime;
+
+                    s = s + "  changed";
                 }
                 else
                 {

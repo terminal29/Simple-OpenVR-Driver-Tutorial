@@ -58,7 +58,7 @@ namespace ExampleDriver {
         vr::VRInputComponentHandle_t system_touch_component_ = 0;
 
         int max_saved = 10;
-        double prev_positions[10][8]; // prev_positions[:][0] je time since now (koliko cajta nazaj se je naredl, torej min-->max)
+        std::vector<std::vector<double>> prev_positions; // prev_positions[:][0] je time since now (koliko cajta nazaj se je naredl, torej min-->max)
         double last_update = 0;
         double max_time = 1;
 
