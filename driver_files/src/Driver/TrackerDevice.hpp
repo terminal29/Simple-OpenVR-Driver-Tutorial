@@ -18,7 +18,7 @@ namespace ExampleDriver {
     class TrackerDevice : public IVRDevice {
         public:
 
-            TrackerDevice(std::string serial);
+            TrackerDevice(std::string serial, std::string role);
             ~TrackerDevice() = default;
 
             // Inherited via IVRDevice
@@ -43,6 +43,7 @@ namespace ExampleDriver {
     private:
         vr::TrackedDeviceIndex_t device_index_ = vr::k_unTrackedDeviceIndexInvalid;
         std::string serial_;
+        std::string role_;
         bool isSetup;
 
         std::chrono::milliseconds _pose_timestamp;

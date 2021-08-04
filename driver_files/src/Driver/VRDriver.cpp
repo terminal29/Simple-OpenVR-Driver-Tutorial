@@ -114,7 +114,18 @@ void ExampleDriver::VRDriver::PipeThread()
                 else if (word == "addtracker")
                 {
                     //MessageBoxA(NULL, word.c_str(), "Example Driver", MB_OK);
-                    auto addtracker = std::make_shared<TrackerDevice>("AprilTracker" + std::to_string(this->trackers_.size()));
+                    std::string name, role;
+
+                    iss >> name;
+                    iss >> role;
+
+                    if (name == "")
+                    {
+                        name = "UnnamedTracker" + std::to_string(this->trackers_.size());
+                        role = "vive_tracker_waist";        //should be "vive_tracker_left_foot" or "vive_tracker_left_foot" or "vive_tracker_waist"
+                    }
+
+                    auto addtracker = std::make_shared<TrackerDevice>(name, role);
                     this->AddDevice(addtracker);
                     this->trackers_.push_back(addtracker);
                     addtracker->reinit(tracker_max_saved, tracker_max_time);

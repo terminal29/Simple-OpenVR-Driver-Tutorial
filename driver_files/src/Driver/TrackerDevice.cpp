@@ -16,8 +16,9 @@ void normalizeQuat(double pose[])
     pose[6] /= mag;
 }
 
-ExampleDriver::TrackerDevice::TrackerDevice(std::string serial):
-    serial_(serial)
+ExampleDriver::TrackerDevice::TrackerDevice(std::string serial, std::string role):
+    serial_(serial),
+    role_(role)
 {
     this->last_pose_ = MakeDefaultPose();
     this->isSetup = false;
@@ -30,6 +31,9 @@ std::string ExampleDriver::TrackerDevice::GetSerial()
 
 void ExampleDriver::TrackerDevice::reinit(int msaved, double mtime)
 {
+    if (msaved < 5)     //prevent having too few values to calculate linear interpolation, and prevent crash on 0
+        msaved = 5;
+
     max_saved = msaved;
     std::vector<std::vector<double>> temp(msaved, std::vector<double>(8,-1));
     prev_positions = temp;
@@ -370,12 +374,6 @@ vr::EVRInitError ExampleDriver::TrackerDevice::Activate(uint32_t unObjectId)
     // Get the properties handle
     auto props = GetDriver()->GetProperties()->TrackedDeviceToPropertyContainer(this->device_index_);
 
-    // Setup inputs and outputs
-    //GetDriver()->GetInput()->CreateHapticComponent(props, "/output/haptic", &this->haptic_component_);
-
-    //GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/system/click", &this->system_click_component_);
-    //GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/system/touch", &this->system_touch_component_);
-
     // Set some universe ID (Must be 2 or higher)
     GetDriver()->GetProperties()->SetUint64Property(props, vr::Prop_CurrentUniverseId_Uint64, 3);
     
@@ -401,7 +399,7 @@ vr::EVRInitError ExampleDriver::TrackerDevice::Activate(uint32_t unObjectId)
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceNotReady_String, "{apriltagtrackers}/icons/tracker_not_ready.png");
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceStandby_String, "{apriltagtrackers}/icons/tracker_not_ready.png");
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceAlertLow_String, "{apriltagtrackers}/icons/tracker_not_ready.png");
-
+    /*
     char id = this->serial_.at(12);
     std::string role;
     switch (id)
@@ -413,7 +411,8 @@ vr::EVRInitError ExampleDriver::TrackerDevice::Activate(uint32_t unObjectId)
     case '1':
         role = "vive_tracker_right_foot"; break;
     }
-    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, role.c_str());
+    */
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, role_.c_str());
 
     return vr::EVRInitError::VRInitError_None;
 }
