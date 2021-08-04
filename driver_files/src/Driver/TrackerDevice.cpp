@@ -407,11 +407,11 @@ vr::EVRInitError ExampleDriver::TrackerDevice::Activate(uint32_t unObjectId)
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceAlertLow_String, "{apriltagtrackers}/icons/tracker_not_ready.png");
     /*
     char id = this->serial_.at(12);
-    std::string role;
+    std::string role = "";
     switch (id)
     {
-    //case '0':
-    //    role = "vive_tracker_waist"; break;
+    case '0':
+        role = "vive_tracker_waist"; break;
     case '0':
         role = "vive_tracker_left_foot"; break;
     case '1':
@@ -421,13 +421,23 @@ vr::EVRInitError ExampleDriver::TrackerDevice::Activate(uint32_t unObjectId)
 
     //set role, role hint and everything else to ensure trackers are detected as trackers and not controllers
 
-    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, role_.c_str());
+    std::string rolehint = "vive_tracker";
+    if (role_ == "TrackerRole_LeftFoot")
+        rolehint = "vive_tracker_left_foot";
+    else if (role_ == "TrackerRole_RightFoot")
+        rolehint = "vive_tracker_right_foot";
+    else if (role_ == "TrackerRole_Waist")
+        rolehint = "vive_tracker_waist";
+
+    GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, rolehint.c_str());
 
     vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, vr::TrackedDeviceClass_GenericTracker);
     vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, -1);
 
     std::string l_registeredDevice("/devices/apriltagtrackers/");
     l_registeredDevice.append(serial_);
+
+    Log("Setting role " + role_ + " to " + l_registeredDevice);
 
     vr::VRSettings()->SetString(vr::k_pch_Trackers_Section, l_registeredDevice.c_str(), role_.c_str());
 

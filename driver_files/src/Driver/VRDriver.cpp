@@ -11,7 +11,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
         return init_error;
     }
 
-    Log("Activating AprilTag Driver Bridge v0.5...");
+    Log("Activating AprilTag Driver Bridge v0.5.3...");
 
     // Add a HMD
     //this->AddDevice(std::make_shared<HMDDevice>("Example_HMDDevice"));
@@ -122,7 +122,7 @@ void ExampleDriver::VRDriver::PipeThread()
                     if (name == "")
                     {
                         name = "UnnamedTracker" + std::to_string(this->trackers_.size());
-                        role = "vive_tracker_waist";        //should be "vive_tracker_left_foot" or "vive_tracker_left_foot" or "vive_tracker_waist"
+                        role = "TrackerRole_Waist";        //should be "vive_tracker_left_foot" or "vive_tracker_left_foot" or "vive_tracker_waist"
                     }
 
                     auto addtracker = std::make_shared<TrackerDevice>(name, role);
