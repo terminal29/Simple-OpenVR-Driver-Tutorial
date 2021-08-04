@@ -253,7 +253,7 @@ void ExampleDriver::VRDriver::PipeThread()
                         s = s + " trackerpose " + std::to_string(idx);
 
                         double pose[7];
-                        this->trackers_[idx]->get_next_pose(time_offset, pose);
+                        int statuscode = this->trackers_[idx]->get_next_pose(time_offset, pose);
 
                         s = s + " " + std::to_string(pose[0]) +
                             " " + std::to_string(pose[1]) +
@@ -261,7 +261,8 @@ void ExampleDriver::VRDriver::PipeThread()
                             " " + std::to_string(pose[3]) +
                             " " + std::to_string(pose[4]) +
                             " " + std::to_string(pose[5]) +
-                            " " + std::to_string(pose[6]);
+                            " " + std::to_string(pose[6]) +
+                            " " + std::to_string(statuscode);
                     }
                     else
                     {

@@ -86,7 +86,7 @@ void ExampleDriver::TrackerDevice::Update()
     std::copy(std::begin(pose.vecPosition), std::end(pose.vecPosition), std::begin(previous_position));
 
     double next_pose[7];
-    if (!get_next_pose(0, next_pose))
+    if (get_next_pose(0, next_pose) != 0)
         return;
 
     normalizeQuat(next_pose);
@@ -131,6 +131,8 @@ void ExampleDriver::TrackerDevice::Log(std::string message)
 
 int ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred[])
 {
+    int statuscode = 0;
+
     std::chrono::milliseconds time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
     double time_since_epoch_seconds = time_since_epoch.count() / 1000.0;
 
@@ -138,8 +140,11 @@ int ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred[
 
     double new_time = last_update - req_time;
 
-    if (new_time < -1)      //limit prediction to max 1 second into the future to prevent your feet from being yeeted into oblivion
-        new_time = -1;
+    if (new_time < -0.2)      //limit prediction to max 0.2 second into the future to prevent your feet from being yeeted into oblivion
+    {
+        new_time = -0.2;
+        statuscode = 1;
+    }
 
     int curr_saved = 0;
     //double pred[7] = {0};
@@ -161,7 +166,8 @@ int ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred[
     if (curr_saved < 4)
     {
         //printf("Too few values");
-        return false;
+        statuscode = -1;
+        return statuscode;
         //return 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
     }
     avg_time /= curr_saved;
@@ -220,7 +226,7 @@ int ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred[
 
     }
     //printf("::: %f\n", pred[0]);
-    return true;
+    return statuscode;
     //return pred[0], pred[1], pred[2], pred[3], pred[4], pred[5], pred[6];
 }
 
