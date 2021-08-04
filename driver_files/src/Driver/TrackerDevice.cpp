@@ -412,7 +412,18 @@ vr::EVRInitError ExampleDriver::TrackerDevice::Activate(uint32_t unObjectId)
         role = "vive_tracker_right_foot"; break;
     }
     */
+
+    //set role, role hint and everything else to ensure trackers are detected as trackers and not controllers
+
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, role_.c_str());
+
+    vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, vr::TrackedDeviceClass_GenericTracker);
+    vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, -1);
+
+    std::string l_registeredDevice("/devices/apriltagtrackers/");
+    l_registeredDevice.append(serial_);
+
+    vr::VRSettings()->SetString(vr::k_pch_Trackers_Section, l_registeredDevice.c_str(), role_.c_str());
 
     return vr::EVRInitError::VRInitError_None;
 }
