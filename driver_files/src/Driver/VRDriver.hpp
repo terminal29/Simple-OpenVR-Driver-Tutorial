@@ -11,6 +11,8 @@
 #include <Driver/TrackerDevice.hpp>
 #include <Driver/TrackingReferenceDevice.hpp>
 
+#include "Ipc.hpp"
+
 
 namespace ExampleDriver {
     class VRDriver : public IVRDriver {
@@ -38,8 +40,7 @@ namespace ExampleDriver {
         virtual ~VRDriver() = default;
 
     private:
-        HANDLE inPipe;
-        HANDLE syncPipe;
+        Ipc::Server ipcServer;
         std::vector<std::shared_ptr<IVRDevice>> devices_;
         std::vector<std::shared_ptr<TrackerDevice>> trackers_;
         std::vector<std::shared_ptr<TrackingReferenceDevice>> stations_;

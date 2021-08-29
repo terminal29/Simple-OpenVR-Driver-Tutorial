@@ -20,19 +20,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
     //this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice_Left", ControllerDevice::Handedness::LEFT));
     //this->AddDevice(std::make_shared<ControllerDevice>("Example_ControllerDevice_Right", ControllerDevice::Handedness::RIGHT));
     
-    std::string inPipeName = "\\\\.\\pipe\\ApriltagPipeIn";
-
-    inPipe = CreateNamedPipeA(inPipeName.c_str(),
-        PIPE_ACCESS_DUPLEX,
-        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE |PIPE_WAIT,   // FILE_FLAG_FIRST_PIPE_INSTANCE is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists...
-        1,
-        1024 * 16,
-        1024 * 16,
-        NMPWAIT_USE_DEFAULT_WAIT,
-        NULL);
-
-    //if pipe was successfully created wait for a connection
-    //ConnectNamedPipe(inPipe, NULL);
+    ipcServer.init("ApriltagPipeIn");
 
     std::thread pipeThread(&ExampleDriver::VRDriver::PipeThread, this);
     pipeThread.detach();
@@ -53,19 +41,16 @@ void ExampleDriver::VRDriver::Cleanup()
 void ExampleDriver::VRDriver::PipeThread()
 {
     char buffer[1024];
-    DWORD dwWritten;
-    DWORD dwRead;
 
     for (;;) 
     {
-        ConnectNamedPipe(inPipe, NULL);
+        Ipc::Connection ipcConnection = ipcServer.accept();
         //MessageBoxA(NULL, "connected", "Example Driver", MB_OK);
 
         //we go and read it into our buffer
-        if (ReadFile(inPipe, buffer, sizeof(buffer) - 1, &dwRead, NULL) != FALSE)
+        if (ipcConnection.recv(buffer, sizeof(buffer)))
         {
             //MessageBoxA(NULL, "connected2", "Example Driver", MB_OK);
-            buffer[dwRead] = '\0'; //add terminating zero
             //convert our buffer to string
 
             //MessageBoxA(NULL, buffer, "Example Driver", MB_OK);
@@ -226,14 +211,9 @@ void ExampleDriver::VRDriver::PipeThread()
 
             s = s + "  OK\0";
 
-            DWORD dwWritten;
-            WriteFile(inPipe,
-                s.c_str(),
-                (s.length() + 1),   // = length of string + terminating '\0' !!!
-                &dwWritten,
-                NULL);
+            // = length of string + terminating '\0' !!!
+            ipcConnection.send(s.c_str(), (s.length() + 1));
         }
-        DisconnectNamedPipe(inPipe);
         /*
         }
         else
