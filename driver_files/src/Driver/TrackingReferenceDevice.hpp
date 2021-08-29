@@ -1,7 +1,7 @@
 #pragma once
 
 #include <chrono>
-#include <cmath>
+#include "cmath_fix.h"
 
 #include <linalg.h>
 
