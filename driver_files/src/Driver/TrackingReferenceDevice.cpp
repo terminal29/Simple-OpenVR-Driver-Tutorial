@@ -1,5 +1,4 @@
 #include "TrackingReferenceDevice.hpp"
-#include <Windows.h>
 
 ExampleDriver::TrackingReferenceDevice::TrackingReferenceDevice(std::string serial):
     serial_(serial)

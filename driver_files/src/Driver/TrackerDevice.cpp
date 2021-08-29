@@ -1,5 +1,4 @@
 #include "TrackerDevice.hpp"
-#include <Windows.h>
 
 void normalizeQuat(double pose[])
 {
