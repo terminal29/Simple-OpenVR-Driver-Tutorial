@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <memory>
-#include <windows.h>
 
 #include <openvr_driver.h>
 

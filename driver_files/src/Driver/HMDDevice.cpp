@@ -1,5 +1,4 @@
 #include "HMDDevice.hpp"
-#include <Windows.h>
 
 ExampleDriver::HMDDevice::HMDDevice(std::string serial):serial_(serial)
 {
