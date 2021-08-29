@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "ControllerDevice.hpp"
 #include "Key.hpp"
 
