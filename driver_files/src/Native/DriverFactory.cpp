@@ -2,6 +2,7 @@
 #include <thread>
 #include <Driver/VRDriver.hpp>
 #include <sstream>
+#include <cstring>
 
 static std::shared_ptr<ExampleDriver::IVRDriver> driver;
 
