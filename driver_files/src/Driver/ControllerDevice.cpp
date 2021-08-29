@@ -1,4 +1,5 @@
 #include "ControllerDevice.hpp"
+#include "Key.hpp"
 
 ExampleDriver::ControllerDevice::ControllerDevice(std::string serial, ControllerDevice::Handedness handedness):
     serial_(serial),

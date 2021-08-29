@@ -1,11 +1,8 @@
+#include <chrono>
+#include <thread>
+
 #include "example.h"
-
-const int BUFSIZE = 1024;
-
-TCHAR chReadBuf[BUFSIZE];
-BOOL fSuccess;
-DWORD cbRead;
-LPTSTR lpszPipename = TEXT("\\\\.\\pipe\\ApriltagPipeIn");
+#include "Ipc.hpp"
 
 int trackernum = 4;
 
@@ -13,13 +10,10 @@ int main()
 {
 	std::cout << "Waiting..." << std::endl;
 
-	const int BUFSIZE = 1024;
-	std::string pipeName = "\\\\.\\pipe\\ApriltagPipeIn";
-
 	std::istringstream ret;
 	std::string word;
 
-	ret = Send(TEXT("numtrackers"));
+	ret = Send("numtrackers");
 	ret >> word;
 	if (word != "numtrackers")
 	{
@@ -30,7 +24,7 @@ int main()
 	ret >> connected_trackers;
 	for(int i = connected_trackers;i<trackernum;i++)
 	{
-		ret = Send(TEXT("addtracker"));
+		ret = Send("addtracker");
 		ret >> word;
 		if (word != "added")
 		{
@@ -39,11 +33,11 @@ int main()
 		}
 	}
 
-	//ret = Send(TEXT("addstation"));
+	//ret = Send("addstation");
 
-	Sleep(1000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-	//ret = Send(TEXT("updatestation 0 2 1 0 1 0 0 0"));
+	//ret = Send("updatestation 0 2 1 0 1 0 0 0");
 
 	clock_t start, end;
 	while (true)
@@ -51,16 +45,15 @@ int main()
 		//for timing our detection
 		start = clock();
 
-		ret = Send(TEXT("synctime"));
+		ret = Send("synctime");
 		double avgtime; int lasttime;
 		
 		ret >> avgtime;
 		ret >> lasttime; 
 
-		Sleep((int)(avgtime - (lasttime % (int)avgtime)));
-		//Sleep(30);
+                std::this_thread::sleep_for(std::chrono::milliseconds((int)(avgtime - (lasttime % (int)avgtime))));
 
-		ret = Send(TEXT("getdevicepose 1")); // 0 for HMD, 1 is left controller
+		ret = Send("getdevicepose 1"); // 0 for HMD, 1 is left controller
 		ret >> word;
 		if (word != "devicepose")
 		{
@@ -85,7 +78,7 @@ int main()
 		SendTracker(2, a, b, c + 1, qw, qx, qy, qz, -1, 0.9);
 		SendTracker(3, a, b, c - 1, qw, qx, qy, qz, -1, 0.9);
 
-		//ret = Send(TEXT("updatestation 0 0 0 0 1 0 0 0"));
+		//ret = Send("updatestation 0 0 0 0 1 0 0 0");
 
 		end = clock();
 		double frameTime = double(end - start) / double(CLOCKS_PER_SEC);
@@ -94,39 +87,11 @@ int main()
 	}
 }
 
-std::istringstream Send(LPTSTR lpszWrite)
+std::istringstream Send(std::string buffer)
 {
-	fSuccess = CallNamedPipe(
-		lpszPipename,        // pipe name 
-		lpszWrite,           // message to server 
-		(lstrlen(lpszWrite) + 1) * sizeof(TCHAR), // message length 
-		chReadBuf,              // buffer to receive reply 
-		BUFSIZE * sizeof(TCHAR),  // size of read buffer 
-		&cbRead,                // number of bytes read 
-		2000);                 // waits for 2 seconds 
-
-	if (fSuccess || GetLastError() == ERROR_MORE_DATA)
-	{
-		std::cout << chReadBuf << std::endl;
-		chReadBuf[cbRead] = '\0'; //add terminating zero
-					//convert our buffer to string
-		std::string rec = chReadBuf;
-		std::istringstream iss(rec);
-		// The pipe is closed; no more data can be read. 
-
-		if (!fSuccess)
-		{
-			printf("\nExtra data in message was lost\n");
-		}
-		return iss;
-	}
-	else
-	{
-		std::cout << GetLastError() << " :(" << std::endl;
-		std::string rec = " senderror";
-		std::istringstream iss(rec);
-		return iss;
-	}
+        Ipc::Client client("ApriltagPipeIn");
+        std::string rec = client.sendrecv(buffer);
+        return std::istringstream(rec);
 }
 
 std::istringstream SendTracker(int id, double a, double b, double c, double qw, double qx, double qy, double qz, double time, double smoothing)
@@ -145,7 +110,5 @@ std::istringstream SendTracker(int id, double a, double b, double c, double qw, 
 
 	//send the string to our driver
 
-	LPTSTR sendstring = (LPTSTR)s.c_str();
-
-	return Send(sendstring);
+	return Send(s);
 }
