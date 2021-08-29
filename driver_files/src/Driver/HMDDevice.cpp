@@ -1,6 +1,11 @@
 #include "HMDDevice.hpp"
 #include "Key.hpp"
 
+#if !defined(_WIN32) && !defined(__WIN32__) && !defined(WIN32)
+#include "string.h"
+#define _stricmp strcasecmp
+#endif
+
 ExampleDriver::HMDDevice::HMDDevice(std::string serial):serial_(serial)
 {
 }
