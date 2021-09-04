@@ -61,5 +61,6 @@ namespace ExampleDriver {
 
         int tracker_max_saved = 10;
         double tracker_max_time = 1;
+        double tracker_smoothing = 0;
     };
 };

@@ -29,15 +29,21 @@ std::string ExampleDriver::TrackerDevice::GetSerial()
     return this->serial_;
 }
 
-void ExampleDriver::TrackerDevice::reinit(int msaved, double mtime)
+void ExampleDriver::TrackerDevice::reinit(int msaved, double mtime, double msmooth)
 {
     if (msaved < 5)     //prevent having too few values to calculate linear interpolation, and prevent crash on 0
         msaved = 5;
+
+    if (msmooth < 0)
+        msmooth = 0;
+    else if (msmooth > 0.95)
+        msmooth = 0.95;
 
     max_saved = msaved;
     std::vector<std::vector<double>> temp(msaved, std::vector<double>(8,-1));
     prev_positions = temp;
     max_time = mtime;
+    smoothing = msmooth;
 
     //Log("Settings changed! " + std::to_string(msaved) + " " + std::to_string(mtime));
 }
@@ -92,14 +98,14 @@ void ExampleDriver::TrackerDevice::Update()
     normalizeQuat(next_pose);
 
     //send the new position and rotation from the pipe to the tracker object
-    pose.vecPosition[0] = next_pose[0];
-    pose.vecPosition[1] = next_pose[1];
-    pose.vecPosition[2] = next_pose[2];
+    pose.vecPosition[0] = next_pose[0] * (1 - smoothing) + pose.vecPosition[0] * smoothing;
+    pose.vecPosition[1] = next_pose[1] * (1 - smoothing) + pose.vecPosition[1] * smoothing;
+    pose.vecPosition[2] = next_pose[2] * (1 - smoothing) + pose.vecPosition[2] * smoothing;
 
-    pose.qRotation.w = next_pose[3];
-    pose.qRotation.x = next_pose[4];
-    pose.qRotation.y = next_pose[5];
-    pose.qRotation.z = next_pose[6];
+    pose.qRotation.w = next_pose[3] * (1 - smoothing) + pose.qRotation.w * smoothing;
+    pose.qRotation.x = next_pose[4] * (1 - smoothing) + pose.qRotation.x * smoothing;
+    pose.qRotation.y = next_pose[5] * (1 - smoothing) + pose.qRotation.y * smoothing;
+    pose.qRotation.z = next_pose[6] * (1 - smoothing) + pose.qRotation.z * smoothing;
 
     /*
     if (pose_time_delta_seconds > 0)            //unless we get two pose updates at the same time, update velocity so steamvr can do some interpolation
@@ -233,7 +239,7 @@ int ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred[
 void ExampleDriver::TrackerDevice::save_current_pose(double a, double b, double c, double w, double x, double y, double z, double time_offset)
 {
     double next_pose[7];
-    get_next_pose(time_offset, next_pose);
+    int pose_valid = get_next_pose(time_offset, next_pose);
 
     double dot = x * next_pose[4] + y * next_pose[5] + z * next_pose[6] + w * next_pose[3];
 
@@ -243,7 +249,7 @@ void ExampleDriver::TrackerDevice::save_current_pose(double a, double b, double 
         y = -y;
         z = -z;
         w = -w;
-    }   
+    } 
 
     //update times
     std::chrono::milliseconds time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -271,6 +277,21 @@ void ExampleDriver::TrackerDevice::save_current_pose(double a, double b, double 
     // printf("%f %f\n", time, offset);
 
     //Log("Time: " + std::to_string(time));
+
+    double dist = sqrt(pow(next_pose[0] - a, 2) + pow(next_pose[1] - b, 2) + pow(next_pose[2] - c, 2));
+    if (pose_valid == 0 && dist > 0.5)
+    {
+        Log("Dropped a pose! its error was " + std::to_string(dist));
+        Log("Height vs predicted height:" + std::to_string(b) + " " + std::to_string(next_pose[1]));
+        return;
+    }
+
+    dist = sqrt(pow(a, 2) + pow(b, 2) + pow(c, 2));
+    if (dist > 10)
+    {
+        Log("Dropped a pose! Was outside of playspace: " + std::to_string(dist));
+        return;
+    }
 
     if (time > max_time)
         return;

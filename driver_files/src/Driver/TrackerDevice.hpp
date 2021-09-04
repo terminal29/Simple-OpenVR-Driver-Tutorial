@@ -38,7 +38,7 @@ namespace ExampleDriver {
             virtual void* GetComponent(const char* pchComponentNameAndVersion) override;
             virtual void DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize) override;
             virtual vr::DriverPose_t GetPose() override;
-            virtual void reinit(int msaved, double mtime);
+            virtual void reinit(int msaved, double mtime, double msmooth);
 
     private:
         vr::TrackedDeviceIndex_t device_index_ = vr::k_unTrackedDeviceIndexInvalid;
@@ -62,6 +62,7 @@ namespace ExampleDriver {
         std::vector<std::vector<double>> prev_positions; // prev_positions[:][0] je time since now (koliko cajta nazaj se je naredl, torej min-->max)
         double last_update = 0;
         double max_time = 1;
+        double smoothing = 0;
 
     };
 };

@@ -11,7 +11,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
         return init_error;
     }
 
-    Log("Activating AprilTag Driver Bridge v0.5.3...");
+    Log("Activating AprilTag Driver Bridge v0.5.4...");
 
     // Add a HMD
     //this->AddDevice(std::make_shared<HMDDevice>("Example_HMDDevice"));
@@ -128,7 +128,7 @@ void ExampleDriver::VRDriver::PipeThread()
                     auto addtracker = std::make_shared<TrackerDevice>(name, role);
                     this->AddDevice(addtracker);
                     this->trackers_.push_back(addtracker);
-                    addtracker->reinit(tracker_max_saved, tracker_max_time);
+                    addtracker->reinit(tracker_max_saved, tracker_max_time, tracker_smoothing);
                     s = s + " added";
                 }
                 else if (word == "addstation")
@@ -227,7 +227,7 @@ void ExampleDriver::VRDriver::PipeThread()
                     iss >> idx;
 
                     vr::TrackedDevicePose_t hmd_pose[10];
-                    vr::VRServerDriverHost()->GetRawTrackedDevicePoses(0, hmd_pose, 10);
+                    vr::VRServerDriverHost()->GetRawTrackedDevicePoses(1, hmd_pose, 10);
 
                     vr::HmdQuaternion_t q = GetRotation(hmd_pose[idx].mDeviceToAbsoluteTracking);
                     vr::HmdVector3_t pos = GetPosition(hmd_pose[idx].mDeviceToAbsoluteTracking);
@@ -272,20 +272,23 @@ void ExampleDriver::VRDriver::PipeThread()
                 }
                 else if (word == "numtrackers")
                 {
-                    s = s + " numtrackers " + std::to_string(this->trackers_.size());
+                    s = s + " numtrackers " + std::to_string(this->trackers_.size()) + " 0.5.4";
                 }
                 else if (word == "settings")
                 {
                     int msaved;
                     double mtime;
+                    double msmooth;
                     iss >> msaved;
                     iss >> mtime;
+                    iss >> msmooth;
                     
                     for (auto& device : this->trackers_)
-                        device->reinit(msaved,mtime);
+                        device->reinit(msaved,mtime,msmooth);
 
                     tracker_max_saved = msaved;
                     tracker_max_time = mtime;
+                    tracker_smoothing = msmooth;
 
                     s = s + "  changed";
                 }
