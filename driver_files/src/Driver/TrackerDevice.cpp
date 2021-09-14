@@ -36,8 +36,8 @@ void ExampleDriver::TrackerDevice::reinit(int msaved, double mtime, double msmoo
 
     if (msmooth < 0)
         msmooth = 0;
-    else if (msmooth > 0.95)
-        msmooth = 0.95;
+    else if (msmooth > 0.99)
+        msmooth = 0.99;
 
     max_saved = msaved;
     std::vector<std::vector<double>> temp(msaved, std::vector<double>(8,-1));
@@ -106,6 +106,17 @@ void ExampleDriver::TrackerDevice::Update()
     pose.qRotation.x = next_pose[4] * (1 - smoothing) + pose.qRotation.x * smoothing;
     pose.qRotation.y = next_pose[5] * (1 - smoothing) + pose.qRotation.y * smoothing;
     pose.qRotation.z = next_pose[6] * (1 - smoothing) + pose.qRotation.z * smoothing;
+
+    //normalize
+    double mag = sqrt(pose.qRotation.w * pose.qRotation.w +
+        pose.qRotation.x * pose.qRotation.x +
+        pose.qRotation.y * pose.qRotation.y +
+        pose.qRotation.z * pose.qRotation.z);
+
+    pose.qRotation.w /= mag;
+    pose.qRotation.x /= mag;
+    pose.qRotation.y /= mag;
+    pose.qRotation.z /= mag;
 
     /*
     if (pose_time_delta_seconds > 0)            //unless we get two pose updates at the same time, update velocity so steamvr can do some interpolation
@@ -460,7 +471,8 @@ vr::EVRInitError ExampleDriver::TrackerDevice::Activate(uint32_t unObjectId)
 
     Log("Setting role " + role_ + " to " + l_registeredDevice);
 
-    vr::VRSettings()->SetString(vr::k_pch_Trackers_Section, l_registeredDevice.c_str(), role_.c_str());
+    if(rolehint != "vive_tracker")
+        vr::VRSettings()->SetString(vr::k_pch_Trackers_Section, l_registeredDevice.c_str(), role_.c_str());
 
     return vr::EVRInitError::VRInitError_None;
 }
