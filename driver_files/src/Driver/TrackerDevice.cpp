@@ -234,7 +234,7 @@ int ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred[
 
         double y = a + b * new_time;
         //Log("aha: " + std::to_string(y) + std::to_string(avg_val));
-        if (avg_val*avg_val == avg_val2)
+        if (abs(avg_val2 - (avg_val * avg_val)) < 0.00000001)               //bloody floating point rounding errors
             y = avg_val;
 
         pred[i - 1] = y;
