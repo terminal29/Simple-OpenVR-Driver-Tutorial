@@ -103,10 +103,10 @@ void ExampleDriver::VRDriver::PipeThread()
                     }
                     else
                     {
-                        float x, y;
-                        iss >> x; iss >> y;
+                        float x, y, rx, ry, a, b;
+                        iss >> x; iss >> y; iss >> rx; iss >> ry; iss >> a; iss >> b;
 
-                        fakemove_->SetDirection(x, y);
+                        fakemove_->SetDirection(x, y, rx, ry, a, b);
 
                         s = s + " updated";
                     }

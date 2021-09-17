@@ -85,9 +85,13 @@ int main()
 	vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding,0, pTrackedDevicePose,10);
 
 	float controllerRotation = 0;
+	float hmdPosition[2] = { 0,0 };
 	float hmdRotation = 0;
 
-	float offset = 0;
+	float offsetHmd = 0;
+	float offsetHip = 0;
+
+	float centerHmd[2] = { 0,0 };
 
 	bool recalibrate = true;
 
@@ -95,7 +99,12 @@ int main()
 
 	Sleep(1000);
 
+	int counter = 0;
+
+	float neckOffset[3] = { 0,-0.1,0.1 };
+
 	while (true) {
+
 		vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding, 0, pTrackedDevicePose, 10);
 
 		vr::VRActiveActionSet_t actionSet = { 0 };
@@ -105,6 +114,18 @@ int main()
 		
 		//std::cout << pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[0][3] << " " << pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[1][3] << " " << pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[2][3] << std::endl;		
 		hmdRotation = atan2(pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[0][2], pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[2][2]);
+		
+
+		
+		hmdPosition[0] = pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[0][3] 
+			+ neckOffset[0] * pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[0][0]
+			+ neckOffset[1] * pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[0][1]
+			+ neckOffset[2] * pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[0][2];
+		hmdPosition[1] = pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[2][3]
+			+ neckOffset[0] * pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[2][0]
+			+ neckOffset[1] * pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[2][1]
+			+ neckOffset[2] * pTrackedDevicePose[0].mDeviceToAbsoluteTracking.m[2][2];
+
 
 		vr::InputAnalogActionData_t analogData;
 		if (vr::VRInput()->GetAnalogActionData(m_actionAnalongInput, &analogData, sizeof(analogData), vr::k_ulInvalidInputValueHandle) == vr::VRInputError_None && analogData.bActive)
@@ -116,9 +137,9 @@ int main()
 		{
 			Sleep(100);
 			recalibrate = true;
+			SendMove(0, 0, 0, 0, 0, 0);
 			continue;
 		}
-			//std::cout << "error getting data " << analogData.bActive <<  std::endl;
 		
 		vr::InputPoseActionData_t poseData;
 
@@ -126,29 +147,62 @@ int main()
 		if (vr::VRInput()->GetPoseActionDataForNextFrame(m_actionPose, vr::TrackingUniverseStanding, &poseData, sizeof(poseData), vr::k_ulInvalidInputValueHandle) == vr::VRInputError_None)
 		{
 			//std::cout <<  "controller pose: " << poseData.pose.mDeviceToAbsoluteTracking.m[0][3] << " " << poseData.pose.mDeviceToAbsoluteTracking.m[1][3] << " " << poseData.pose.mDeviceToAbsoluteTracking.m[2][3] << std::endl;
-
 			controllerRotation = atan2(poseData.pose.mDeviceToAbsoluteTracking.m[0][2], poseData.pose.mDeviceToAbsoluteTracking.m[2][2]);
+
+			//hmdPosition[0] = poseData.pose.mDeviceToAbsoluteTracking.m[0][3];
+			//hmdPosition[1] = poseData.pose.mDeviceToAbsoluteTracking.m[2][3];
+
 		}
-
-		std::cout << "rotation fix: " << controllerRotation - hmdRotation << std::endl;
-
-		float magnitude = sqrt(analogData.x * analogData.x + analogData.y * analogData.y);
-		float angle = atan2(analogData.x, analogData.y);
 
 		if (recalibrate)
 		{
-			offset = controllerRotation - hmdRotation;
+			offsetHip = controllerRotation;
+			offsetHmd = hmdRotation;
+			centerHmd[0] = hmdPosition[0];
+			centerHmd[1] = hmdPosition[1];
 			recalibrate = false;
 		}
 
-		float newDataX = sin(angle - (controllerRotation - hmdRotation)+offset) * magnitude;
-		float newDataY = cos(angle - (controllerRotation - hmdRotation)+offset) * magnitude;
+		hmdPosition[0] -= centerHmd[0];
+		hmdPosition[1] -= centerHmd[1];
+
+		float magnitude = sqrt(hmdPosition[0] * hmdPosition[0] + hmdPosition[1] * hmdPosition[1]);
+		float angle = atan2(hmdPosition[0], hmdPosition[1]);
+
+		float newDataX = 0;
+		float newDataY = 0;
+
+		//magnitude = min(magnitude, 0.15);
+
+		if (magnitude > 0.1)
+		{
+			newDataX = sin(angle - hmdRotation) * (magnitude-0.1)/0.1;
+			newDataY = cos(angle - hmdRotation) * (magnitude-0.1)/0.1;
+		}
+
+
+		float angleRot = controllerRotation - offsetHip;
+		//float angleRot = hmdRotation - offsetHmd;
+		if (angleRot > 3.14)
+			angleRot -= 6.28;
+		if (angleRot < -3.14)
+			angleRot += 6.28;
+
+		float newDataRx = 0;
+
+		if (abs(angleRot) > 0.3)
+		{
+			newDataRx = (abs(angleRot) - 0.3) / 0.2;
+			newDataRx /= -abs(angleRot) / angleRot;
+		}
+		
+		std::cout << "Angle data:" << angleRot << ", " << newDataRx << std::endl;
 
 		std::cout << "Received data: " << analogData.x << "," << analogData.y << " Calculated data: " << newDataX << "," << newDataY << std::endl;
 
-		SendMove(newDataX, newDataY);
+		SendMove(newDataX, newDataY, newDataRx, 0, 0, 0);
 
-		Sleep(5);
+		Sleep(2);
 
 	}
 	return 0;
@@ -208,11 +262,15 @@ std::istringstream Send(LPTSTR lpszWrite)
 	}
 }
 
-std::istringstream SendMove(double x, double y)
+std::istringstream SendMove(double x, double y, double rx, double ry, double a, double b)
 {
 	std::string s;
 	s = " hipmoveinput " + std::to_string(x) +
-		" " + std::to_string(y)  + "\n";
+		" " + std::to_string(y) +
+		" " + std::to_string(rx) + 
+		" " + std::to_string(ry) + 
+		" " + std::to_string(a) + 
+		" " + std::to_string(b) + "\n";
 
 	//send the string to our driver
 

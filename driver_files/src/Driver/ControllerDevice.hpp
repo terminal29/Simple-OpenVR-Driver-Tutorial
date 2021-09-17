@@ -28,7 +28,7 @@ namespace ExampleDriver {
             virtual DeviceType GetDeviceType() override;
             virtual Handedness GetHandedness();
 
-            void SetDirection(float x, float y);
+            void SetDirection(float x, float y, float rx, float ry, float a, float b);
 
             virtual vr::EVRInitError Activate(uint32_t unObjectId) override;
             virtual void Deactivate() override;

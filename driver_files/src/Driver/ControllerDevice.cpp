@@ -14,15 +14,41 @@ std::string ExampleDriver::ControllerDevice::GetSerial()
 
 long long counter = 0;
 
-void ExampleDriver::ControllerDevice::SetDirection(float x, float y)
+void ExampleDriver::ControllerDevice::SetDirection(float x, float y, float rx, float ry, float a, float b)
 {
     if(x == 0.0f && y == 0.0f)
         GetDriver()->GetInput()->UpdateBooleanComponent(this->joystick_touch_component_, false, 0);
     else
         GetDriver()->GetInput()->UpdateBooleanComponent(this->joystick_touch_component_, true, 0);
 
-    GetDriver()->GetInput()->UpdateScalarComponent(this->joystick_x_component_, x, -1);
-    GetDriver()->GetInput()->UpdateScalarComponent(this->joystick_y_component_, y, -1);
+    GetDriver()->GetInput()->UpdateScalarComponent(this->joystick_x_component_, x, 0);
+    GetDriver()->GetInput()->UpdateScalarComponent(this->joystick_y_component_, y, 0);
+
+    if (rx == 0.0f && ry == 0.0f)
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->trackpad_touch_component_, false, 0);
+    else
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->trackpad_touch_component_, true, 0);
+
+    GetDriver()->GetInput()->UpdateScalarComponent(this->trackpad_x_component_, rx, 0);
+    GetDriver()->GetInput()->UpdateScalarComponent(this->trackpad_y_component_, ry, 0);
+
+    if (a > 0.5) {
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->a_button_click_component_, true, 0);
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->a_button_touch_component_, true, 0);
+    }
+    else {
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->a_button_click_component_, false, 0);
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->a_button_touch_component_, false, 0);
+    }
+
+    if (b > 0.5) {
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->b_button_click_component_, true, 0);
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->b_button_touch_component_, true, 0);
+    }
+    else {
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->b_button_click_component_, false, 0);
+        GetDriver()->GetInput()->UpdateBooleanComponent(this->b_button_touch_component_, false, 0);
+    }
 }
 
 void ExampleDriver::ControllerDevice::Update()
@@ -54,7 +80,7 @@ void ExampleDriver::ControllerDevice::Update()
 
     // Setup pose for this frame
     auto pose = IVRDevice::MakeDefaultPose();
-
+    /*
     // Check if we need to press any buttons (I am only hooking up the A button here but the process is the same for the others)
     // You will still need to go into the games button bindings and hook up each one (ie. a to left click, b to right click, etc.) for them to work properly
     if (counter%200 < 100) {
@@ -72,7 +98,7 @@ void ExampleDriver::ControllerDevice::Update()
 
     counter++;
 
-    
+    */
 
     // Post pose
     GetDriver()->GetDriverHost()->TrackedDevicePoseUpdated(this->device_index_, pose, sizeof(vr::DriverPose_t));
@@ -109,6 +135,17 @@ vr::EVRInitError ExampleDriver::ControllerDevice::Activate(uint32_t unObjectId)
     GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/joystick/touch", &this->joystick_touch_component_);
     GetDriver()->GetInput()->CreateScalarComponent(props, "/input/joystick/x", &this->joystick_x_component_, vr::EVRScalarType::VRScalarType_Absolute, vr::EVRScalarUnits::VRScalarUnits_NormalizedTwoSided);
     GetDriver()->GetInput()->CreateScalarComponent(props, "/input/joystick/y", &this->joystick_y_component_, vr::EVRScalarType::VRScalarType_Absolute, vr::EVRScalarUnits::VRScalarUnits_NormalizedTwoSided);
+
+    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/trackpad/click", &this->trackpad_click_component_);
+    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/trackpad/touch", &this->trackpad_touch_component_);
+    GetDriver()->GetInput()->CreateScalarComponent(props, "/input/trackpad/x", &this->trackpad_x_component_, vr::EVRScalarType::VRScalarType_Absolute, vr::EVRScalarUnits::VRScalarUnits_NormalizedTwoSided);
+    GetDriver()->GetInput()->CreateScalarComponent(props, "/input/trackpad/y", &this->trackpad_y_component_, vr::EVRScalarType::VRScalarType_Absolute, vr::EVRScalarUnits::VRScalarUnits_NormalizedTwoSided);
+
+    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/a/click", &this->a_button_click_component_);
+    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/a/touch", &this->a_button_touch_component_);
+
+    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/b/click", &this->b_button_click_component_);
+    GetDriver()->GetInput()->CreateBooleanComponent(props, "/input/b/touch", &this->b_button_touch_component_);
 
     // Set some universe ID (Must be 2 or higher)
     GetDriver()->GetProperties()->SetUint64Property(props, vr::Prop_CurrentUniverseId_Uint64, 2);

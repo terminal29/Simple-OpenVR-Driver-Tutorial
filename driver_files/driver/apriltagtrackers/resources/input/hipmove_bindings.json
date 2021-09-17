@@ -20,6 +20,24 @@
       "touch": true,
       "binding_image_point": [ 0, 0 ]
 
+    },
+	"/input/a": {
+      "type": "button",
+      "click": true,
+      "touch" : true,
+      "binding_image_point": [0,0]
+    },
+    "/input/b": {
+      "type": "button",
+      "click": true,
+      "touch" : true,
+      "binding_image_point": [0,0]
+    },
+	"/input/trackpad": {
+      "type": "trackpad",
+      "click": true,
+      "touch" : true,
+      "binding_image_point": [0,0]
     }
   },
   "default_bindings": [
