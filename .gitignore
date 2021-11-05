@@ -6,3 +6,5 @@
 CMakeCache.txt
 *.stamp*
 cmake_install.cmake
+*.swp
+*~
