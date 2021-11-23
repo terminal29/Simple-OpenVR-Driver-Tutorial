@@ -43,6 +43,7 @@ target_link_libraries("${EXAMPLE_PROJECT}" PUBLIC "${OPENVR_LIB}")
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/src" PREFIX "Header Files" FILES ${HEADERS})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/src" PREFIX "Source Files" FILES ${SOURCES})
 set_property(TARGET "${EXAMPLE_PROJECT}" PROPERTY CXX_STANDARD 17)
+set_property(TARGET "${EXAMPLE_PROJECT}" PROPERTY PREFIX "")
 
 # Copy driver assets to output folder
 add_custom_command(
