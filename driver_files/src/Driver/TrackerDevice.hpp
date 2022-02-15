@@ -1,14 +1,13 @@
 #pragma once
 
 #include <chrono>
-#include <cmath>
+#include "cmath_fix.h"
 
 #include <linalg.h>
 
 #include <Driver/IVRDevice.hpp>
 #include <Native/DriverFactory.hpp>
 
-#include <windows.h>
 #include <thread>
 #include <sstream>
 #include <iostream>

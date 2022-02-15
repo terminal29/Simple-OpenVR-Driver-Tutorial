@@ -1,5 +1,7 @@
+#include <algorithm>
+
 #include "ControllerDevice.hpp"
-#include <Windows.h>
+#include "Key.hpp"
 
 ExampleDriver::ControllerDevice::ControllerDevice(std::string serial, ControllerDevice::Handedness handedness):
     serial_(serial),

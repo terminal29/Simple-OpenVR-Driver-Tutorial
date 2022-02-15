@@ -1,8 +1,8 @@
 #include "DriverFactory.hpp"
 #include <thread>
 #include <Driver/VRDriver.hpp>
-#include <Windows.h>
 #include <sstream>
+#include <cstring>
 
 static std::shared_ptr<ExampleDriver::IVRDriver> driver;
 

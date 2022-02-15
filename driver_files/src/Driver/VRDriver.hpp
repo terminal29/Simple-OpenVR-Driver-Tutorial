@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <memory>
-#include <windows.h>
 
 #include <openvr_driver.h>
 
@@ -13,6 +12,7 @@
 #include <Driver/ControllerDevice.hpp>
 #include <Driver/TrackingReferenceDevice.hpp>
 
+#include "Ipc.hpp"
 
 namespace ExampleDriver {
     class VRDriver : public IVRDriver {
@@ -42,8 +42,7 @@ namespace ExampleDriver {
     private:
         std::string version = "0.5.5";
 
-        HANDLE inPipe;
-        HANDLE syncPipe;
+        Ipc::Server ipcServer;
         std::shared_ptr<ControllerDevice> fakemove_;
         std::vector<std::shared_ptr<IVRDevice>> devices_;
         std::vector<std::shared_ptr<TrackerDevice>> trackers_;
