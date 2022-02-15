@@ -27,13 +27,13 @@ namespace Ipc {
     {
         DWORD dwWritten;
 
-        if (WriteFile(inPipe, buffer, length, &dwWritten, NULL) != FALSE)
+        if (WriteFile(inPipe, buffer, length, &dwWritten, NULL) != 0)
         {
             return true;
         }
         else
         {
-            return false
+            return false;
         }
     }
 
@@ -41,7 +41,7 @@ namespace Ipc {
     {
         DWORD dwRead;
 
-        if (ReadFile(inPipe, buffer, length - 1, &dwRead, NULL) != FALSE)
+        if (ReadFile(inPipe, buffer, length - 1, &dwRead, NULL) != 0)
         {
             buffer[dwRead] = '\0'; //add terminating zero
             return true;
@@ -78,7 +78,7 @@ namespace Ipc {
     }
 
     Client::Client(std::string name) : name(name) { }
-
+    /*
     std::string Client::sendrecv(std::string buffer)
     {
         CHAR chReadBuf[BUFSIZE];
@@ -89,9 +89,11 @@ namespace Ipc {
         ss << "\\\\.\\pipe\\" << name;
         std::string outPipeName = ss.str();
 
+        auto msg_cstr = reinterpret_cast<LPVOID>(const_cast<char*>(buffer.c_str()));
+
         fSuccess = CallNamedPipeA(
             outPipeName.c_str(),        // pipe name 
-            buffer.c_str(),           // message to server 
+            msg_cstr,           // message to server 
             (buffer.size() + 1), // message length 
             chReadBuf,              // buffer to receive reply 
             BUFSIZE,  // size of read buffer 
@@ -119,6 +121,7 @@ namespace Ipc {
             return ret;
         }
     }
+    */
 
 #elif defined(__linux) || defined(__linux__) || defined(linux)
 
