@@ -11,7 +11,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
         return init_error;
     }
 
-    Log("Activating AprilTag Driver Bridge v0.5.4...");
+    Log("Activating AprilTag Driver Bridge " + version + "...");
 
     // Add a HMD
     //this->AddDevice(std::make_shared<HMDDevice>("Example_HMDDevice"));
@@ -272,7 +272,7 @@ void ExampleDriver::VRDriver::PipeThread()
                 }
                 else if (word == "numtrackers")
                 {
-                    s = s + " numtrackers " + std::to_string(this->trackers_.size()) + " 0.5.4";
+                    s = s + " numtrackers " + std::to_string(this->trackers_.size()) + " " + version;
                 }
                 else if (word == "settings")
                 {

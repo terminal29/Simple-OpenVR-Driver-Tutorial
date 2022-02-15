@@ -6,3 +6,4 @@
 CMakeCache.txt
 *.stamp*
 cmake_install.cmake
+/hip_locomotion

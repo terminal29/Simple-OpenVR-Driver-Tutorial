@@ -40,6 +40,8 @@ namespace ExampleDriver {
         virtual ~VRDriver() = default;
 
     private:
+        std::string version = "0.5.5";
+
         HANDLE inPipe;
         HANDLE syncPipe;
         std::shared_ptr<ControllerDevice> fakemove_;

@@ -86,7 +86,7 @@ void ExampleDriver::TrackerDevice::Update()
     // Update pose timestamp
 
     _pose_timestamp = time_since_epoch;
-    
+
     // Copy the previous position data
     double previous_position[3] = { 0 };
     std::copy(std::begin(pose.vecPosition), std::end(pose.vecPosition), std::begin(previous_position));
@@ -97,16 +97,35 @@ void ExampleDriver::TrackerDevice::Update()
 
     normalizeQuat(next_pose);
 
-    //send the new position and rotation from the pipe to the tracker object
-    pose.vecPosition[0] = next_pose[0] * (1 - smoothing) + pose.vecPosition[0] * smoothing;
-    pose.vecPosition[1] = next_pose[1] * (1 - smoothing) + pose.vecPosition[1] * smoothing;
-    pose.vecPosition[2] = next_pose[2] * (1 - smoothing) + pose.vecPosition[2] * smoothing;
+    bool pose_nan = false;
+    for (int i = 0; i < 7; i++)
+    {
+        if (isnan(next_pose[i]))
+            pose_nan = true;
+    }
 
-    pose.qRotation.w = next_pose[3] * (1 - smoothing) + pose.qRotation.w * smoothing;
-    pose.qRotation.x = next_pose[4] * (1 - smoothing) + pose.qRotation.x * smoothing;
-    pose.qRotation.y = next_pose[5] * (1 - smoothing) + pose.qRotation.y * smoothing;
-    pose.qRotation.z = next_pose[6] * (1 - smoothing) + pose.qRotation.z * smoothing;
+    if (smoothing == 0 || pose_nan)
+    {
+        pose.vecPosition[0] = next_pose[0];
+        pose.vecPosition[1] = next_pose[1];
+        pose.vecPosition[2] = next_pose[2];
 
+        pose.qRotation.w = next_pose[3];
+        pose.qRotation.x = next_pose[4];
+        pose.qRotation.y = next_pose[5];
+        pose.qRotation.z = next_pose[6];
+    }
+    else
+    {
+        pose.vecPosition[0] = next_pose[0] * (1 - smoothing) + pose.vecPosition[0] * smoothing;
+        pose.vecPosition[1] = next_pose[1] * (1 - smoothing) + pose.vecPosition[1] * smoothing;
+        pose.vecPosition[2] = next_pose[2] * (1 - smoothing) + pose.vecPosition[2] * smoothing;
+
+        pose.qRotation.w = next_pose[3] * (1 - smoothing) + pose.qRotation.w * smoothing;
+        pose.qRotation.x = next_pose[4] * (1 - smoothing) + pose.qRotation.x * smoothing;
+        pose.qRotation.y = next_pose[5] * (1 - smoothing) + pose.qRotation.y * smoothing;
+        pose.qRotation.z = next_pose[6] * (1 - smoothing) + pose.qRotation.z * smoothing;
+    }
     //normalize
     double mag = sqrt(pose.qRotation.w * pose.qRotation.w +
         pose.qRotation.x * pose.qRotation.x +
