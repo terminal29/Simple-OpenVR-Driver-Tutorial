@@ -200,6 +200,14 @@ int ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred[
     //printf("curr saved %d\n", curr_saved);
     if (curr_saved < 4)
     {
+        if (curr_saved > 0)
+        {
+            for (int i = 1; i < 8; i++)
+            {
+                pred[i - 1] = prev_positions[0][i];
+            }
+            return statuscode;
+        }
         //printf("Too few values");
         statuscode = -1;
         return statuscode;
@@ -267,6 +275,23 @@ int ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred[
 
 void ExampleDriver::TrackerDevice::save_current_pose(double a, double b, double c, double w, double x, double y, double z, double time_offset)
 {
+    if (max_time == 0)
+    {
+        std::chrono::milliseconds time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+        double time_since_epoch_seconds = time_since_epoch.count() / 1000.0;
+        double curr_time = time_since_epoch_seconds;
+        this->last_update = curr_time;
+        prev_positions[0][0] = time_offset;
+        prev_positions[0][1] = a;
+        prev_positions[0][2] = b;
+        prev_positions[0][3] = c;
+        prev_positions[0][4] = w;
+        prev_positions[0][5] = x;
+        prev_positions[0][6] = y;
+        prev_positions[0][7] = z;
+
+        return;
+    }
     double next_pose[7];
     int pose_valid = get_next_pose(time_offset, next_pose);
 
