@@ -50,8 +50,8 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/install" CACHE PATH "Install destination." FORCE)
 endif()
 
-install(TARGETS "${EXAMPLE_PROJECT}" RUNTIME DESTINATION "bin/${PLATFORM_NAME}${PROCESSOR_ARCH}")
+install(TARGETS "${EXAMPLE_PROJECT}" RUNTIME DESTINATION "${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}")
 
 set(DRIVER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/driver/apriltagtrackers")
-install(DIRECTORY "${DRIVER_DIR}/resources" DESTINATION "resources")
-install(FILES "${DRIVER_DIR}/driver.vrdrivermanifest" DESTINATION ".")
+install(DIRECTORY "${DRIVER_DIR}/resources" DESTINATION "${DRIVER_NAME}/resources")
+install(FILES "${DRIVER_DIR}/driver.vrdrivermanifest" DESTINATION "${DRIVER_NAME}")
