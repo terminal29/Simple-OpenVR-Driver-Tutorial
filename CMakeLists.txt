@@ -44,6 +44,7 @@ target_link_libraries("${EXAMPLE_PROJECT}" PUBLIC "${OPENVR_LIB}")
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/src" PREFIX "Header Files" FILES ${HEADERS})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/src" PREFIX "Source Files" FILES ${SOURCES})
 set_property(TARGET "${EXAMPLE_PROJECT}" PROPERTY CXX_STANDARD 17)
+set_property(TARGET "${EXAMPLE_PROJECT}" PROPERTY PREFIX "")
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/install" CACHE PATH "Install destination." FORCE)
