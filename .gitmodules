@@ -1,8 +1,6 @@
-[submodule "libraries/linalg"]
-	path = libraries/linalg
-	url = https://github.com/Syuff/Simple-OpenVR-Bridge-Driver/tree/linux
 [submodule "libraries/openvr"]
 	path = libraries/openvr
 	url = https://github.com/ValveSoftware/openvr.git
-[submodule "./libraries/linalg/"]
+[submodule "libraries/linalg"]
+	path = libraries/linalg
 	url = https://github.com/sgorsten/linalg.git
