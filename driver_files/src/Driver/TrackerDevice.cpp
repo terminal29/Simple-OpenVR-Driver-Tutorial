@@ -144,7 +144,6 @@ void ExampleDriver::TrackerDevice::Update()
         pose.vecVelocity[2] = 0.8 * pose.vecVelocity[2] + 0.2 * (pose.vecPosition[2] - previous_position[2]) / pose_time_delta_seconds;
     }
     pose.poseTimeOffset = this->wantedTimeOffset;
-
     */
 
     pose.poseTimeOffset = 0;
@@ -311,7 +310,6 @@ void ExampleDriver::TrackerDevice::save_current_pose(double a, double b, double 
     double time_since_epoch_seconds = time_since_epoch.count() / 1000.0;
 
     //Log("time since epoch: " + std::to_string(time_since_epoch_seconds));
-
     //lock_t curr_time = clock();
     //clock_t capture_time = curr_time - (timeOffset*1000);
     double curr_time = time_since_epoch_seconds;
@@ -458,7 +456,6 @@ vr::EVRInitError ExampleDriver::TrackerDevice::Activate(uint32_t unObjectId)
 
     // Set some universe ID (Must be 2 or higher)
     GetDriver()->GetProperties()->SetUint64Property(props, vr::Prop_CurrentUniverseId_Uint64, 3);
-
     // Set up a model "number" (not needed but good to have)
     GetDriver()->GetProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, "apriltag_tracker");
 

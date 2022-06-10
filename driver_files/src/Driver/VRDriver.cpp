@@ -11,7 +11,7 @@ vr::EVRInitError ExampleDriver::VRDriver::Init(vr::IVRDriverContext* pDriverCont
         return init_error;
     }
 
-    Log("Activating AprilTag Driver Bridge " + version + "...");
+    Log("Activating AprilTag Driver Bridge " + version.ToString() + "...");
 
     // Add a HMD
     //this->AddDevice(std::make_shared<HMDDevice>("Example_HMDDevice"));
@@ -107,7 +107,7 @@ void ExampleDriver::VRDriver::PipeThread()
                     if (name == "")
                     {
                         name = "UnnamedTracker" + std::to_string(this->trackers_.size());
-                        role = "TrackerRole_Waist";        //should be "vive_tracker_left_foot" or "vive_tracker_right_foot" or "vive_tracker_waist"
+                        role = "TrackerRole_Waist";        //should be "vive_tracker_left_foot" or "vive_tracker_left_foot" or "vive_tracker_waist"
                     }
 
                     auto addtracker = std::make_shared<TrackerDevice>(name, role);
@@ -257,7 +257,7 @@ void ExampleDriver::VRDriver::PipeThread()
                 }
                 else if (word == "numtrackers")
                 {
-                    s = s + " numtrackers " + std::to_string(this->trackers_.size()) + " " + version;
+                    s = s + " numtrackers " + std::to_string(this->trackers_.size()) + " " + version.ToString();
                 }
                 else if (word == "settings")
                 {

@@ -13,6 +13,7 @@
 #include <Driver/TrackingReferenceDevice.hpp>
 
 #include "Ipc.hpp"
+#include "SemVer.h"
 
 namespace ExampleDriver {
     class VRDriver : public IVRDriver {
@@ -40,7 +41,9 @@ namespace ExampleDriver {
         virtual ~VRDriver() = default;
 
     private:
-        std::string version = "0.5.6";
+        #define STRINGIZE_(a) #a
+        #define STRINGIZE(a) STRINGIZE_(a)
+        SemVer version = SemVer::Parse(STRINGIZE(ATT_DRIVER_VERSION));
 
         Ipc::Server ipcServer;
         std::shared_ptr<ControllerDevice> fakemove_;
