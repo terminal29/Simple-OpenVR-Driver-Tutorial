@@ -24,7 +24,8 @@ endif()
 
 find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH )
 
-add_subdirectory("example")
+# Example is not updated for changes to IPC
+# add_subdirectory("example")
 
 # Example Driver
 set(DRIVER_NAME "apriltagtrackers")
@@ -45,20 +46,12 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/src" PREFIX "Source 
 set_property(TARGET "${EXAMPLE_PROJECT}" PROPERTY CXX_STANDARD 17)
 set_property(TARGET "${EXAMPLE_PROJECT}" PROPERTY PREFIX "")
 
-# Copy driver assets to output folder
-add_custom_command(
-    TARGET ${EXAMPLE_PROJECT}
-    PRE_BUILD 
-    COMMAND ${CMAKE_COMMAND} -E copy_directory 
-    ${CMAKE_SOURCE_DIR}/driver_files/driver/ 
-    $<TARGET_FILE_DIR:${EXAMPLE_PROJECT}>
-)
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/install" CACHE PATH "Install destination." FORCE)
+endif()
 
-# Copy dll to output folder
-add_custom_command(
-    TARGET ${EXAMPLE_PROJECT} 
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy 
-    $<TARGET_FILE:${EXAMPLE_PROJECT}>
-    $<TARGET_FILE_DIR:${EXAMPLE_PROJECT}>/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${EXAMPLE_PROJECT}>
-)
+install(TARGETS "${EXAMPLE_PROJECT}" RUNTIME DESTINATION "${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}")
+
+set(DRIVER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/driver/apriltagtrackers")
+install(DIRECTORY "${DRIVER_DIR}/resources" DESTINATION "${DRIVER_NAME}/resources")
+install(FILES "${DRIVER_DIR}/driver.vrdrivermanifest" DESTINATION "${DRIVER_NAME}")

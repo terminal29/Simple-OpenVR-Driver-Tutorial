@@ -107,7 +107,7 @@ void ExampleDriver::VRDriver::PipeThread()
                     if (name == "")
                     {
                         name = "UnnamedTracker" + std::to_string(this->trackers_.size());
-                        role = "TrackerRole_Waist";        //should be "vive_tracker_left_foot" or "vive_tracker_left_foot" or "vive_tracker_waist"
+                        role = "TrackerRole_Waist";        //should be "vive_tracker_left_foot" or "vive_tracker_right_foot" or "vive_tracker_waist"
                     }
 
                     auto addtracker = std::make_shared<TrackerDevice>(name, role);

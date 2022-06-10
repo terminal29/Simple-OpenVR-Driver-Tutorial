@@ -1,5 +1,4 @@
-/build
-/build2
+/build*/
 /CMakeFiles
 /hip_locomotion
 /.vs
@@ -8,9 +7,7 @@
 CMakeCache.txt
 *.stamp*
 cmake_install.cmake
-<<<<<<< HEAD
 /hip_locomotion
-=======
 *.swp
 *~
->>>>>>> linux
+/install/

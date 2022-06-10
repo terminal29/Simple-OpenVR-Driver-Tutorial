@@ -19,7 +19,7 @@ I created this driver as a demonstration for how to write some of the most commo
 to manage addition and removal of devices, and updating devices each frame, collecting events, access to OpenVR internals, etc...
 
 - [Reading configuration files](driver_files/src/Driver/VRDriver.cpp#L114)
-to load user settings 
+to load user settings
 
 - [Logging](driver_files/src/Driver/VRDriver.cpp#L142)
 for simple debug messages
@@ -46,10 +46,10 @@ because a debugger is a developers best friend <sup>(besides ctrl-z)</sup>.
 - Clone the project and submodules
 	- `git clone --recursive https://github.com/terminal29/Simple-OpenVR-Driver-Tutorial.git`
 - Build project with CMake
-	- `cd Simple-OpenVR-Driver-Tutorial && cmake .`
+	- `cd Simple-OpenVR-Driver-Tutorial && cmake -B build && cmake --build build --config Release --target install`
 - Open project with Visual Studio and hit build
 	- Driver folder structure and files will be copied to the output folder as `example`.
-	
+
 ## Installation
 
 There are two ways to "install" your plugin:
@@ -65,22 +65,22 @@ or
 
 ```json
 {
-	"config" : 
+	"config" :
 	[
 		"C:\\Program Files (x86)\\Steam\\config",
 		"c:\\program files (x86)\\steam\\config"
 	],
-	"external_drivers" : 
+	"external_drivers" :
 	[
 		"C:\\Users\\<Username>\\Documents\\Programming\\c++\\Simple-OpenVR-Driver-Tutorial\\build\\Debug\\example"
 	],
 	"jsonid" : "vrpathreg",
-	"log" : 
+	"log" :
 	[
 		"C:\\Program Files (x86)\\Steam\\logs",
 		"c:\\program files (x86)\\steam\\logs"
 	],
-	"runtime" : 
+	"runtime" :
 	[
 		"C:\\Program Files (x86)\\Steam\\steamapps\\common\\SteamVR"
 	],
@@ -96,12 +96,12 @@ Debugging SteamVR is not as simple as it seems because of the startup procedure 
  - **vrmonitor**: the popup that displays status information
  - **vrdashboard**: the VR menu/overlay
  - **vrstartup**: a program to start everything up
- 
+
  To debug effectively in Visual Studio, you can use an extension called [Microsoft Child Process Debugging Power Tool](https://marketplace.visualstudio.com/items?itemName=vsdbgplat.MicrosoftChildProcessDebuggingPowerTool) and enable debugging child processes, disable debugging for all other child processes, and add `vrserver.exe` as a child process to debug as below:
-  
+
 ![Child process debugging settings](https://i.imgur.com/yDNvLMm.png)
 
-Set the program the project should run in debug mode to **vrstartup** (Usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrstartup.exe`). Now we can start up SteamVR without needing to go through Steam, and can properly startup all the other programs vrserver needs. 
+Set the program the project should run in debug mode to **vrstartup** (Usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrstartup.exe`). Now we can start up SteamVR without needing to go through Steam, and can properly startup all the other programs vrserver needs.
 
 ## Issues
 I don't have an issue template, but if you find what you think is a bug, and can describe how to reproduce it, please leave an issue and/or pull request with the details.
