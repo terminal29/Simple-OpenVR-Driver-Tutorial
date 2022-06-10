@@ -274,7 +274,20 @@ int ExampleDriver::TrackerDevice::get_next_pose(double time_offset, double pred[
 }
 
 void ExampleDriver::TrackerDevice::save_current_pose(double a, double b, double c, double w, double x, double y, double z, double time_offset)
-{
+{ 
+    double next_pose[7];
+    int pose_valid = get_next_pose(time_offset, next_pose);
+
+    double dot = x * next_pose[4] + y * next_pose[5] + z * next_pose[6] + w * next_pose[3];
+
+    if (dot < 0)
+    {
+        x = -x;
+        y = -y;
+        z = -z;
+        w = -w;
+    } 
+
     if (max_time == 0)
     {
         std::chrono::milliseconds time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -292,18 +305,6 @@ void ExampleDriver::TrackerDevice::save_current_pose(double a, double b, double 
 
         return;
     }
-    double next_pose[7];
-    int pose_valid = get_next_pose(time_offset, next_pose);
-
-    double dot = x * next_pose[4] + y * next_pose[5] + z * next_pose[6] + w * next_pose[3];
-
-    if (dot < 0)
-    {
-        x = -x;
-        y = -y;
-        z = -z;
-        w = -w;
-    } 
 
     //update times
     std::chrono::milliseconds time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
