@@ -1,10 +1,10 @@
-[submodule "libraries/openvr"]
-	path = libraries/openvr
+[submodule "deps/openvr"]
+	path = deps/openvr
 	url = https://github.com/ValveSoftware/openvr.git
 	shallow = true
 	ignore = dirty
-[submodule "libraries/linalg"]
-	path = libraries/linalg
+[submodule "deps/linalg"]
+	path = deps/linalg
 	url = https://github.com/sgorsten/linalg.git
 	shallow = true
 	ignore = dirty
