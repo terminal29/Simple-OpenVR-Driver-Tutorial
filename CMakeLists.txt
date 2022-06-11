@@ -62,3 +62,10 @@ install(TARGETS "${LIB_NAME}" RUNTIME DESTINATION "${DRIVER_NAME}/bin/${PLATFORM
 set(DRIVER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/driver/apriltagtrackers")
 install(DIRECTORY "${DRIVER_DIR}/resources" DESTINATION "${DRIVER_NAME}/resources")
 install(FILES "${DRIVER_DIR}/driver.vrdrivermanifest" DESTINATION "${DRIVER_NAME}")
+
+if (WIN32)
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/install_driver.bat" DESTINATION "")
+else()
+    # TODO:
+    # install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/install_driver.sh" DESTINATION "")
+endif()
