@@ -64,8 +64,8 @@ install(DIRECTORY "${DRIVER_DIR}/resources" DESTINATION "${DRIVER_NAME}/resource
 install(FILES "${DRIVER_DIR}/driver.vrdrivermanifest" DESTINATION "${DRIVER_NAME}")
 
 if (WIN32)
-    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/install_driver.bat" DESTINATION "")
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/install_driver.bat" DESTINATION ".")
 else()
     # TODO:
-    # install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/install_driver.sh" DESTINATION "")
+    # install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/install_driver.sh" DESTINATION ".")
 endif()
