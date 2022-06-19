@@ -57,15 +57,17 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/install" CACHE PATH "Install destination." FORCE)
 endif()
 
-install(TARGETS "${LIB_NAME}" RUNTIME DESTINATION "${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}")
+set(DRIVER_INSTALL_DIR "driver_files")
+
+install(TARGETS "${LIB_NAME}" RUNTIME DESTINATION "${DRIVER_INSTALL_DIR}/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}")
 
 set(DRIVER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/driver_files/driver/apriltagtrackers")
-install(DIRECTORY "${DRIVER_DIR}/resources" DESTINATION "${DRIVER_NAME}/resources")
-install(FILES "${DRIVER_DIR}/driver.vrdrivermanifest" DESTINATION "${DRIVER_NAME}")
+install(DIRECTORY "${DRIVER_DIR}/resources" DESTINATION "${DRIVER_INSTALL_DIR}/${DRIVER_NAME}/resources")
+install(FILES "${DRIVER_DIR}/driver.vrdrivermanifest" DESTINATION "${DRIVER_INSTALL_DIR}/${DRIVER_NAME}")
 
 if (WIN32)
-    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/install_driver.bat" DESTINATION ".")
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/install_driver.bat" DESTINATION "${DRIVER_INSTALL_DIR}")
 else()
     # TODO:
-    # install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/install_driver.sh" DESTINATION ".")
+    # install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/install_driver.sh" DESTINATION "${DRIVER_INSTALL_DIR}")
 endif()
