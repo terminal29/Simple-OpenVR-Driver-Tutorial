@@ -47,10 +47,13 @@ IF NOT "%2"=="" (
     SET "VRPATHREG_EXE=%2"
 )
 
-IF EXIST "!VRPATH!\\drivers\\apriltagtrackers (
+
+REM remove driver from older versions
+
+IF EXIST "!VRPATH!\\drivers\\apriltagtrackers" (
     ECHO Found old driver install at "!VRPATH!\\drivers\\apriltagtrackers, removing
 
-    DEL /P /S "!VRPATH!\\drivers\\apriltagtrackers"	
+    RMDIR /S /Q "!VRPATH!\\drivers\\apriltagtrackers"	
 )
 
 IF NOT EXIST "%DRIVER_PATH%" (
