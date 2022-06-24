@@ -33,30 +33,21 @@ set VRPATH=%VRPATH:"=%
 set VRPATHREG_EXE=!VRPATH!\\bin\\win64\\vrpathreg.exe
 
 IF "%1"=="help" (
-    ECHO Usage: install_driver.bat ^[^<driver path^>^] ^[^<path to vrpathreg.exe^>^]
-    ECHO ^<driver path^> defaults to "%DRIVER_PATH%"
+    ECHO Usage: uninstall_driver.bat ^[^<path to vrpathreg.exe^>^]
     ECHO ^<path to vrpathreg.exe^> defaults to "%VRPATHREG_EXE%"
     GOTO end
 )
 
 IF NOT "%1"=="" (
-    SET "DRIVER_PATH=%1"
+    SET "VRPATHREG_EXE=%1"
 )
 
-IF NOT "%2"=="" (
-    SET "VRPATHREG_EXE=%2"
-)
+REM remove driver from older versions
 
-IF NOT EXIST "%DRIVER_PATH%" (
-    ECHO Driver install not found: "%DRIVER_PATH%"
-    GOTO end
-)
 IF NOT EXIST "%VRPATHREG_EXE%" (
     ECHO vrpathreg.exe not found: "%VRPATHREG_EXE%"
     GOTO end
 )
-
-REM remove driver from older versions
 
 IF EXIST "!VRPATH!\\drivers\\apriltagtrackers" (
     ECHO Found old driver install at "!VRPATH!\\drivers\\apriltagtrackers, removing
@@ -69,10 +60,6 @@ CALL "%VRPATHREG_EXE%" removedriver "%DRIVER_PATH%"
 IF NOT "%errorlevel%"=="0" GOTO end
 
 CALL "%VRPATHREG_EXE%" removedriverswithname "%DRIVER_NAME%"
-IF NOT "%errorlevel%"=="0" GOTO end
-
-REM add the new driver
-CALL "%VRPATHREG_EXE%" adddriver "%DRIVER_PATH%"
 IF NOT "%errorlevel%"=="0" GOTO end
 
 REM display the current configuration, with the newly added driver
