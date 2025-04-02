@@ -1,4 +1,13 @@
 # Simple OpenVR Driver Tutorial
+
+> 2025 Update:
+>
+> I don't have any plans to update this repo anymore as my interests have moved elsewhere. It's been a couple years since I wrote this and I'm sure at some point it will / already has stopped working, but I'm glad if it helped anyone out in making your custom SteamVR devices.
+>
+> If someone has an up-to-date version of this please let me know and I'll drop a link here.
+>
+> Thank you :) 
+
 I created this driver as a demonstration for how to write some of the most common things a SteamVR/OpenVR driver would want to do. You will need to understand C++11 and some C++17 features at least to make the most use of this repo. It features:
 
 - [Central driver setup](driver_files/src/Driver/IVRDriver.hpp)
